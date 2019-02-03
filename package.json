@@ -59,6 +59,7 @@
     "coveralls": "^3.0.2",
     "cross-env": "^5.1.1",
     "datafile": "3.2.0",
+    "eslint": "^3.13.1",
     "gulp": "^4.0.0",
     "gulp-debug": "^3.1.0",
     "gulp-markdown": "^1.2.0",
@@ -89,6 +90,7 @@
   },
   "scripts": {
     "build": "babel src --presets babel-preset-es2015 --out-dir dist",
+    "lint": "eslint src/**.js",
     "test": "cross-env NODE_ENV=test mocha --recursive --compilers js:babel-register 'src/**/*.spec.js'",
     "test:watch": "npm test -- --watch",
     "coverage": "NODE_ENV=test istanbul cover _mocha -- recursive --compilers js:babel-register --timeout 15000 'src/**/*.spec.js'",
