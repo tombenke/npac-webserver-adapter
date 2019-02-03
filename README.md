@@ -8,7 +8,7 @@ npac-webserver-adapter
 
 ## About
 
-npac adapter with webServer api, using Hemera.js
+npac adapter with webServer api, using Express.js
 
 ## Installation
 
