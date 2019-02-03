@@ -77,7 +77,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run prettier && lint-staged && npm run docs"
+      "pre-commit": "npm run prettier && lint-staged"
     }
   },
   "lint-staged": {
