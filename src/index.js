@@ -1,4 +1,3 @@
-import path from 'path'
 import _ from 'lodash'
 import express from 'express'
 import morgan from 'morgan'

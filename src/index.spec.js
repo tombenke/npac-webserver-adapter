@@ -117,7 +117,8 @@ describe('adapters/server', () => {
                     Accept: 'application/json'
                 }
             }).then(function(response) {
-                const { status, statusText, headers, data } = response
+                const { status /*, statusText, headers, data*/ } = response
+                expect(status).to.equal(200)
                 next(null, null)
             })
         }
@@ -143,7 +144,8 @@ describe('adapters/server', () => {
                     Accept: 'application/json'
                 }
             }).then(function(response) {
-                const { status, statusText, headers, data } = response
+                const { status /*, statusText, headers, data*/ } = response
+                expect(status).to.equal(200)
                 next(null, null)
             })
         }

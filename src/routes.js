@@ -4,6 +4,6 @@ import { set } from './restapi'
 
 exports.set = function(server, container) {
     // Define further routes
-    const config = container.config.webServer
+    //const config = container.config.webServer
     set(server, container)
 }
