@@ -124,7 +124,6 @@ describe('webServer adapter', () => {
 
         npacStart(adapters, [testServer], terminators)
     })
-
     it('#call existing REST endpoint with no adaptor function', done => {
         catchExitSignals(sandbox, done)
 
