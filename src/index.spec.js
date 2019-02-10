@@ -52,7 +52,7 @@ const testAdapter = {
     }
 }
 
-describe('adapters/server', () => {
+describe('webServer adapter', () => {
     let sandbox
 
     const config = _.merge({}, defaults, pdms.defaults, {
@@ -100,6 +100,31 @@ describe('adapters/server', () => {
         npacStart(adapters, [testServer], terminators)
     })
 
+    it('#call static content index', done => {
+        catchExitSignals(sandbox, done)
+
+        const testServer = (container, next) => {
+            const { port } = container.config.webServer
+            const host = `http://localhost:${port}`
+
+            container.logger.info(`Run job to test server`)
+            axios({
+                method: 'get',
+                url: `${host}/docs/`,
+                withCredentials: true,
+                headers: {
+                    Accept: '*/*'
+                }
+            }).then(response => {
+                const { status /*, statusText, headers, data*/ } = response
+                expect(status).to.equal(200)
+                next(null, null)
+            })
+        }
+
+        npacStart(adapters, [testServer], terminators)
+    })
+
     it('#call existing REST endpoint with no adaptor function', done => {
         catchExitSignals(sandbox, done)
 
@@ -130,7 +155,6 @@ describe('adapters/server', () => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
-            console.log(container.config)
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
             const restEndpoint = `/test/endpoint`
@@ -157,7 +181,6 @@ describe('adapters/server', () => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
-            console.log(container.config)
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
             const restEndpoint = `/test/endpoint`
@@ -172,7 +195,6 @@ describe('adapters/server', () => {
                 }
             }).catch(error => {
                 const { status, statusText, headers, data } = error.response
-                //console.log('ERROR: ', error.response)
                 container.logger.error(
                     `status: ${status}, statusText: ${statusText}, headers: ${JSON.stringify(
                         headers

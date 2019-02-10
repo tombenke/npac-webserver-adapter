@@ -81,7 +81,7 @@ var testAdapter = {
     }
 };
 
-describe('adapters/server', function () {
+describe('webServer adapter', function () {
     var sandbox = void 0;
 
     var config = _.merge({}, _config2.default, pdms.defaults, {
@@ -124,6 +124,37 @@ describe('adapters/server', function () {
         var testServer = function testServer(container, next) {
             container.logger.info('Run job to test server');
             next(null, null);
+        };
+
+        (0, _npac.npacStart)(adapters, [testServer], terminators);
+    });
+
+    it('#call static content index', function (done) {
+        (0, _npac.catchExitSignals)(sandbox, done);
+
+        var testServer = function testServer(container, next) {
+            var port = container.config.webServer.port;
+
+            var host = 'http://localhost:' + port;
+
+            container.logger.info('Run job to test server');
+            (0, _axios2.default)({
+                method: 'get',
+                url: host + '/docs/',
+                withCredentials: true,
+                headers: {
+                    Accept: '*/*'
+                }
+            }).then(function (response) {
+                console.log("GET /docs/: ", response);
+                var status = response.status;
+
+                (0, _chai.expect)(status).to.equal(200);
+                next(null, null);
+            }).catch(function (err) {
+                console.log("GET /docs/: ERR", err);
+                next(null, null);
+            });
         };
 
         (0, _npac.npacStart)(adapters, [testServer], terminators);

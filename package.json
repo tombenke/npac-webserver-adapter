@@ -35,7 +35,7 @@
     "morgan": "^1.9.1",
     "npac": "^2.1.3",
     "npac-pdms-hemera-adapter": "^1.4.6",
-    "rest-tool-common": "^2.2.0"
+    "rest-tool-common": "^2.5.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

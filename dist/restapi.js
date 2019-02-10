@@ -13,14 +13,17 @@ var _restToolCommon = require('rest-tool-common');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var getEndpointMap = function getEndpointMap(container) {
-    var makeJsonicFriendly = function makeJsonicFriendly(uri) {
-        //return uri.replace(/\{|\}/g, ':')
-        return uri.replace(/\{/g, ':').replace(/\}/g, '');
-    };
+var makeJsonicFriendly = function makeJsonicFriendly(uri) {
+    //return uri.replace(/\{|\}/g, ':')
+    return uri.replace(/\{/g, ':').replace(/\}/g, '');
+};
 
+var getNonStaticEndpointMap = function getNonStaticEndpointMap(container) {
     // Load services config and service descriptors
-    var endpoints = _restToolCommon.services.load(container.config.webServer.restApiPath, '');
+    var endpoints = _lodash2.default.filter(_restToolCommon.services.load(container.config.webServer.restApiPath, ''), function (endp) {
+        return !_lodash2.default.has(endp, "methods.GET.static");
+    });
+    console.log(endpoints);
     return _lodash2.default.flatMap(endpoints, function (endpoint) {
         var uri = endpoint.uriTemplate;
         var methods = endpoint.methodList;
@@ -59,7 +62,7 @@ var mkHandlerFun = function mkHandlerFun(endpoint, container) {
 };
 
 var set = exports.set = function set(server, container) {
-    var endpointMap = getEndpointMap(container);
+    var endpointMap = getNonStaticEndpointMap(container);
     container.logger.info('restapi.set/endpointMap ' + JSON.stringify(_lodash2.default.map(endpointMap, function (ep) {
         return [ep.method, ep.uri];
     }), null, ''));

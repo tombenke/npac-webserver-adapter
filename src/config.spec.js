@@ -15,7 +15,8 @@ describe('server/config', () => {
                 port: 3007,
                 useCompression: false,
                 usePdms: false,
-                restApiPath: __dirname
+                restApiPath: __dirname,
+                staticContentBasePath: __dirname
             }
         }
 
