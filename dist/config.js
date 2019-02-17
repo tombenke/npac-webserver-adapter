@@ -1,4 +1,10 @@
-"use strict";
+'use strict';
+
+var _path = require('path');
+
+var _path2 = _interopRequireDefault(_path);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  * The default configuration for the webServer
@@ -16,7 +22,7 @@ module.exports = {
         port: process.env.WEBSERVER_PORT || 3007,
         useCompression: process.env.WEBSERVER_USE_COMPRESSION || false,
         usePdms: process.env.WEBSERVER_USE_PDMS || false,
-        restApiPath: process.env.WEBSERVER_RESTAPIPATH || __dirname,
-        staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || __dirname
+        restApiPath: process.env.WEBSERVER_RESTAPIPATH || _path2.default.resolve(), //__dirname,
+        staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || _path2.default.resolve() //__dirname
     }
 };

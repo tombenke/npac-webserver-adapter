@@ -1,3 +1,4 @@
+import path from 'path'
 /**
  * The default configuration for the webServer
  *
@@ -14,7 +15,7 @@ module.exports = {
         port: process.env.WEBSERVER_PORT || 3007,
         useCompression: process.env.WEBSERVER_USE_COMPRESSION || false,
         usePdms: process.env.WEBSERVER_USE_PDMS || false,
-        restApiPath: process.env.WEBSERVER_RESTAPIPATH || __dirname,
-        staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || __dirname
+        restApiPath: process.env.WEBSERVER_RESTAPIPATH || path.resolve(),
+        staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || path.resolve()
     }
 }

@@ -1,3 +1,4 @@
+import path from 'path'
 import { expect } from 'chai'
 import config from './config'
 
@@ -15,8 +16,8 @@ describe('server/config', () => {
                 port: 3007,
                 useCompression: false,
                 usePdms: false,
-                restApiPath: __dirname,
-                staticContentBasePath: __dirname
+                restApiPath: path.resolve(),
+                staticContentBasePath: path.resolve()
             }
         }
 

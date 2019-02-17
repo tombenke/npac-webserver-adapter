@@ -1,5 +1,9 @@
 'use strict';
 
+var _path = require('path');
+
+var _path2 = _interopRequireDefault(_path);
+
 var _chai = require('chai');
 
 var _config = require('./config');
@@ -22,8 +26,8 @@ describe('server/config', function () {
                 port: 3007,
                 useCompression: false,
                 usePdms: false,
-                restApiPath: __dirname,
-                staticContentBasePath: __dirname
+                restApiPath: _path2.default.resolve(), //__dirname,
+                staticContentBasePath: _path2.default.resolve() //__dirname
             }
         };
 

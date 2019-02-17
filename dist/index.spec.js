@@ -63,7 +63,7 @@ var testAdapterEndpointErr500Fun = function testAdapterEndpointErr500Fun(contain
 var testAdapter = {
     startup: function startup(container, next) {
         // Merges the defaults with the config coming from the outer world
-        var testAdapterConfig = _.merge({}, _config2.default, { testAdapter: container.config.testAdapter || {} });
+        var testAdapterConfig = _.merge({}, /*defaults,*/{ testAdapter: container.config.testAdapter || {} });
         container.logger.info('Start up testAdapter adapter');
 
         // Call next setup function with the context extension
@@ -87,7 +87,8 @@ describe('webServer adapter', function () {
     var config = _.merge({}, _config2.default, pdms.defaults, {
         webServer: {
             useCompression: true,
-            restApiPath: __dirname + '/fixtures/services/'
+            restApiPath: __dirname + '/fixtures/endpoints/',
+            staticContentBasePath: __dirname // + '/fixtures/content/'
         }
     });
 
@@ -146,20 +147,15 @@ describe('webServer adapter', function () {
                     Accept: '*/*'
                 }
             }).then(function (response) {
-                console.log("GET /docs/: ", response);
                 var status = response.status;
 
                 (0, _chai.expect)(status).to.equal(200);
-                next(null, null);
-            }).catch(function (err) {
-                console.log("GET /docs/: ERR", err);
                 next(null, null);
             });
         };
 
         (0, _npac.npacStart)(adapters, [testServer], terminators);
     });
-
     it('#call existing REST endpoint with no adaptor function', function (done) {
         (0, _npac.catchExitSignals)(sandbox, done);
 
@@ -192,7 +188,6 @@ describe('webServer adapter', function () {
         (0, _npac.catchExitSignals)(sandbox, done);
 
         var testServer = function testServer(container, next) {
-            console.log(container.config);
             var port = container.config.webServer.port;
 
             var host = 'http://localhost:' + port;
@@ -221,7 +216,6 @@ describe('webServer adapter', function () {
         (0, _npac.catchExitSignals)(sandbox, done);
 
         var testServer = function testServer(container, next) {
-            console.log(container.config);
             var port = container.config.webServer.port;
 
             var host = 'http://localhost:' + port;
@@ -241,7 +235,6 @@ describe('webServer adapter', function () {
                     statusText = _error$response.statusText,
                     headers = _error$response.headers,
                     data = _error$response.data;
-                //console.log('ERROR: ', error.response)
 
                 container.logger.error('status: ' + status + ', statusText: ' + statusText + ', headers: ' + JSON.stringify(headers) + ', data: ' + JSON.stringify(data));
                 next(null, null);

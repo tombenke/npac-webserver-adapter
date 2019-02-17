@@ -22,13 +22,13 @@ exports.set = function (server, container) {
     // Define further routes
     var config = container.config.webServer;
 
+    //set(server, authGuard, container)
+    (0, _restapi.set)(server, container);
+
     //const authGuard = ensureLoggedIn('/login.html')
     _lodash2.default.map(_restToolCommon.services.getAllStaticEndpoints(), function (staticEndpoint) {
         var contentPath = _path2.default.resolve(config.staticContentBasePath, staticEndpoint.contentPath);
         container.logger.info('Bind ' + contentPath + ' to ' + staticEndpoint.uriTemplate + ' as static content service');
         server.use(staticEndpoint.uriTemplate, /*authGuard,*/_express2.default.static(contentPath));
     });
-
-    //set(server, authGuard, container)
-    (0, _restapi.set)(server, container);
 }; //import { ensureLoggedIn } from 'connect-ensure-login'

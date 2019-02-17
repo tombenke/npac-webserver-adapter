@@ -34,7 +34,7 @@ const testAdapterEndpointErr500Fun = container => (req, endp) => {
 const testAdapter = {
     startup: (container, next) => {
         // Merges the defaults with the config coming from the outer world
-        const testAdapterConfig = _.merge({}, defaults, { testAdapter: container.config.testAdapter || {} })
+        const testAdapterConfig = _.merge({}, /*defaults,*/ { testAdapter: container.config.testAdapter || {} })
         container.logger.info('Start up testAdapter adapter')
 
         // Call next setup function with the context extension
@@ -58,7 +58,8 @@ describe('webServer adapter', () => {
     const config = _.merge({}, defaults, pdms.defaults, {
         webServer: {
             useCompression: true,
-            restApiPath: __dirname + '/fixtures/services/'
+            restApiPath: __dirname + '/fixtures/endpoints/',
+            staticContentBasePath: __dirname // + '/fixtures/content/'
         }
     })
 

@@ -8,6 +8,7 @@ const makeJsonicFriendly = function(uri) {
 
 const getNonStaticEndpointMap = container => {
     // Load services config and service descriptors
+    container.logger.info(`Load services from ${container.config.webServer.restApiPath}`)
     const endpoints = _.filter(
         services.load(container.config.webServer.restApiPath, ''),
         endp => !_.has(endp, 'methods.GET.static')

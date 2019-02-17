@@ -20,10 +20,10 @@ var makeJsonicFriendly = function makeJsonicFriendly(uri) {
 
 var getNonStaticEndpointMap = function getNonStaticEndpointMap(container) {
     // Load services config and service descriptors
+    container.logger.info('Load services from ' + container.config.webServer.restApiPath);
     var endpoints = _lodash2.default.filter(_restToolCommon.services.load(container.config.webServer.restApiPath, ''), function (endp) {
-        return !_lodash2.default.has(endp, "methods.GET.static");
+        return !_lodash2.default.has(endp, 'methods.GET.static');
     });
-    console.log(endpoints);
     return _lodash2.default.flatMap(endpoints, function (endpoint) {
         var uri = endpoint.uriTemplate;
         var methods = endpoint.methodList;
