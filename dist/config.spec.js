@@ -26,8 +26,8 @@ describe('server/config', function () {
                 port: 3007,
                 useCompression: false,
                 usePdms: false,
-                restApiPath: _path2.default.resolve(), //__dirname,
-                staticContentBasePath: _path2.default.resolve() //__dirname
+                restApiPath: _path2.default.resolve(),
+                staticContentBasePath: _path2.default.resolve()
             }
         };
 

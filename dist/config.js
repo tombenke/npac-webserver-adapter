@@ -22,7 +22,7 @@ module.exports = {
         port: process.env.WEBSERVER_PORT || 3007,
         useCompression: process.env.WEBSERVER_USE_COMPRESSION || false,
         usePdms: process.env.WEBSERVER_USE_PDMS || false,
-        restApiPath: process.env.WEBSERVER_RESTAPIPATH || _path2.default.resolve(), //__dirname,
-        staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || _path2.default.resolve() //__dirname
+        restApiPath: process.env.WEBSERVER_RESTAPIPATH || _path2.default.resolve(),
+        staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || _path2.default.resolve()
     }
 };
