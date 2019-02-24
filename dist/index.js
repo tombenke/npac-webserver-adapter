@@ -50,7 +50,7 @@ var startup = function startup(container, next) {
     // Merges the defaults with the config coming from the outer world
     var config = _lodash2.default.merge({}, _config2.default, { webServer: container.config.webServer || {} });
     //    const config = container.config
-    container.logger.info('webServer config:' + JSON.stringify(config));
+    container.logger.debug('webServer config:' + JSON.stringify(config));
     container.logger.info('Start up webServer');
 
     // Create a new Express application.

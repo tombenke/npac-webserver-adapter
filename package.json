@@ -33,7 +33,7 @@
     "express-session": "^1.15.6",
     "lodash": "^4.17.11",
     "morgan": "^1.9.1",
-    "npac": "^2.1.4",
+    "npac": "^2.1.5",
     "npac-pdms-hemera-adapter": "^1.4.6",
     "rest-tool-common": "^2.5.0"
   },

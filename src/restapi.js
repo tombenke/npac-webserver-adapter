@@ -26,7 +26,7 @@ const getNonStaticEndpointMap = container => {
 }
 
 const mkHandlerFun = (endpoint, container) => (req, res) => {
-    container.logger.info(`REQ method:"${endpoint.method}" uri:"${endpoint.uri}"`)
+    container.logger.debug(`REQ method:"${endpoint.method}" uri:"${endpoint.uri}"`)
 
     const serviceImplName = services.getImplementation(endpoint.endpointDesc, endpoint.method)
     if (serviceImplName !== null) {
@@ -56,7 +56,7 @@ const mkHandlerFun = (endpoint, container) => (req, res) => {
 
 export const set = (server, container) => {
     const endpointMap = getNonStaticEndpointMap(container)
-    container.logger.info(
+    container.logger.debug(
         `restapi.set/endpointMap ${JSON.stringify(_.map(endpointMap, ep => [ep.method, ep.uri]), null, '')}`
     )
     _.map(endpointMap, endpoint => {

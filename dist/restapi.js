@@ -40,7 +40,7 @@ var getNonStaticEndpointMap = function getNonStaticEndpointMap(container) {
 
 var mkHandlerFun = function mkHandlerFun(endpoint, container) {
     return function (req, res) {
-        container.logger.info('REQ method:"' + endpoint.method + '" uri:"' + endpoint.uri + '"');
+        container.logger.debug('REQ method:"' + endpoint.method + '" uri:"' + endpoint.uri + '"');
 
         var serviceImplName = _restToolCommon.services.getImplementation(endpoint.endpointDesc, endpoint.method);
         if (serviceImplName !== null) {
@@ -63,7 +63,7 @@ var mkHandlerFun = function mkHandlerFun(endpoint, container) {
 
 var set = exports.set = function set(server, container) {
     var endpointMap = getNonStaticEndpointMap(container);
-    container.logger.info('restapi.set/endpointMap ' + JSON.stringify(_lodash2.default.map(endpointMap, function (ep) {
+    container.logger.debug('restapi.set/endpointMap ' + JSON.stringify(_lodash2.default.map(endpointMap, function (ep) {
         return [ep.method, ep.uri];
     }), null, ''));
     _lodash2.default.map(endpointMap, function (endpoint) {

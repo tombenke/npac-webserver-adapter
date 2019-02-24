@@ -15,7 +15,7 @@ exports.set = function(server, container) {
     //const authGuard = ensureLoggedIn('/login.html')
     _.map(services.getAllStaticEndpoints(), staticEndpoint => {
         const contentPath = path.resolve(config.staticContentBasePath, staticEndpoint.contentPath)
-        container.logger.info(`Bind ${contentPath} to ${staticEndpoint.uriTemplate} as static content service`)
+        container.logger.debug(`Bind ${contentPath} to ${staticEndpoint.uriTemplate} as static content service`)
         server.use(staticEndpoint.uriTemplate, /*authGuard,*/ express.static(contentPath))
     })
 }

@@ -56,6 +56,9 @@ describe('webServer adapter', () => {
     let sandbox
 
     const config = _.merge({}, defaults, pdms.defaults, {
+        logger: {
+            level: 'debug'
+        },
         webServer: {
             useCompression: true,
             restApiPath: __dirname + '/fixtures/endpoints/',
@@ -65,7 +68,7 @@ describe('webServer adapter', () => {
 
     beforeEach(done => {
         removeSignalHandlers()
-        sandbox = sinon.sandbox.create({ useFakeTimers: false })
+        sandbox = sinon.createSandbox({})
         done()
     })
 

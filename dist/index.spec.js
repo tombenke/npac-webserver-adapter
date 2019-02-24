@@ -85,6 +85,13 @@ describe('webServer adapter', function () {
     var sandbox = void 0;
 
     var config = _.merge({}, _config2.default, pdms.defaults, {
+        logger: {
+            transports: {
+                console: {
+                    level: "debug"
+                }
+            }
+        },
         webServer: {
             useCompression: true,
             restApiPath: __dirname + '/fixtures/endpoints/',
@@ -94,7 +101,7 @@ describe('webServer adapter', function () {
 
     beforeEach(function (done) {
         (0, _npac.removeSignalHandlers)();
-        sandbox = _sinon2.default.sandbox.create({ useFakeTimers: false });
+        sandbox = _sinon2.default.createSandbox({});
         done();
     });
 
@@ -123,6 +130,8 @@ describe('webServer adapter', function () {
         (0, _npac.catchExitSignals)(sandbox, done);
 
         var testServer = function testServer(container, next) {
+            console.log('testServer ctx:', container, container.logger.info, container.logger.debug);
+            container.logger.debug("DEBUUUGGGGG!!!!!!=========================================");
             container.logger.info('Run job to test server');
             next(null, null);
         };
