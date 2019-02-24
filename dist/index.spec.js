@@ -86,11 +86,7 @@ describe('webServer adapter', function () {
 
     var config = _.merge({}, _config2.default, pdms.defaults, {
         logger: {
-            transports: {
-                console: {
-                    level: "debug"
-                }
-            }
+            level: 'debug'
         },
         webServer: {
             useCompression: true,
@@ -130,8 +126,6 @@ describe('webServer adapter', function () {
         (0, _npac.catchExitSignals)(sandbox, done);
 
         var testServer = function testServer(container, next) {
-            console.log('testServer ctx:', container, container.logger.info, container.logger.debug);
-            container.logger.debug("DEBUUUGGGGG!!!!!!=========================================");
             container.logger.info('Run job to test server');
             next(null, null);
         };

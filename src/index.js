@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import express from 'express'
-import morgan from 'morgan'
+import expressWinston from 'express-winston'
 import cookieParser from 'cookie-parser'
 import bodyParser from 'body-parser'
 import session from 'express-session'
@@ -24,7 +24,7 @@ const startup = (container, next) => {
     const server = express()
 
     // Configure the middlewares
-    server.use(morgan('dev')) // log every request to the console
+    server.use(expressWinston.logger({ transports: [container.logger] }))
     server.use(cookieParser()) // read cookies (needed for auth)
     server.use(bodyParser.json()) // for parsing application/json
     server.use(bodyParser.urlencoded({ extended: true })) // get information from html forms

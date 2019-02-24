@@ -31,8 +31,8 @@
     "cookie-parser": "~1.4.4",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
+    "express-winston": "^3.1.0",
     "lodash": "^4.17.11",
-    "morgan": "^1.9.1",
     "npac": "^2.1.5",
     "npac-pdms-hemera-adapter": "^1.4.6",
     "rest-tool-common": "^2.5.0"

@@ -8,9 +8,9 @@ var _express = require('express');
 
 var _express2 = _interopRequireDefault(_express);
 
-var _morgan = require('morgan');
+var _expressWinston = require('express-winston');
 
-var _morgan2 = _interopRequireDefault(_morgan);
+var _expressWinston2 = _interopRequireDefault(_expressWinston);
 
 var _cookieParser = require('cookie-parser');
 
@@ -57,7 +57,7 @@ var startup = function startup(container, next) {
     var server = (0, _express2.default)();
 
     // Configure the middlewares
-    server.use((0, _morgan2.default)('dev')); // log every request to the console
+    server.use(_expressWinston2.default.logger({ transports: [container.logger] }));
     server.use((0, _cookieParser2.default)()); // read cookies (needed for auth)
     server.use(_bodyParser2.default.json()); // for parsing application/json
     server.use(_bodyParser2.default.urlencoded({ extended: true })); // get information from html forms
