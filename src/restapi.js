@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import { services } from 'rest-tool-common'
+import CircularJSON from 'circular-json-es6'
 
 const makeJsonicFriendly = function(uri) {
     //return uri.replace(/\{|\}/g, ':')
@@ -39,7 +40,7 @@ const mkHandlerFun = (endpoint, container) => (req, res) => {
                         .json(result.body)
                 })
                 .catch(errResult => {
-                    container.logger.error(JSON.stringify(errResult))
+                    container.logger.error(CircularJSON.stringify(errResult))
                     res.set(errResult.headers)
                         .status(errResult.status)
                         .json(errResult.body)
