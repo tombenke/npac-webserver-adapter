@@ -11,6 +11,10 @@ var _lodash2 = _interopRequireDefault(_lodash);
 
 var _restToolCommon = require('rest-tool-common');
 
+var _circularJsonEs = require('circular-json-es6');
+
+var _circularJsonEs2 = _interopRequireDefault(_circularJsonEs);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var makeJsonicFriendly = function makeJsonicFriendly(uri) {
@@ -49,7 +53,7 @@ var mkHandlerFun = function mkHandlerFun(endpoint, container) {
                 serviceFun(req, endpoint).then(function (result) {
                     res.set(result.headers).status(200).json(result.body);
                 }).catch(function (errResult) {
-                    container.logger.error(JSON.stringify(errResult));
+                    container.logger.error(_circularJsonEs2.default.stringify(errResult));
                     res.set(errResult.headers).status(errResult.status).json(errResult.body);
                 });
             }
