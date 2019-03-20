@@ -12,7 +12,6 @@ var _lodash2 = _interopRequireDefault(_lodash);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var addMiddlewares = exports.addMiddlewares = function addMiddlewares(container, server, middlewares) {
-
     // Add middlewares, if there is any defined
     if (_lodash2.default.isArray(middlewares)) {
         _lodash2.default.chain(middlewares).filter(function (adderFn) {
