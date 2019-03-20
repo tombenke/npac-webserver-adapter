@@ -14,7 +14,9 @@ module.exports = {
     webServer: {
         port: process.env.WEBSERVER_PORT || 3007,
         useCompression: process.env.WEBSERVER_USE_COMPRESSION || false,
+        useResponseTime: process.env.WEBSERVER_USE_RESPONSE_TIME || false,
         usePdms: process.env.WEBSERVER_USE_PDMS || false,
+        middlewares: { preRouting: [], postRouting: [] },
         restApiPath: process.env.WEBSERVER_RESTAPIPATH || path.resolve(),
         staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || path.resolve()
     }

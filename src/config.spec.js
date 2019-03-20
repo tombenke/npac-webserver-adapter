@@ -15,7 +15,9 @@ describe('server/config', () => {
             webServer: {
                 port: 3007,
                 useCompression: false,
+                useResponseTime: false,
                 usePdms: false,
+                middlewares: { preRouting: [], postRouting: [] },
                 restApiPath: path.resolve(),
                 staticContentBasePath: path.resolve()
             }

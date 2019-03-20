@@ -5,9 +5,11 @@ import cookieParser from 'cookie-parser'
 import bodyParser from 'body-parser'
 import session from 'express-session'
 import compression from 'compression'
-import routes from './routes'
+import { setMiddlewares } from './middlewares'
+import { setRoutes } from './routes'
 import flash from 'connect-flash'
 import defaults from './config'
+import responseTime from 'response-time'
 
 //const fs from 'fs'
 //const https from 'https'
@@ -28,9 +30,16 @@ const startup = (container, next) => {
     server.use(cookieParser()) // read cookies (needed for auth)
     server.use(bodyParser.json()) // for parsing application/json
     server.use(bodyParser.urlencoded({ extended: true })) // get information from html forms
+
+    // Use compression if enabled
     if (config.webServer.useCompression) {
         container.logger.info('Use compression')
         server.use(compression())
+    }
+
+    // Measure response time if enabled, and put x-response-time header into the response
+    if (config.webServer.useResponseTime) {
+        server.use(responseTime())
     }
 
     // required for passport
@@ -41,7 +50,9 @@ const startup = (container, next) => {
     //    server.use(auth.session()) // persistent login sessions
     server.use(flash()) // use connect-flash for flash messages stored in session
 
-    routes.set(server, container)
+    setMiddlewares(container, server, 'preRouting')
+    setRoutes(container, server)
+    setMiddlewares(container, server, 'postRouting')
 
     // TODO: Set configuration parameters for HTTPS and enable it
     // Start the server to listen, either a HTTPS or an HTTP one:

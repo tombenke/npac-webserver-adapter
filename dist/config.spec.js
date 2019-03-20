@@ -25,7 +25,9 @@ describe('server/config', function () {
             webServer: {
                 port: 3007,
                 useCompression: false,
+                useResponseTime: false,
                 usePdms: false,
+                middlewares: { preRouting: [], postRouting: [] },
                 restApiPath: _path2.default.resolve(),
                 staticContentBasePath: _path2.default.resolve()
             }

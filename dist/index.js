@@ -28,9 +28,9 @@ var _compression = require('compression');
 
 var _compression2 = _interopRequireDefault(_compression);
 
-var _routes = require('./routes');
+var _middlewares = require('./middlewares');
 
-var _routes2 = _interopRequireDefault(_routes);
+var _routes = require('./routes');
 
 var _connectFlash = require('connect-flash');
 
@@ -39,6 +39,10 @@ var _connectFlash2 = _interopRequireDefault(_connectFlash);
 var _config = require('./config');
 
 var _config2 = _interopRequireDefault(_config);
+
+var _responseTime = require('response-time');
+
+var _responseTime2 = _interopRequireDefault(_responseTime);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -61,9 +65,16 @@ var startup = function startup(container, next) {
     server.use((0, _cookieParser2.default)()); // read cookies (needed for auth)
     server.use(_bodyParser2.default.json()); // for parsing application/json
     server.use(_bodyParser2.default.urlencoded({ extended: true })); // get information from html forms
+
+    // Use compression if enabled
     if (config.webServer.useCompression) {
         container.logger.info('Use compression');
         server.use((0, _compression2.default)());
+    }
+
+    // Measure response time if enabled, and put x-response-time header into the response
+    if (config.webServer.useResponseTime) {
+        server.use((0, _responseTime2.default)());
     }
 
     // required for passport
@@ -74,7 +85,9 @@ var startup = function startup(container, next) {
     //    server.use(auth.session()) // persistent login sessions
     server.use((0, _connectFlash2.default)()); // use connect-flash for flash messages stored in session
 
-    _routes2.default.set(server, container);
+    (0, _middlewares.setMiddlewares)(container, server, 'preRouting');
+    (0, _routes.setRoutes)(container, server);
+    (0, _middlewares.setMiddlewares)(container, server, 'postRouting');
 
     // TODO: Set configuration parameters for HTTPS and enable it
     // Start the server to listen, either a HTTPS or an HTTP one:

@@ -54,6 +54,32 @@ const testAdapter = {
 
 describe('webServer adapter', () => {
     let sandbox
+    let acceptCheckMwCall
+    let tracerMwCall
+    const traceIdHeader = 'X-B3-Traceid'
+    const traceIdValue = '42'
+
+    const acceptCheckMiddleware = container => (req, res, next) => {
+        container.logger.debug(`acceptCheckMiddleware is called ${req.accepts()}`)
+        expect(_.includes(['*/*', 'application/json'], req.accepts()[0])).to.be.true
+        acceptCheckMwCall()
+        next()
+    }
+
+    const tracerMiddleware = container => (req, res, next) => {
+        //        const { hostname, originalUrl, route, method } = req
+        const traceId = req.get(traceIdHeader)
+        //        const { statusCode } = res
+        //        const contentLength = res.get('content-length')
+        //        const responseTime = res.get('x-response-time') || 'unknown'
+        //        container.logger.debug(
+        //            `MiddlewareFn is called: ${method} "${hostname}" "${originalUrl}" "${traceId}" => ${statusCode} ${contentLength} ${responseTime} ============================`
+        //        )
+        expect(traceId).to.be.equal(traceIdValue)
+        expect(_.includes(['*/*', 'application/json'], req.accepts()[0])).to.be.true
+        tracerMwCall()
+        next()
+    }
 
     const config = _.merge({}, defaults, pdms.defaults, {
         logger: {
@@ -61,14 +87,20 @@ describe('webServer adapter', () => {
         },
         webServer: {
             useCompression: true,
+            useResponseTime: true,
             restApiPath: __dirname + '/fixtures/endpoints/',
+            middlewares: { preRouting: [acceptCheckMiddleware], postRouting: [tracerMiddleware] },
             staticContentBasePath: __dirname // + '/fixtures/content/'
         }
     })
 
     beforeEach(done => {
         removeSignalHandlers()
-        sandbox = sinon.createSandbox({})
+        sandbox = sinon.createSandbox({
+            properties: ['spy']
+        })
+        acceptCheckMwCall = sandbox.spy()
+        tracerMwCall = sandbox.spy()
         done()
     })
 
@@ -102,7 +134,7 @@ describe('webServer adapter', () => {
         }
 
         npacStart(adapters, [testServer], terminators)
-    })
+    }).timeout(30000)
 
     it('#call static content index', done => {
         catchExitSignals(sandbox, done)
@@ -122,12 +154,14 @@ describe('webServer adapter', () => {
             }).then(response => {
                 const { status /*, statusText, headers, data*/ } = response
                 expect(status).to.equal(200)
+                expect(acceptCheckMwCall.calledOnce).to.be.true
                 next(null, null)
             })
         }
 
         npacStart(adapters, [testServer], terminators)
-    })
+    }).timeout(30000)
+
     it('#call existing REST endpoint with no adaptor function', done => {
         catchExitSignals(sandbox, done)
 
@@ -142,17 +176,20 @@ describe('webServer adapter', () => {
                 url: `${host}${restEndpoint}`,
                 withCredentials: true,
                 headers: {
-                    Accept: 'application/json'
+                    Accept: 'application/json',
+                    [traceIdHeader]: traceIdValue
                 }
             }).then(function(response) {
                 const { status /*, statusText, headers, data*/ } = response
                 expect(status).to.equal(200)
+                expect(acceptCheckMwCall.calledOnce).to.be.true
+                expect(tracerMwCall.calledOnce).to.be.true
                 next(null, null)
             })
         }
 
         npacStart(adapters, [testServer], terminators)
-    })
+    }).timeout(30000)
 
     it('#call existing REST endpoint with adaptor function', done => {
         catchExitSignals(sandbox, done)
@@ -168,17 +205,20 @@ describe('webServer adapter', () => {
                 url: `${host}${restEndpoint}`,
                 withCredentials: true,
                 headers: {
-                    Accept: 'application/json'
+                    Accept: 'application/json',
+                    [traceIdHeader]: traceIdValue
                 }
             }).then(function(response) {
                 const { status /*, statusText, headers, data*/ } = response
                 expect(status).to.equal(200)
+                expect(acceptCheckMwCall.calledOnce).to.be.true
+                expect(tracerMwCall.calledOnce).to.be.true
                 next(null, null)
             })
         }
 
         npacStart(adapters, [testServer], terminators)
-    })
+    }).timeout(30000)
 
     it('#call existing REST endpoint with 500, Internal Server Error', done => {
         catchExitSignals(sandbox, done)
@@ -194,7 +234,8 @@ describe('webServer adapter', () => {
                 url: `${host}${restEndpoint}`,
                 withCredentials: true,
                 headers: {
-                    Accept: 'application/json'
+                    Accept: 'application/json',
+                    [traceIdHeader]: traceIdValue
                 }
             }).catch(error => {
                 const { status, statusText, headers, data } = error.response
@@ -208,5 +249,5 @@ describe('webServer adapter', () => {
         }
 
         npacStart(adapters, [testServer], terminators)
-    })
+    }).timeout(30000)
 })

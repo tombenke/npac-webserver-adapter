@@ -1,5 +1,10 @@
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.setRoutes = undefined;
+
 var _path = require('path');
 
 var _path2 = _interopRequireDefault(_path);
@@ -18,12 +23,12 @@ var _restapi = require('./restapi');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.set = function (server, container) {
+var setRoutes = exports.setRoutes = function setRoutes(container, server) {
     // Define further routes
     var config = container.config.webServer;
 
     //set(server, authGuard, container)
-    (0, _restapi.set)(server, container);
+    (0, _restapi.setEndpoints)(container, server);
 
     //const authGuard = ensureLoggedIn('/login.html')
     _lodash2.default.map(_restToolCommon.services.getAllStaticEndpoints(), function (staticEndpoint) {

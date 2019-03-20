@@ -32,6 +32,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var testAdapterEndpointFun = function testAdapterEndpointFun(container) {
     return function (req, endp) {
         return new Promise(function (resolve, reject) {
@@ -83,6 +85,36 @@ var testAdapter = {
 
 describe('webServer adapter', function () {
     var sandbox = void 0;
+    var acceptCheckMwCall = void 0;
+    var tracerMwCall = void 0;
+    var traceIdHeader = 'X-B3-Traceid';
+    var traceIdValue = '42';
+
+    var acceptCheckMiddleware = function acceptCheckMiddleware(container) {
+        return function (req, res, next) {
+            container.logger.debug('acceptCheckMiddleware is called ' + req.accepts());
+            (0, _chai.expect)(_.includes(['*/*', 'application/json'], req.accepts()[0])).to.be.true;
+            acceptCheckMwCall();
+            next();
+        };
+    };
+
+    var tracerMiddleware = function tracerMiddleware(container) {
+        return function (req, res, next) {
+            //        const { hostname, originalUrl, route, method } = req
+            var traceId = req.get(traceIdHeader);
+            //        const { statusCode } = res
+            //        const contentLength = res.get('content-length')
+            //        const responseTime = res.get('x-response-time') || 'unknown'
+            //        container.logger.debug(
+            //            `MiddlewareFn is called: ${method} "${hostname}" "${originalUrl}" "${traceId}" => ${statusCode} ${contentLength} ${responseTime} ============================`
+            //        )
+            (0, _chai.expect)(traceId).to.be.equal(traceIdValue);
+            (0, _chai.expect)(_.includes(['*/*', 'application/json'], req.accepts()[0])).to.be.true;
+            tracerMwCall();
+            next();
+        };
+    };
 
     var config = _.merge({}, _config2.default, pdms.defaults, {
         logger: {
@@ -90,14 +122,20 @@ describe('webServer adapter', function () {
         },
         webServer: {
             useCompression: true,
+            useResponseTime: true,
             restApiPath: __dirname + '/fixtures/endpoints/',
+            middlewares: { preRouting: [acceptCheckMiddleware], postRouting: [tracerMiddleware] },
             staticContentBasePath: __dirname // + '/fixtures/content/'
         }
     });
 
     beforeEach(function (done) {
         (0, _npac.removeSignalHandlers)();
-        sandbox = _sinon2.default.createSandbox({});
+        sandbox = _sinon2.default.createSandbox({
+            properties: ['spy']
+        });
+        acceptCheckMwCall = sandbox.spy();
+        tracerMwCall = sandbox.spy();
         done();
     });
 
@@ -131,7 +169,7 @@ describe('webServer adapter', function () {
         };
 
         (0, _npac.npacStart)(adapters, [testServer], terminators);
-    });
+    }).timeout(30000);
 
     it('#call static content index', function (done) {
         (0, _npac.catchExitSignals)(sandbox, done);
@@ -153,12 +191,14 @@ describe('webServer adapter', function () {
                 var status = response.status;
 
                 (0, _chai.expect)(status).to.equal(200);
+                (0, _chai.expect)(acceptCheckMwCall.calledOnce).to.be.true;
                 next(null, null);
             });
         };
 
         (0, _npac.npacStart)(adapters, [testServer], terminators);
-    });
+    }).timeout(30000);
+
     it('#call existing REST endpoint with no adaptor function', function (done) {
         (0, _npac.catchExitSignals)(sandbox, done);
 
@@ -173,19 +213,21 @@ describe('webServer adapter', function () {
                 method: 'get',
                 url: '' + host + restEndpoint,
                 withCredentials: true,
-                headers: {
+                headers: _defineProperty({
                     Accept: 'application/json'
-                }
+                }, traceIdHeader, traceIdValue)
             }).then(function (response) {
                 var status = response.status;
 
                 (0, _chai.expect)(status).to.equal(200);
+                (0, _chai.expect)(acceptCheckMwCall.calledOnce).to.be.true;
+                (0, _chai.expect)(tracerMwCall.calledOnce).to.be.true;
                 next(null, null);
             });
         };
 
         (0, _npac.npacStart)(adapters, [testServer], terminators);
-    });
+    }).timeout(30000);
 
     it('#call existing REST endpoint with adaptor function', function (done) {
         (0, _npac.catchExitSignals)(sandbox, done);
@@ -201,19 +243,21 @@ describe('webServer adapter', function () {
                 method: 'put',
                 url: '' + host + restEndpoint,
                 withCredentials: true,
-                headers: {
+                headers: _defineProperty({
                     Accept: 'application/json'
-                }
+                }, traceIdHeader, traceIdValue)
             }).then(function (response) {
                 var status = response.status;
 
                 (0, _chai.expect)(status).to.equal(200);
+                (0, _chai.expect)(acceptCheckMwCall.calledOnce).to.be.true;
+                (0, _chai.expect)(tracerMwCall.calledOnce).to.be.true;
                 next(null, null);
             });
         };
 
         (0, _npac.npacStart)(adapters, [testServer], terminators);
-    });
+    }).timeout(30000);
 
     it('#call existing REST endpoint with 500, Internal Server Error', function (done) {
         (0, _npac.catchExitSignals)(sandbox, done);
@@ -229,9 +273,9 @@ describe('webServer adapter', function () {
                 method: 'post',
                 url: '' + host + restEndpoint,
                 withCredentials: true,
-                headers: {
+                headers: _defineProperty({
                     Accept: 'application/json'
-                }
+                }, traceIdHeader, traceIdValue)
             }).catch(function (error) {
                 var _error$response = error.response,
                     status = _error$response.status,
@@ -245,5 +289,5 @@ describe('webServer adapter', function () {
         };
 
         (0, _npac.npacStart)(adapters, [testServer], terminators);
-    });
+    }).timeout(30000);
 });

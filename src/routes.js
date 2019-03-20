@@ -3,14 +3,14 @@ import path from 'path'
 import express from 'express'
 import _ from 'lodash'
 import { services } from 'rest-tool-common'
-import { set } from './restapi'
+import { setEndpoints } from './restapi'
 
-exports.set = function(server, container) {
+export const setRoutes = (container, server) => {
     // Define further routes
     const config = container.config.webServer
 
     //set(server, authGuard, container)
-    set(server, container)
+    setEndpoints(container, server)
 
     //const authGuard = ensureLoggedIn('/login.html')
     _.map(services.getAllStaticEndpoints(), staticEndpoint => {
