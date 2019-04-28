@@ -18,6 +18,16 @@ module.exports = {
         usePdms: process.env.WEBSERVER_USE_PDMS || false,
         middlewares: { preRouting: [], postRouting: [] },
         restApiPath: process.env.WEBSERVER_RESTAPIPATH || path.resolve(),
-        staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || path.resolve()
+        staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || path.resolve(),
+        oasConfig: {
+            parse: {
+                yaml: {
+                    allowEmpty: false // Don't allow empty YAML files
+                },
+                resolve: {
+                    file: true // Resolve local file references
+                }
+            }
+        }
     }
 }

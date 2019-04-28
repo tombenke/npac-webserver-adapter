@@ -19,7 +19,17 @@ describe('server/config', () => {
                 usePdms: false,
                 middlewares: { preRouting: [], postRouting: [] },
                 restApiPath: path.resolve(),
-                staticContentBasePath: path.resolve()
+                staticContentBasePath: path.resolve(),
+                oasConfig: {
+                    parse: {
+                        yaml: {
+                            allowEmpty: false
+                        },
+                        resolve: {
+                            file: true
+                        }
+                    }
+                }
             }
         }
 
