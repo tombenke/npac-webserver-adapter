@@ -19,7 +19,7 @@ export const addMiddlewares = (container, server, middlewares) => {
     }
 }
 
-export const setMiddlewares = function(container, server, phase) {
+export const setMiddlewares = (container, server, phase) => {
     const middlewares = _.merge(
         {
             preRouting: [],

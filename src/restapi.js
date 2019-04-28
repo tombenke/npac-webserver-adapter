@@ -1,37 +1,20 @@
 import _ from 'lodash'
-import { services } from 'rest-tool-common'
 import CircularJSON from 'circular-json-es6'
 
-const makeJsonicFriendly = function(uri) {
-    //return uri.replace(/\{|\}/g, ':')
-    return uri.replace(/\{/g, ':').replace(/\}/g, '')
+const defaultResponseHeaders = {
+    'Content-Type': 'application/json'
 }
 
-const getNonStaticEndpointMap = container => {
-    // Load services config and service descriptors
-    container.logger.info(`Load services from ${container.config.webServer.restApiPath}`)
-    const endpoints = _.filter(
-        services.load(container.config.webServer.restApiPath, ''),
-        endp => !_.has(endp, 'methods.GET.static')
-    )
-    return _.flatMap(endpoints, endpoint => {
-        const uri = endpoint.uriTemplate
-        const methods = endpoint.methodList
-        return _.map(methods, method => ({
-            method: method.methodName.toLowerCase(),
-            uri: uri,
-            jsfUri: makeJsonicFriendly(uri),
-            endpointDesc: endpoint
-        }))
-    })
+const defaultResponseBody = {
+    error: 'The endpoint is not implemented'
 }
 
 const mkHandlerFun = (endpoint, container) => (req, res, next) => {
-    container.logger.debug(`REQ method:"${endpoint.method}" uri:"${endpoint.uri}"`)
+    const { uri, method, operationId } = endpoint
+    container.logger.debug(`REQ method:"${method}" uri:"${uri}"`)
 
-    const serviceImplName = services.getImplementation(endpoint.endpointDesc, endpoint.method)
-    if (serviceImplName !== null) {
-        const serviceFun = _.get(container, serviceImplName)
+    if (operationId !== null) {
+        const serviceFun = _.get(container, operationId)
         if (_.isFunction(serviceFun)) {
             serviceFun(req, endpoint)
                 .then(result => {
@@ -49,17 +32,17 @@ const mkHandlerFun = (endpoint, container) => (req, res, next) => {
                 })
         }
     } else {
-        const responseHeaders = services.getResponseHeaders(endpoint.method, endpoint.endpointDesc)
-        const responseBody = services.getMockResponseBody(endpoint.method, endpoint.endpointDesc) || endpoint
+        // TODO: place the default response here if there is any
+        const responseHeaders = defaultResponseHeaders
+        const responseBody = defaultResponseBody
         res.set(responseHeaders)
-            .status(200)
+            .status(501)
             .json(responseBody)
         next()
     }
 }
 
-export const setEndpoints = (container, server) => {
-    const endpointMap = getNonStaticEndpointMap(container)
+export const setEndpoints = (container, server, endpointMap) => {
     container.logger.debug(
         `restapi.setEndpoints/endpointMap ${JSON.stringify(_.map(endpointMap, ep => [ep.method, ep.uri]), null, '')}`
     )

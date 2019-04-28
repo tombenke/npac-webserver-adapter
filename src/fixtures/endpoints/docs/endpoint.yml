@@ -1,0 +1,21 @@
+# /test/endpoint:
+get:
+  tags: 
+    - "static"
+  summary: The document root static content service
+  description: Responses the files from the directory defined by the contentPath property
+  x-static:
+      contentPath: fixtures/content/
+      config:
+          dotfiles: allow
+          index: true
+
+  produces: 
+    - text/html
+    - text/plain
+  responses: 
+    "200": 
+      description: OK
+  deprecated: false
+
+

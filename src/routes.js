@@ -2,20 +2,38 @@
 import path from 'path'
 import express from 'express'
 import _ from 'lodash'
-import { services } from 'rest-tool-common'
+import { loadOas } from 'rest-tool-common'
 import { setEndpoints } from './restapi'
 
+// TODO: Place this config under the webserver config section
+const oasConfig = {
+    parse: {
+        yaml: {
+            allowEmpty: false // Don't allow empty YAML files
+        },
+        resolve: {
+            file: true // Resolve local file references
+        }
+    }
+}
+
 export const setRoutes = (container, server) => {
-    // Define further routes
     const config = container.config.webServer
-
-    //set(server, authGuard, container)
-    setEndpoints(container, server)
-
-    //const authGuard = ensureLoggedIn('/login.html')
-    _.map(services.getAllStaticEndpoints(), staticEndpoint => {
-        const contentPath = path.resolve(config.staticContentBasePath, staticEndpoint.contentPath)
-        container.logger.debug(`Bind ${contentPath} to ${staticEndpoint.uriTemplate} as static content service`)
-        server.use(staticEndpoint.uriTemplate, /*authGuard,*/ express.static(contentPath))
-    })
+    // Load the Swagger/OpenAPI format API definition
+    const oasFile = path.resolve(config.restApiPath)
+    container.logger.info(`Load endpoints from ${oasFile}`)
+    return loadOas(oasFile, oasConfig)
+        .then(api => {
+            // Setup static endpoints
+            _.map(api.getStaticEndpoints(), staticEndpoint => {
+                const contentPath = path.resolve(config.staticContentBasePath, staticEndpoint.static.contentPath)
+                container.logger.debug(`Bind ${contentPath} to ${staticEndpoint.uri} as static content service`)
+                server.use(staticEndpoint.uri, /*authGuard,*/ express.static(contentPath))
+            })
+            // Setup non-static endpoints
+            setEndpoints(container, server, api.getNonStaticEndpoints())
+        })
+        .catch(err => {
+            container.logger.error(`API loading error ${err}`)
+        })
 }

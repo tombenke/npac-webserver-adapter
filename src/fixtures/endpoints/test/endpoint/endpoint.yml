@@ -1,54 +1,46 @@
-name: Test service
-description: This is a test service
-uriTemplate: /test/endpoint
-style: RESOURCE
-methods:
-    GET:
-        summary: test resource
-        notes: Responses the service descriptor, since there is no implementation function defined
-        # implementation: test.endpoint
-        request:
-            parameters: []
-            cookies: []
-            headers:
-                -
-                    field: Accept
-                    content: "application/json"
-        responses:
-            -
-                name: OK
-                statusCode: 200
-                reason: Successful execution
-                # validationSchema: get-response-schema.yaml
-                cookies: []
-                headers: []
-    PUT:
-        summary: test resource
-        notes: Will call the test.endpoint() function to respond
-        implementation: testAdapter.endpoint
-        request:
-            parameters: []
-            cookies: []
-            headers: []
-        responses:
-            -
-                name: OK
-                statusCode: 200
-                reason: Successful execution
-                cookies: []
-                headers: []
-    POST:
-        summary: test resource
-        notes: Will call the test.endpointErr500() function to respond
-        implementation: testAdapter.endpointErr500
-        request:
-            parameters: []
-            cookies: []
-            headers: []
-        responses:
-            -
-                name: Err500
-                statusCode: 500
-                reason: Internal Server Error
-                cookies: []
-                headers: []
+# /test/endpoint:
+get:
+  tags: 
+    - "non-static"
+  summary: Test resource
+  description: Responses the service descriptor, since there is no implementation function defined
+  # operationId: test.endpoint
+  consumes:
+    - application/json
+  produces: 
+    - application/json
+  responses: 
+    "200": 
+      description: OK
+  deprecated: false
+
+put:
+  tags: 
+    - "non-static"
+  summary: Test resource
+  description: Will call the test.endpoint() function to respond
+  operationId: testAdapter.endpoint
+  consumes:
+    - application/json
+  produces: 
+    - application/json
+  responses: 
+    "200": 
+      description: OK
+  deprecated: false
+
+post:
+  tags: 
+    - "non-static"
+  summary: Test resource
+  description: Will call the test.endpointErr500() function to respond
+  operationId: testAdapter.endpointErr500
+  consumes:
+    - application/json
+  produces: 
+    - application/json
+  responses: 
+    "200": 
+      description: OK
+  deprecated: false
+

@@ -1,0 +1,46 @@
+swagger: "2.0"
+
+info: 
+  title: An API that combines non-static and static endpoints
+  description: This is a relatively complex API specification, that is made of several parts.
+  version: "1.0"
+  contact: 
+    name: combined
+    url: "https://github.com/tombenke/rest-tool-common"
+    email: "tombenke@gmail.com"
+
+schemes:
+  - http
+
+consumes: []
+produces:
+  - application/json
+
+host: localhost
+basePath: /
+
+tags: 
+  - name: non-static
+    description: These endpoints are non-static ones
+
+  - name: static
+    description: These are static endpoints
+
+securityDefinitions: 
+  PartnerToken: 
+    description: The frontend uses ApiKey to access to these endpoints
+    type: apiKey
+    name: token
+    in: query
+
+security: 
+  - PartnerToken: []
+
+paths:
+# test non-static endpoints
+  /test/endpoint:
+    $ref: ./test/endpoint/endpoint.yml
+
+# Static content service endpoint
+  /docs/:
+    $ref: ./docs/endpoint.yml

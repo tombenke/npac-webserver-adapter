@@ -52,27 +52,32 @@ const startup = (container, next) => {
 
     setMiddlewares(container, server, 'preRouting')
     setRoutes(container, server)
-    setMiddlewares(container, server, 'postRouting')
+        .then(() => {
+            setMiddlewares(container, server, 'postRouting')
 
-    // TODO: Set configuration parameters for HTTPS and enable it
-    // Start the server to listen, either a HTTPS or an HTTP one:
-    /*
-    https.createServer({
-          key: fs.readFileSync('key.pem'),
-          cert: fs.readFileSync('cert.pem'),
-          passphrase: 'SomePassPhrase12345'
-        }, server).listen(4443)
-    */
+            // TODO: Set configuration parameters for HTTPS and enable it
+            // Start the server to listen, either a HTTPS or an HTTP one:
+            /*
+            https.createServer({
+                  key: fs.readFileSync('key.pem'),
+                  cert: fs.readFileSync('cert.pem'),
+                  passphrase: 'SomePassPhrase12345'
+                }, server).listen(4443)
+            */
 
-    httpInstance = server.listen(config.webServer.port, () => {
-        container.logger.info(`Express server listening on port ${config.webServer.port}`)
-        // Call next setup function with the context extension
-        next(null, {
-            webServer: {
-                server: httpInstance
-            }
+            httpInstance = server.listen(config.webServer.port, () => {
+                container.logger.info(`Express server listening on port ${config.webServer.port}`)
+                // Call next setup function with the context extension
+                next(null, {
+                    webServer: {
+                        server: httpInstance
+                    }
+                })
+            })
         })
-    })
+        .catch(err => {
+            container.logger.error(`Server startup failed ${err}`)
+        })
 }
 
 const shutdown = (container, next) => {
