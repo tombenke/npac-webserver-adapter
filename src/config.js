@@ -1,16 +1,31 @@
-import path from 'path'
 /**
- * The default configuration for the webServer
+ * The configuration parameters module of the webserver adapter.
  *
- *  {
- *      app: {
- *          name: {String},             // The name of the generator tool
- *          version: {String}           // The version of the generator tool
- *      },
- *      configFileName: {String},       // The name of the config file '.rest-tool.yml',
- *      logLevel: {String},             // The log level: (info | warn | error | debug)
+ * The property values of this object will be resolved during the startup process.
+ * This object will appear as the default setup within the `container.config.webServer` property during the startup process, when the `startup` function of this adapter is called.
+ *
+ * In order to change the values of the configuration parameters, use either the corresponding environment variables, or merge your config object, with this default config setup.
+ *
+ * @module config
+ */
+import path from 'path'
+
+/**
+ * The default configuration for the webServer:
  */
 module.exports = {
+    /**
+     * The webserver related configuration object, that will be merged into the `container.config` object.
+     *
+     * @property {Number} port - The port where the webserver will listen. Env.: `WEBSERVER_PORT`. Default: `3007`.
+     * @property {Boolean} useCompression - If `true` then the server will use the compression middleware. Env: `WEBSERVER_USE_COMPRESSION`. Default: `false`.
+     * @property {Boolean} usePdms: If `true` the adapter will use the API call forwarding towards NATS topics. Env.: `WEBSERVER_USE_PDMS`. Default: `false`.
+     * @property {Object} middlewares: The dictionary of middleware functions needs to be added. Defaults: `{ preRouting: [], postRouting: [] }`.
+     * @property {String} restApiPath: The path to the root file of the swagger/OpenApi descriptor file(s) Env.: `WEBSERVER_RESTAPIPATH`.
+     * @property {String} staticContentBasePath: The base path to the static endpoints of the REST API. Env.: `WEBSERVER_STATIC_CONTENT_BASEPATH`.
+     * @property {Object} oasConfig - The swagger-parser configuration object. Defaults: `{ parse: { yaml: { allowEmpty: false }, resolve: { file: true } } }`
+     *
+     */
     webServer: {
         port: process.env.WEBSERVER_PORT || 3007,
         useCompression: process.env.WEBSERVER_USE_COMPRESSION || false,

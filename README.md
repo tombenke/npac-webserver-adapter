@@ -29,9 +29,19 @@ The default parameters can be found in [`src/config.js`](src/config.js):
         useCompression: process.env.WEBSERVER_USE_COMPRESSION || false,
         useResponseTime: process.env.WEBSERVER_USE_RESPONSE_TIME || false,
         usePdms: process.env.WEBSERVER_USE_PDMS || false,
-        middlewares: { preRouting: [], postRouting: [] },,
+        middlewares: { preRouting: [], postRouting: [] },
         restApiPath: process.env.WEBSERVER_RESTAPIPATH || __dirname,
-        staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || path.resolve()
+        staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || path.resolve(),
+        oasConfig: {
+            parse: {
+                yaml: {
+                    allowEmpty: false // Don't allow empty YAML files
+                },
+                resolve: {
+                    file: true // Resolve local file references
+                }
+            }
+        }
     }
 }
 ```

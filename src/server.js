@@ -1,3 +1,10 @@
+/**
+ * The server module of the webserver adapter.
+ *
+ * Used only internally by the adapter.
+ *
+ * @module server
+ */
 import express from 'express'
 import expressWinston from 'express-winston'
 import cookieParser from 'cookie-parser'
@@ -9,8 +16,11 @@ import { setRoutes } from './routes'
 import flash from 'connect-flash'
 import responseTime from 'response-time'
 
-//const fs from 'fs'
-//const https from 'https'
+/*
+TODO: Make HTTPS available too
+const fs from 'fs'
+const https from 'https'
+*/
 let httpInstance = null
 
 /**
@@ -51,19 +61,20 @@ export const startupServer = (container, api) => {
 
     // required for passport
     server.use(session({ secret: 'larger is dropped once', resave: false, saveUninitialized: false })) // session secret
-    // TODO: Implement authorization
-    //    auth.loadUsers(container),
-    //    server.use(auth.initialize())
-    //    server.use(auth.session()) // persistent login sessions
+    /* TODO: Implement authorization
+        auth.loadUsers(container),
+        server.use(auth.initialize())
+        server.use(auth.session()) // persistent login sessions
+    */
     server.use(flash()) // use connect-flash for flash messages stored in session
 
     setMiddlewares(container, server, 'preRouting')
     setRoutes(container, server, api)
     setMiddlewares(container, server, 'postRouting')
 
-    // TODO: Set configuration parameters for HTTPS and enable it
+    /* TODO: Set configuration parameters for HTTPS and enable it
     // Start the server to listen, either a HTTPS or an HTTP one:
-    /*
+
     https.createServer({
           key: fs.readFileSync('key.pem'),
           cert: fs.readFileSync('cert.pem'),

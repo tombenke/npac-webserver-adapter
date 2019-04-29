@@ -8,7 +8,7 @@
     },
     "sourceType": "module",
     "source": {
-        "include": [ "./src/" ]
+        "include": [ "src/" ]
     },
     "plugins": ["plugins/markdown"],
     "markdown": {

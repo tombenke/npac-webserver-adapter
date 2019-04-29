@@ -17,23 +17,35 @@ var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _restToolCommon = require('rest-tool-common');
-
 var _restapi = require('./restapi');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var setRoutes = exports.setRoutes = function setRoutes(container, server) {
-    // Define further routes
-    var config = container.config.webServer;
+/**
+ * Setup the static and non-static endpoints of the webserver
+ *
+ * @arg {Object} container - The container context
+ * @arg {Object} server - The webserver object the endpoints will be added to
+ * @arg {Object} api - The API descriptor object
+ *
+ * @function
+ */
+/**
+ * The routes module of the webserver adapter.
+ *
+ * Used only internally by the adapter.
+ *
+ * @module routes
+ */
 
-    //set(server, authGuard, container)
-    (0, _restapi.setEndpoints)(container, server);
-
-    //const authGuard = ensureLoggedIn('/login.html')
-    _lodash2.default.map(_restToolCommon.services.getAllStaticEndpoints(), function (staticEndpoint) {
-        var contentPath = _path2.default.resolve(config.staticContentBasePath, staticEndpoint.contentPath);
-        container.logger.debug('Bind ' + contentPath + ' to ' + staticEndpoint.uriTemplate + ' as static content service');
-        server.use(staticEndpoint.uriTemplate, /*authGuard,*/_express2.default.static(contentPath));
+//TODO: import { ensureLoggedIn } from 'connect-ensure-login'
+var setRoutes = exports.setRoutes = function setRoutes(container, server, api) {
+    // Setup static endpoints
+    _lodash2.default.map(api.getStaticEndpoints(), function (staticEndpoint) {
+        var contentPath = _path2.default.resolve(container.config.webServer.staticContentBasePath, staticEndpoint.static.contentPath);
+        container.logger.debug('Bind ' + contentPath + ' to ' + staticEndpoint.uri + ' as static content service');
+        server.use(staticEndpoint.uri, /*TODO: authGuard,*/_express2.default.static(contentPath));
     });
-}; //import { ensureLoggedIn } from 'connect-ensure-login'
+    // Setup non-static endpoints
+    (0, _restapi.setEndpoints)(container, server, api.getNonStaticEndpoints());
+};

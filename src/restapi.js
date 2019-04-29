@@ -1,3 +1,12 @@
+/**
+ * The restapi module of the webserver adapter.
+ *
+ * This module implements the handler functions that serve the incoming endpoint calls
+ *
+ * Used only internally by the adapter.
+ *
+ * @module restapi
+ */
 import _ from 'lodash'
 import CircularJSON from 'circular-json-es6'
 
@@ -9,7 +18,20 @@ const defaultResponseBody = {
     error: 'The endpoint is not implemented'
 }
 
-const mkHandlerFun = (endpoint, container) => (req, res, next) => {
+/**
+ * Make handler function that serves the incoming API calls
+ *
+ * This is a currying function, that returns with a function which will handle the given API call.
+ *
+ * @arg {Object} container - The container context
+ * @arg {Object} endpoint - The non-static endpoint descriptor object
+ * @arg {Object} req - The request object of the API call.
+ * @arg {Object} res - The response object of the API call.
+ * @arg {Function} next - The error-first callback, to call the next middleware in the chain.
+ *
+ * @function
+ */
+const mkHandlerFun = (container, endpoint) => (req, res, next) => {
     const { uri, method, operationId } = endpoint
     container.logger.debug(`REQ method:"${method}" uri:"${uri}"`)
 
@@ -42,11 +64,20 @@ const mkHandlerFun = (endpoint, container) => (req, res, next) => {
     }
 }
 
-export const setEndpoints = (container, server, endpointMap) => {
+/**
+ * Setup the non-static endpoints of the web server
+ *
+ * @arg {Object} container - The container context
+ * @arg {Object} server - The server object, that the endpoints will be added to
+ * @arg {Array} endpoints - The array of endpoint descriptor objects
+ *
+ * @function
+ */
+export const setEndpoints = (container, server, endpoints) => {
     container.logger.debug(
-        `restapi.setEndpoints/endpointMap ${JSON.stringify(_.map(endpointMap, ep => [ep.method, ep.uri]), null, '')}`
+        `restapi.setEndpoints/endpointMap ${JSON.stringify(_.map(endpoints, ep => [ep.method, ep.uri]), null, '')}`
     )
-    _.map(endpointMap, endpoint => {
-        server[endpoint.method](endpoint.jsfUri, mkHandlerFun(endpoint, container))
+    _.map(endpoints, endpoint => {
+        server[endpoint.method](endpoint.jsfUri, mkHandlerFun(container, endpoint))
     })
 }

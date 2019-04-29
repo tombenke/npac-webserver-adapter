@@ -123,7 +123,7 @@ describe('webServer adapter', function () {
         webServer: {
             useCompression: true,
             useResponseTime: true,
-            restApiPath: __dirname + '/fixtures/endpoints/',
+            restApiPath: __dirname + '/fixtures/endpoints/api.yml',
             middlewares: { preRouting: [acceptCheckMiddleware], postRouting: [tracerMiddleware] },
             staticContentBasePath: __dirname // + '/fixtures/content/'
         }
@@ -216,10 +216,13 @@ describe('webServer adapter', function () {
                 headers: _defineProperty({
                     Accept: 'application/json'
                 }, traceIdHeader, traceIdValue)
-            }).then(function (response) {
-                var status = response.status;
+            }).catch(function (err) {
+                var _err$response = err.response,
+                    status = _err$response.status,
+                    data = _err$response.data;
 
-                (0, _chai.expect)(status).to.equal(200);
+                (0, _chai.expect)(status).to.equal(501);
+                (0, _chai.expect)(data).to.eql({ error: 'The endpoint is not implemented' });
                 (0, _chai.expect)(acceptCheckMwCall.calledOnce).to.be.true;
                 (0, _chai.expect)(tracerMwCall.calledOnce).to.be.true;
                 next(null, null);

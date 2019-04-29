@@ -29,7 +29,17 @@ describe('server/config', function () {
                 usePdms: false,
                 middlewares: { preRouting: [], postRouting: [] },
                 restApiPath: _path2.default.resolve(),
-                staticContentBasePath: _path2.default.resolve()
+                staticContentBasePath: _path2.default.resolve(),
+                oasConfig: {
+                    parse: {
+                        yaml: {
+                            allowEmpty: false
+                        },
+                        resolve: {
+                            file: true
+                        }
+                    }
+                }
             }
         };
 

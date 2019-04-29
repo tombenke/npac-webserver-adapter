@@ -54,9 +54,19 @@
         useCompression: process.env.WEBSERVER_USE_COMPRESSION || false,
         useResponseTime: process.env.WEBSERVER_USE_RESPONSE_TIME || false,
         usePdms: process.env.WEBSERVER_USE_PDMS || false,
-        middlewares: { preRouting: [], postRouting: [] },,
+        middlewares: { preRouting: [], postRouting: [] },
         restApiPath: process.env.WEBSERVER_RESTAPIPATH || __dirname,
-        staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || path.resolve()
+        staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || path.resolve(),
+        oasConfig: {
+            parse: {
+                yaml: {
+                    allowEmpty: false // Don't allow empty YAML files
+                },
+                resolve: {
+                    file: true // Resolve local file references
+                }
+            }
+        }
     }
 }</code></pre><h2>Get Help</h2><p>To learn more about the tool visit the <a href="http://tombenke.github.io/npac-webserver-adapter/api/">homepage</a>.</p>
 <h2>References</h2><ul>
@@ -73,7 +83,7 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config.html">config</a></li><li><a href="module-middlewares.html">middlewares</a></li><li><a href="module-npac-webserver-adapter.html">npac-webserver-adapter</a></li><li><a href="module-restapi.html">restapi</a></li><li><a href="module-routes.html">routes</a></li><li><a href="module-server.html">server</a></li></ul>
 </nav>
 
 <br class="clear">

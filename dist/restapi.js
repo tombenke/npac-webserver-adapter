@@ -9,46 +9,51 @@ var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _restToolCommon = require('rest-tool-common');
-
 var _circularJsonEs = require('circular-json-es6');
 
 var _circularJsonEs2 = _interopRequireDefault(_circularJsonEs);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var makeJsonicFriendly = function makeJsonicFriendly(uri) {
-    //return uri.replace(/\{|\}/g, ':')
-    return uri.replace(/\{/g, ':').replace(/\}/g, '');
+/**
+ * The restapi module of the webserver adapter.
+ *
+ * This module implements the handler functions that serve the incoming endpoint calls
+ *
+ * Used only internally by the adapter.
+ *
+ * @module restapi
+ */
+var defaultResponseHeaders = {
+    'Content-Type': 'application/json'
 };
 
-var getNonStaticEndpointMap = function getNonStaticEndpointMap(container) {
-    // Load services config and service descriptors
-    container.logger.info('Load services from ' + container.config.webServer.restApiPath);
-    var endpoints = _lodash2.default.filter(_restToolCommon.services.load(container.config.webServer.restApiPath, ''), function (endp) {
-        return !_lodash2.default.has(endp, 'methods.GET.static');
-    });
-    return _lodash2.default.flatMap(endpoints, function (endpoint) {
-        var uri = endpoint.uriTemplate;
-        var methods = endpoint.methodList;
-        return _lodash2.default.map(methods, function (method) {
-            return {
-                method: method.methodName.toLowerCase(),
-                uri: uri,
-                jsfUri: makeJsonicFriendly(uri),
-                endpointDesc: endpoint
-            };
-        });
-    });
-};
+var defaultResponseBody = {
+    error: 'The endpoint is not implemented'
 
-var mkHandlerFun = function mkHandlerFun(endpoint, container) {
+    /**
+     * Make handler function that serves the incoming API calls
+     *
+     * This is a currying function, that returns with a function which will handle the given API call.
+     *
+     * @arg {Object} container - The container context
+     * @arg {Object} endpoint - The non-static endpoint descriptor object
+     * @arg {Object} req - The request object of the API call.
+     * @arg {Object} res - The response object of the API call.
+     * @arg {Function} next - The error-first callback, to call the next middleware in the chain.
+     *
+     * @function
+     */
+};var mkHandlerFun = function mkHandlerFun(container, endpoint) {
     return function (req, res, next) {
-        container.logger.debug('REQ method:"' + endpoint.method + '" uri:"' + endpoint.uri + '"');
+        var uri = endpoint.uri,
+            method = endpoint.method,
+            operationId = endpoint.operationId;
 
-        var serviceImplName = _restToolCommon.services.getImplementation(endpoint.endpointDesc, endpoint.method);
-        if (serviceImplName !== null) {
-            var serviceFun = _lodash2.default.get(container, serviceImplName);
+        container.logger.debug('REQ method:"' + method + '" uri:"' + uri + '"');
+
+        if (operationId !== null) {
+            var serviceFun = _lodash2.default.get(container, operationId);
             if (_lodash2.default.isFunction(serviceFun)) {
                 serviceFun(req, endpoint).then(function (result) {
                     res.set(result.headers).status(200).json(result.body);
@@ -60,20 +65,29 @@ var mkHandlerFun = function mkHandlerFun(endpoint, container) {
                 });
             }
         } else {
-            var responseHeaders = _restToolCommon.services.getResponseHeaders(endpoint.method, endpoint.endpointDesc);
-            var responseBody = _restToolCommon.services.getMockResponseBody(endpoint.method, endpoint.endpointDesc) || endpoint;
-            res.set(responseHeaders).status(200).json(responseBody);
+            // TODO: place the default response here if there is any
+            var responseHeaders = defaultResponseHeaders;
+            var responseBody = defaultResponseBody;
+            res.set(responseHeaders).status(501).json(responseBody);
             next();
         }
     };
 };
 
-var setEndpoints = exports.setEndpoints = function setEndpoints(container, server) {
-    var endpointMap = getNonStaticEndpointMap(container);
-    container.logger.debug('restapi.setEndpoints/endpointMap ' + JSON.stringify(_lodash2.default.map(endpointMap, function (ep) {
+/**
+ * Setup the non-static endpoints of the web server
+ *
+ * @arg {Object} container - The container context
+ * @arg {Object} server - The server object, that the endpoints will be added to
+ * @arg {Array} endpoints - The array of endpoint descriptor objects
+ *
+ * @function
+ */
+var setEndpoints = exports.setEndpoints = function setEndpoints(container, server, endpoints) {
+    container.logger.debug('restapi.setEndpoints/endpointMap ' + JSON.stringify(_lodash2.default.map(endpoints, function (ep) {
         return [ep.method, ep.uri];
     }), null, ''));
-    _lodash2.default.map(endpointMap, function (endpoint) {
-        server[endpoint.method](endpoint.jsfUri, mkHandlerFun(endpoint, container));
+    _lodash2.default.map(endpoints, function (endpoint) {
+        server[endpoint.method](endpoint.jsfUri, mkHandlerFun(container, endpoint));
     });
 };
