@@ -11,6 +11,27 @@ import { loadOas } from 'rest-tool-common'
 import { startupServer, shutdownServer } from './server'
 
 /**
+ * Resolve the swagger descriptor to be loaded.
+ *
+ * @arg {Object} container - The container context
+ * @arg {String|Object} oasFile - The path string to the swagger file, or the swagger object itself
+ *
+ * @return {String|Object} The full path resolved, if it is a path, or the swagger object.
+ *
+ * @function
+ */
+const resolveOasFile = (container, oasFile) => {
+    if (_.isString(oasFile)) {
+        // It is a path string
+        const oasFilePath = path.resolve(oasFile)
+        container.logger.info(`Load endpoints from ${oasFilePath}`)
+        return oasFilePath
+    }
+    // oasFile must be a swagger object
+    return oasFile
+}
+
+/**
  * The startup function of the adapter.
  *
  * This function has to be added to the `adapters` array of the container application to be executed during the startup process.
@@ -33,8 +54,8 @@ const startup = (container, next) => {
     const config = _.merge({}, defaults, { webServer: container.config.webServer || {} })
 
     // Load the Swagger/OpenAPI format API definition
-    const oasFile = path.resolve(config.webServer.restApiPath)
-    container.logger.info(`Load endpoints from ${oasFile}`)
+
+    const oasFile = resolveOasFile(container, config.webServer.restApiPath)
     return loadOas(oasFile, config.webServer.oasConfig)
         .catch(err => {
             container.logger.error(`API loading error ${err}`)

@@ -162,7 +162,7 @@ describe('webServer adapter', () => {
         npacStart(adapters, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with no adaptor function', done => {
+    it('#call existing REST endpoint with no adapter function', done => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -192,7 +192,7 @@ describe('webServer adapter', () => {
         npacStart(adapters, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with adaptor function', done => {
+    it('#call existing REST endpoint with adapter function', done => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {

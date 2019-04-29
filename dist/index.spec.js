@@ -199,7 +199,7 @@ describe('webServer adapter', function () {
         (0, _npac.npacStart)(adapters, [testServer], terminators);
     }).timeout(30000);
 
-    it('#call existing REST endpoint with no adaptor function', function (done) {
+    it('#call existing REST endpoint with no adapter function', function (done) {
         (0, _npac.catchExitSignals)(sandbox, done);
 
         var testServer = function testServer(container, next) {
@@ -232,7 +232,7 @@ describe('webServer adapter', function () {
         (0, _npac.npacStart)(adapters, [testServer], terminators);
     }).timeout(30000);
 
-    it('#call existing REST endpoint with adaptor function', function (done) {
+    it('#call existing REST endpoint with adapter function', function (done) {
         (0, _npac.catchExitSignals)(sandbox, done);
 
         var testServer = function testServer(container, next) {

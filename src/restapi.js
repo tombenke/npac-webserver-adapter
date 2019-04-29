@@ -14,10 +14,6 @@ const defaultResponseHeaders = {
     'Content-Type': 'application/json'
 }
 
-const defaultResponseBody = {
-    error: 'The endpoint is not implemented'
-}
-
 /**
  * Make handler function that serves the incoming API calls
  *
@@ -36,7 +32,7 @@ const mkHandlerFun = (container, endpoint) => (req, res, next) => {
     container.logger.debug(`REQ method:"${method}" uri:"${uri}"`)
 
     if (operationId !== null) {
-        const serviceFun = _.get(container, operationId)
+        const serviceFun = _.get(container, operationId, null)
         if (_.isFunction(serviceFun)) {
             serviceFun(req, endpoint)
                 .then(result => {
@@ -52,14 +48,21 @@ const mkHandlerFun = (container, endpoint) => (req, res, next) => {
                         .json(errResult.body)
                     next()
                 })
+        } else {
+            res.set(defaultResponseHeaders)
+                .status(501)
+                .json({
+                    error: 'The operationId refers to a non-existing service function'
+                })
+            next()
         }
     } else {
-        // TODO: place the default response here if there is any
-        const responseHeaders = defaultResponseHeaders
-        const responseBody = defaultResponseBody
-        res.set(responseHeaders)
+        // The operationId is null
+        res.set(defaultResponseHeaders)
             .status(501)
-            .json(responseBody)
+            .json({
+                error: 'The endpoint is not implemented'
+            })
         next()
     }
 }

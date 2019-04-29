@@ -19,6 +19,27 @@ var _server = require('./server');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
+ * Resolve the swagger descriptor to be loaded.
+ *
+ * @arg {Object} container - The container context
+ * @arg {String|Object} oasFile - The path string to the swagger file, or the swagger object itself
+ *
+ * @return {String|Object} The full path resolved, if it is a path, or the swagger object.
+ *
+ * @function
+ */
+var resolveOasFile = function resolveOasFile(container, oasFile) {
+    if (_lodash2.default.isString(oasFile)) {
+        // It is a path string
+        var oasFilePath = _path2.default.resolve(oasFile);
+        container.logger.info('Load endpoints from ' + oasFilePath);
+        return oasFilePath;
+    }
+    // oasFile must be a swagger object
+    return oasFile;
+};
+
+/**
  * The startup function of the adapter.
  *
  * This function has to be added to the `adapters` array of the container application to be executed during the startup process.
@@ -36,13 +57,19 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  * @function
  */
+/**
+ * The main module of the webserver adapter.
+ *
+ * @module npac-webserver-adapter
+ */
+
 var startup = function startup(container, next) {
     // Merges the defaults with the config coming from the outer world
     var config = _lodash2.default.merge({}, _config2.default, { webServer: container.config.webServer || {} });
 
     // Load the Swagger/OpenAPI format API definition
-    var oasFile = _path2.default.resolve(config.webServer.restApiPath);
-    container.logger.info('Load endpoints from ' + oasFile);
+
+    var oasFile = resolveOasFile(container, config.webServer.restApiPath);
     return (0, _restToolCommon.loadOas)(oasFile, config.webServer.oasConfig).catch(function (err) {
         container.logger.error('API loading error ' + err);
     }).then(function (api) {
@@ -69,12 +96,6 @@ var startup = function startup(container, next) {
  *
  * @function
  */
-/**
- * The main module of the webserver adapter.
- *
- * @module npac-webserver-adapter
- */
-
 var shutdown = function shutdown(container, next) {
     (0, _server.shutdownServer)(container);
     next(null, null);

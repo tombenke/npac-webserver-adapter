@@ -26,10 +26,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  */
 var defaultResponseHeaders = {
     'Content-Type': 'application/json'
-};
-
-var defaultResponseBody = {
-    error: 'The endpoint is not implemented'
 
     /**
      * Make handler function that serves the incoming API calls
@@ -53,7 +49,7 @@ var defaultResponseBody = {
         container.logger.debug('REQ method:"' + method + '" uri:"' + uri + '"');
 
         if (operationId !== null) {
-            var serviceFun = _lodash2.default.get(container, operationId);
+            var serviceFun = _lodash2.default.get(container, operationId, null);
             if (_lodash2.default.isFunction(serviceFun)) {
                 serviceFun(req, endpoint).then(function (result) {
                     res.set(result.headers).status(200).json(result.body);
@@ -63,12 +59,17 @@ var defaultResponseBody = {
                     res.set(errResult.headers).status(errResult.status).json(errResult.body);
                     next();
                 });
+            } else {
+                res.set(defaultResponseHeaders).status(501).json({
+                    error: 'The operationId refers to a non-existing service function'
+                });
+                next();
             }
         } else {
-            // TODO: place the default response here if there is any
-            var responseHeaders = defaultResponseHeaders;
-            var responseBody = defaultResponseBody;
-            res.set(responseHeaders).status(501).json(responseBody);
+            // The operationId is null
+            res.set(defaultResponseHeaders).status(501).json({
+                error: 'The endpoint is not implemented'
+            });
             next();
         }
     };
