@@ -45,6 +45,8 @@
     <section>
         <article><h1>npac-webserver-adapter</h1><p><a href="http://github.com/badges/stability-badges"><img src="http://badges.github.io/stability-badges/dist/stable.svg" alt="stable"></a><br><a href="https://badge.fury.io/js/npac-webserver-adapter"><img src="https://badge.fury.io/js/npac-webserver-adapter.svg" alt="npm version"></a><br><a href="https://travis-ci.org/tombenke/npac-webserver-adapter"><img src="https://api.travis-ci.org/tombenke/npac-webserver-adapter.svg" alt="Build Status"></a><br><a href="https://coveralls.io/github/tombenke/npac-webserver-adapter?branch=master"><img src="https://coveralls.io/repos/github/tombenke/npac-webserver-adapter/badge.svg?branch=master" alt="Coveralls"></a></p>
 <h2>About</h2><p>npac adapter with webServer api, using Express.js</p>
+<p>It is a complete web server, that loads the API specification from swagger/OpenApi descriptors.</p>
+<p>Use the public <code>startup</code> and <code>shutdown</code> functions defined in <a href="src/index.js"><code>src/index.js</code></a> within an <a href="http://tombenke.github.io/npac"><code>npac</code></a> container.<br>To learn more about the functions visit the <a href="http://tombenke.github.io/npac-webserver-adapter/api/">homepage</a>.<br>See also the test cases in <a href="src/index.spec.js"><code>src/index.spec.js</code></a> as examples of how to configure and use the module.</p>
 <h2>Installation</h2><p>Run the install command:</p>
 <pre class="prettyprint source"><code>npm install --save npac-webserver-adapter</code></pre><h2>Configuration</h2><p>This module uses the <code>config.webServer</code> property to gain its configuration parameters.</p>
 <p>The default parameters can be found in <a href="src/config.js"><code>src/config.js</code></a>:</p>
@@ -68,11 +70,7 @@
             }
         }
     }
-}</code></pre><h2>Get Help</h2><p>To learn more about the tool visit the <a href="http://tombenke.github.io/npac-webserver-adapter/api/">homepage</a>.</p>
-<h2>References</h2><ul>
-<li><a href="http://tombenke.github.io/npac">npac</a>.</li>
-</ul>
-<hr></article>
+}</code></pre><hr></article>
     </section>
 
 
