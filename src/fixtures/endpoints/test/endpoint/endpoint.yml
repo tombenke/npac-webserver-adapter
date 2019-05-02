@@ -3,8 +3,10 @@ get:
   tags: 
     - "non-static"
   summary: Test resource
-  description: Responses the service descriptor, since there is no implementation function defined
-  # operationId: test.endpoint
+  description: |
+      If PDMS is enabled then forward the request toward the NATS middleware,
+      otherwise responses with 501 error, since there is no implementation function defined
+  # operationId: NOT_DEFINED
   consumes:
     - application/json
   produces: 

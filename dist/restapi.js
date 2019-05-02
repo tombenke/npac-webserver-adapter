@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.setEndpoints = undefined;
+exports.callPdmsForwarder = exports.callServiceFuntion = exports.setEndpoints = undefined;
 
 var _lodash = require('lodash');
 
@@ -16,6 +16,15 @@ var _circularJsonEs2 = _interopRequireDefault(_circularJsonEs);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
+ * Setup the non-static endpoints of the web server
+ *
+ * @arg {Object} container - The container context
+ * @arg {Object} server - The server object, that the endpoints will be added to
+ * @arg {Array} endpoints - The array of endpoint descriptor objects
+ *
+ * @function
+ */
+/**
  * The restapi module of the webserver adapter.
  *
  * This module implements the handler functions that serve the incoming endpoint calls
@@ -24,6 +33,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  * @module restapi
  */
+var setEndpoints = exports.setEndpoints = function setEndpoints(container, server, endpoints) {
+    container.logger.debug('restapi.setEndpoints/endpointMap ' + JSON.stringify(_lodash2.default.map(endpoints, function (ep) {
+        return [ep.method, ep.uri];
+    }), null, ''));
+    _lodash2.default.map(endpoints, function (endpoint) {
+        server[endpoint.method](endpoint.jsfUri, mkHandlerFun(container, endpoint));
+    });
+};
 var defaultResponseHeaders = {
     'Content-Type': 'application/json'
 
@@ -49,16 +66,10 @@ var defaultResponseHeaders = {
         container.logger.debug('REQ method:"' + method + '" uri:"' + uri + '"');
 
         if (operationId !== null) {
+            // operationId is defined in the endpoint descriptor
             var serviceFun = _lodash2.default.get(container, operationId, null);
             if (_lodash2.default.isFunction(serviceFun)) {
-                serviceFun(req, endpoint).then(function (result) {
-                    res.set(result.headers).status(200).json(result.body);
-                    next();
-                }).catch(function (errResult) {
-                    container.logger.error(_circularJsonEs2.default.stringify(errResult));
-                    res.set(errResult.headers).status(errResult.status).json(errResult.body);
-                    next();
-                });
+                callServiceFuntion(container, endpoint, req, res, serviceFun, next);
             } else {
                 res.set(defaultResponseHeaders).status(501).json({
                     error: 'The operationId refers to a non-existing service function'
@@ -67,28 +78,92 @@ var defaultResponseHeaders = {
             }
         } else {
             // The operationId is null
-            res.set(defaultResponseHeaders).status(501).json({
-                error: 'The endpoint is not implemented'
-            });
-            next();
+            if (container.config.webServer.usePdms) {
+                // Do PDMS forwarding
+                callPdmsForwarder(container, endpoint, req, res, next);
+            } else {
+                // No operationId, no PDMS forwarding enabled
+                res.set(defaultResponseHeaders).status(501).json({
+                    error: 'The endpoint is not implemented'
+                });
+                next();
+            }
         }
     };
 };
 
 /**
- * Setup the non-static endpoints of the web server
+ * Call the service function
+ *
+ * Executes the call of the service function with the request and response parameters according to the endpoint description.
+ * The service function gets the request object and the endpoint descriptor. It must return a Promise, that will be resolved to a normal response.
+ * If the result of the service function is rejected it will response with error.
+ * Finally calls the `next()` middleware step.
  *
  * @arg {Object} container - The container context
- * @arg {Object} server - The server object, that the endpoints will be added to
- * @arg {Array} endpoints - The array of endpoint descriptor objects
+ * @arg {Object} endpoint - The non-static endpoint descriptor object
+ * @arg {Object} req - The request object of the API call.
+ * @arg {Object} res - The response object of the API call.
+ * @arg {Function} serviceFun - The service function, that must return a Promise.
+ * @arg {Function} next - The error-first callback, to call the next middleware in the chain.
  *
  * @function
  */
-var setEndpoints = exports.setEndpoints = function setEndpoints(container, server, endpoints) {
-    container.logger.debug('restapi.setEndpoints/endpointMap ' + JSON.stringify(_lodash2.default.map(endpoints, function (ep) {
-        return [ep.method, ep.uri];
-    }), null, ''));
-    _lodash2.default.map(endpoints, function (endpoint) {
-        server[endpoint.method](endpoint.jsfUri, mkHandlerFun(container, endpoint));
+var callServiceFuntion = exports.callServiceFuntion = function callServiceFuntion(container, endpoint, req, res, serviceFun, next) {
+    serviceFun(req, endpoint).then(function (result) {
+        // TODO: Manage several media types of response bodies, not only JSON
+        res.set(result.headers).status(200).json(result.body);
+        next();
+    }).catch(function (errResult) {
+        container.logger.error(_circularJsonEs2.default.stringify(errResult));
+        res.set(errResult.headers).status(errResult.status).json(errResult.body);
+        next();
+    });
+};
+
+/**
+ * Call the PDMS forwarder service function
+ *
+ * Executes a synchronous PDMS act, that puts the request to the topic named by the endpoint.uri.
+ * The message also containts the `method` and `uri` properties as well as
+ * the normalized version of the request object and the endpoint descriptor.
+ *
+ * The function will respond the result of the PDMS act call, finally calls the `next()` middleware step.
+ *
+ * @arg {Object} container - The container context
+ * @arg {Object} endpoint - The non-static endpoint descriptor object
+ * @arg {Object} req - The request object of the API call.
+ * @arg {Object} res - The response object of the API call.
+ * @arg {Function} next - The error-first callback, to call the next middleware in the chain.
+ *
+ * @function
+ */
+var callPdmsForwarder = exports.callPdmsForwarder = function callPdmsForwarder(container, endpoint, req, res, next) {
+    container.logger.info('PDMS.ACT topic: "' + endpoint.uri + '" method:"' + endpoint.method + '" uri:"' + endpoint.uri + '"');
+    container.pdms.act({
+        topic: endpoint.uri,
+        method: endpoint.method,
+        uri: endpoint.uri,
+        endpointDesc: endpoint,
+        request: {
+            user: req.user,
+            cookies: req.cookies,
+            headers: req.headers,
+            parameters: {
+                query: req.query,
+                uri: req.params
+            },
+            body: req.body
+        }
+    }, function (err, resp) {
+        if (err) {
+            console.log(JSON.stringify(err, null, 2));
+            container.logger.info('ERR ' + JSON.stringify(err));
+            res.set(_lodash2.default.get(err, 'details.headers', {})).status(_lodash2.default.get(err, 'details.status', 500)).send(_lodash2.default.get(err, 'details.body', err));
+        } else {
+            container.logger.info('RES ' + JSON.stringify(resp));
+            res.set(resp.headers || {}).status(_lodash2.default.get(resp, 'status', 200)).send(resp.body);
+        }
+        next();
     });
 };

@@ -111,17 +111,18 @@ describe('webServer adapter', () => {
     })
 
     const adapters = [mergeConfig(config), addLogger, testAdapter.startup, pdms.startup, server.startup]
-    /*
+
     const adaptersWithPdms = [
-        mergeConfig(_.merge({}, config, {
-            webServer: { usePdms: true },
-            // pdms: { natsUri: 'nats://localhost:4222' }
-        })),
+        mergeConfig(
+            _.merge({}, config, {
+                webServer: { usePdms: true }
+                // pdms: { natsUri: 'nats://localhost:4222' }
+            })
+        ),
         addLogger,
         pdms.startup,
         server.startup
     ]
-    */
 
     const terminators = [server.shutdown, pdms.shutdown, testAdapter.shutdown]
 
@@ -162,7 +163,7 @@ describe('webServer adapter', () => {
         npacStart(adapters, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with no adapter function', done => {
+    it('#call existing REST endpoint with no adapter function, NO PDMS used', done => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -250,5 +251,79 @@ describe('webServer adapter', () => {
         }
 
         npacStart(adapters, [testServer], terminators)
+    }).timeout(30000)
+
+    it('#call existing REST endpoint with PDMS forwarder function - PDMS Client Timeout', done => {
+        catchExitSignals(sandbox, done)
+
+        const testServer = (container, next) => {
+            const { port } = container.config.webServer
+            const host = `http://localhost:${port}`
+            const restEndpoint = `/test/endpoint`
+
+            container.logger.info(`Run job to test server`)
+            axios({
+                method: 'get',
+                url: `${host}${restEndpoint}`,
+                withCredentials: true,
+                headers: {
+                    Accept: 'application/json',
+                    [traceIdHeader]: traceIdValue
+                }
+            }).catch(error => {
+                const { status, statusText, headers, data } = error.response
+                container.logger.error(
+                    `status: ${status}, statusText: ${statusText}, headers: ${JSON.stringify(
+                        headers
+                    )}, data: ${JSON.stringify(data)}`
+                )
+                expect(status).to.equal(500)
+                expect(data.message).to.equal('Client timeout')
+                next(null, null)
+            })
+        }
+
+        npacStart(adaptersWithPdms, [testServer], terminators)
+    }).timeout(30000)
+
+    it('#call existing REST endpoint with PDMS forwarder function', done => {
+        catchExitSignals(sandbox, done)
+
+        const testServer = (container, next) => {
+            const { port } = container.config.webServer
+            const host = `http://localhost:${port}`
+            const restEndpoint = `/test/endpoint`
+            const expectedBody = { status: 'OK' }
+
+            // Add built-in service
+            container.pdms.add({ topic: restEndpoint, method: 'get', uri: restEndpoint }, (data, cb) => {
+                cb(null, {
+                    headers: {
+                        'Content-Type': 'application/json; charset=utf-8'
+                    },
+                    body: expectedBody
+                })
+            })
+
+            container.logger.info(`Run job to test server`)
+            axios({
+                method: 'get',
+                url: `${host}${restEndpoint}`,
+                withCredentials: true,
+                headers: {
+                    Accept: 'application/json',
+                    [traceIdHeader]: traceIdValue
+                }
+            }).then(response => {
+                const { status, /* statusText, headers,*/ data } = response
+                expect(status).to.equal(200)
+                expect(data).to.eql(expectedBody)
+                expect(acceptCheckMwCall.calledOnce).to.be.true
+                expect(tracerMwCall.calledOnce).to.be.true
+                next(null, null)
+            })
+        }
+
+        npacStart(adaptersWithPdms, [testServer], terminators)
     }).timeout(30000)
 })
