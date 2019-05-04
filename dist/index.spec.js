@@ -176,7 +176,7 @@ describe('webServer adapter', function () {
             container.logger.info('Run job to test server');
             (0, _axios2.default)({
                 method: 'get',
-                url: host + '/docs/',
+                url: host + '/docs/subcontent/',
                 withCredentials: true,
                 headers: {
                     Accept: '*/*'

@@ -9,6 +9,7 @@
 //TODO: import { ensureLoggedIn } from 'connect-ensure-login'
 import path from 'path'
 import express from 'express'
+import serveIndex from 'serve-index'
 import _ from 'lodash'
 import { setEndpoints } from './restapi'
 
@@ -29,7 +30,7 @@ export const setRoutes = (container, server, api) => {
             staticEndpoint.static.contentPath
         )
         container.logger.debug(`Bind ${contentPath} to ${staticEndpoint.uri} as static content service`)
-        server.use(staticEndpoint.uri, /*TODO: authGuard,*/ express.static(contentPath))
+        server.use(staticEndpoint.uri, /*TODO: authGuard,*/ express.static(contentPath), serveIndex(contentPath))
     })
     // Setup non-static endpoints
     setEndpoints(container, server, api.getNonStaticEndpoints())

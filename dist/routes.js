@@ -13,6 +13,10 @@ var _express = require('express');
 
 var _express2 = _interopRequireDefault(_express);
 
+var _serveIndex = require('serve-index');
+
+var _serveIndex2 = _interopRequireDefault(_serveIndex);
+
 var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
@@ -30,22 +34,21 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  * @function
  */
-/**
- * The routes module of the webserver adapter.
- *
- * Used only internally by the adapter.
- *
- * @module routes
- */
-
-//TODO: import { ensureLoggedIn } from 'connect-ensure-login'
 var setRoutes = exports.setRoutes = function setRoutes(container, server, api) {
     // Setup static endpoints
     _lodash2.default.map(api.getStaticEndpoints(), function (staticEndpoint) {
         var contentPath = _path2.default.resolve(container.config.webServer.staticContentBasePath, staticEndpoint.static.contentPath);
         container.logger.debug('Bind ' + contentPath + ' to ' + staticEndpoint.uri + ' as static content service');
-        server.use(staticEndpoint.uri, /*TODO: authGuard,*/_express2.default.static(contentPath));
+        server.use(staticEndpoint.uri, /*TODO: authGuard,*/_express2.default.static(contentPath), (0, _serveIndex2.default)(contentPath));
     });
     // Setup non-static endpoints
     (0, _restapi.setEndpoints)(container, server, api.getNonStaticEndpoints());
-};
+}; /**
+    * The routes module of the webserver adapter.
+    *
+    * Used only internally by the adapter.
+    *
+    * @module routes
+    */
+
+//TODO: import { ensureLoggedIn } from 'connect-ensure-login'

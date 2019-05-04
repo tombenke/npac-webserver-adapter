@@ -147,7 +147,7 @@ describe('webServer adapter', () => {
             container.logger.info(`Run job to test server`)
             axios({
                 method: 'get',
-                url: `${host}/docs/`,
+                url: `${host}/docs/subcontent/`,
                 withCredentials: true,
                 headers: {
                     Accept: '*/*'
