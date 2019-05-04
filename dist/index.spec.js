@@ -148,9 +148,9 @@ describe('webServer adapter', function () {
     var adapters = [(0, _npac.mergeConfig)(config), _npac.addLogger, testAdapter.startup, pdms.startup, server.startup];
 
     var adaptersWithPdms = [(0, _npac.mergeConfig)(_.merge({}, config, {
-        webServer: { usePdms: true }
-        // pdms: { natsUri: 'nats://localhost:4222' }
-    })), _npac.addLogger, pdms.startup, server.startup];
+        webServer: { usePdms: true
+            // pdms: { natsUri: 'nats://localhost:4222' }
+        } })), _npac.addLogger, pdms.startup, server.startup];
 
     var terminators = [server.shutdown, pdms.shutdown, testAdapter.shutdown];
 
