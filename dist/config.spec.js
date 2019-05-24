@@ -23,6 +23,7 @@ describe('server/config', function () {
     it('defaults', function (done) {
         var expected = {
             webServer: {
+                logBlackList: [],
                 port: 3007,
                 useCompression: false,
                 useResponseTime: false,

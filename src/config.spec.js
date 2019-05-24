@@ -13,6 +13,7 @@ describe('server/config', () => {
     it('defaults', done => {
         const expected = {
             webServer: {
+                logBlackList: [],
                 port: 3007,
                 useCompression: false,
                 useResponseTime: false,

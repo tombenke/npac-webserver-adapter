@@ -46,7 +46,9 @@ const defaultResponseHeaders = {
  */
 const mkHandlerFun = (container, endpoint) => (req, res, next) => {
     const { uri, method, operationId } = endpoint
-    container.logger.debug(`REQ method:"${method}" uri:"${uri}"`)
+    if (!isBlackListed(container, uri)) {
+        container.logger.debug(`REQ method:"${method}" uri:"${uri}"`)
+    }
 
     if (operationId !== null) {
         // operationId is defined in the endpoint descriptor
@@ -157,7 +159,9 @@ export const callPdmsForwarder = (container, endpoint, req, res, next) => {
                     .status(_.get(err, 'details.status', 500))
                     .send(_.get(err, 'details.body', err))
             } else {
-                container.logger.info(`RES ${JSON.stringify(resp)}`)
+                if (!isBlackListed(container, endpoint.uri)) {
+                    container.logger.debug(`RES ${JSON.stringify(resp)}`)
+                }
                 res.set(resp.headers || {})
                     .status(_.get(resp, 'status', 200))
                     .send(resp.body)
@@ -166,3 +170,5 @@ export const callPdmsForwarder = (container, endpoint, req, res, next) => {
         }
     )
 }
+
+export const isBlackListed = (container, uri) => _.includes(container.config.webServer.logBlackList, uri)

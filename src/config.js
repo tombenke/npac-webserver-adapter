@@ -9,6 +9,18 @@
  * @module config
  */
 import path from 'path'
+import _ from 'lodash'
+/**
+ * Make an array of strings out of a string that holds a comma-selarated list of URIs.
+ *
+ * @arg {String} pathsToSkipLogging - The string that contains the comma-separated list of URIs that should not be logged.
+ *
+ * @return {Array} - The array of URI strings
+ *
+ * @function
+ */
+export const getLogBlackList = pathsToSkipLogging =>
+    !_.isUndefined(pathsToSkipLogging) && _.isString(pathsToSkipLogging) ? _.split(pathsToSkipLogging, ',') : []
 
 /**
  * The default configuration for the webServer:
@@ -17,6 +29,7 @@ module.exports = {
     /**
      * The webserver related configuration object, that will be merged into the `container.config` object.
      *
+     * @property {Array} logBlackList - The array of URIs that should not be logged. Default: `[]`. Env.: `WEBSERVER_LOG_BLACKLIST`, the comma-separated list of URI strings.
      * @property {Number} port - The port where the webserver will listen. Env.: `WEBSERVER_PORT`. Default: `3007`.
      * @property {Boolean} useCompression - If `true` then the server will use the compression middleware. Env: `WEBSERVER_USE_COMPRESSION`. Default: `false`.
      * @property {Boolean} usePdms: If `true` the adapter will use the API call forwarding towards NATS topics. Env.: `WEBSERVER_USE_PDMS`. Default: `false`.
@@ -27,6 +40,7 @@ module.exports = {
      *
      */
     webServer: {
+        logBlackList: getLogBlackList(process.env.WEBSERVER_LOG_BLACKLIST),
         port: process.env.WEBSERVER_PORT || 3007,
         useCompression: process.env.WEBSERVER_USE_COMPRESSION || false,
         useResponseTime: process.env.WEBSERVER_USE_RESPONSE_TIME || false,

@@ -33,6 +33,7 @@ The default parameters can be found in [`src/config.js`](src/config.js):
 ```JavaScript
 {
     webServer: {
+        logBlackList: getLogBlackList(process.env.WEBSERVER_LOG_BLACKLIST),
         port: process.env.WEBSERVER_PORT || 3007,
         useCompression: process.env.WEBSERVER_USE_COMPRESSION || false,
         useResponseTime: process.env.WEBSERVER_USE_RESPONSE_TIME || false,

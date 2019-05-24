@@ -52,6 +52,7 @@
 <p>The default parameters can be found in <a href="src/config.js"><code>src/config.js</code></a>:</p>
 <pre class="prettyprint source lang-JavaScript"><code>{
     webServer: {
+        logBlackList: getLogBlackList(process.env.WEBSERVER_LOG_BLACKLIST),
         port: process.env.WEBSERVER_PORT || 3007,
         useCompression: process.env.WEBSERVER_USE_COMPRESSION || false,
         useResponseTime: process.env.WEBSERVER_USE_RESPONSE_TIME || false,

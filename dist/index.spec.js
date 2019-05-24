@@ -121,6 +121,7 @@ describe('webServer adapter', function () {
             level: 'debug'
         },
         webServer: {
+            logBlackList: ['/test/endpoint'],
             useCompression: true,
             useResponseTime: true,
             restApiPath: __dirname + '/fixtures/endpoints/api.yml',

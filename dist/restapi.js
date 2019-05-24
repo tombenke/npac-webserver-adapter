@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.callPdmsForwarder = exports.callServiceFuntion = exports.setEndpoints = undefined;
+exports.isBlackListed = exports.callPdmsForwarder = exports.callServiceFuntion = exports.setEndpoints = undefined;
 
 var _lodash = require('lodash');
 
@@ -63,7 +63,9 @@ var defaultResponseHeaders = {
             method = endpoint.method,
             operationId = endpoint.operationId;
 
-        container.logger.debug('REQ method:"' + method + '" uri:"' + uri + '"');
+        if (!isBlackListed(container, uri)) {
+            container.logger.debug('REQ method:"' + method + '" uri:"' + uri + '"');
+        }
 
         if (operationId !== null) {
             // operationId is defined in the endpoint descriptor
@@ -161,9 +163,15 @@ var callPdmsForwarder = exports.callPdmsForwarder = function callPdmsForwarder(c
             container.logger.info('ERR ' + JSON.stringify(err));
             res.set(_lodash2.default.get(err, 'details.headers', {})).status(_lodash2.default.get(err, 'details.status', 500)).send(_lodash2.default.get(err, 'details.body', err));
         } else {
-            container.logger.info('RES ' + JSON.stringify(resp));
+            if (!isBlackListed(container, endpoint.uri)) {
+                container.logger.debug('RES ' + JSON.stringify(resp));
+            }
             res.set(resp.headers || {}).status(_lodash2.default.get(resp, 'status', 200)).send(resp.body);
         }
         next();
     });
+};
+
+var isBlackListed = exports.isBlackListed = function isBlackListed(container, uri) {
+    return _lodash2.default.includes(container.config.webServer.logBlackList, uri);
 };
