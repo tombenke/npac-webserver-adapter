@@ -5,7 +5,7 @@ var _chai = require('chai');
 var _logUtils = require('./logUtils');
 
 describe('logUtils', function () {
-    var blackListStr = "/health,/customers,/customers/.*,/currencies/[a-zA-Z]{3}$";
+    var blackListStr = '/health,/customers,/customers/.*,/currencies/[a-zA-Z]{3}$';
     var blackList = ['/health', '/customers', '/customers/.*', '/currencies/[a-zA-Z]{3}$'];
     var container = {
         config: {
@@ -17,8 +17,8 @@ describe('logUtils', function () {
 
     it('getLogBlackList', function (done) {
         (0, _chai.expect)((0, _logUtils.getLogBlackList)(null)).to.eql([]);
-        (0, _chai.expect)((0, _logUtils.getLogBlackList)("")).to.eql([]);
-        (0, _chai.expect)((0, _logUtils.getLogBlackList)("/health")).to.eql(['/health']);
+        (0, _chai.expect)((0, _logUtils.getLogBlackList)('')).to.eql([]);
+        (0, _chai.expect)((0, _logUtils.getLogBlackList)('/health')).to.eql(['/health']);
         (0, _chai.expect)((0, _logUtils.getLogBlackList)(blackListStr)).to.eql(blackList);
         done();
     });
