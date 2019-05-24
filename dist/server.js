@@ -41,6 +41,8 @@ var _responseTime = require('response-time');
 
 var _responseTime2 = _interopRequireDefault(_responseTime);
 
+var _logUtils = require('./logUtils');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
@@ -48,13 +50,6 @@ TODO: Make HTTPS available too
 const fs from 'fs'
 const https from 'https'
 */
-/**
- * The server module of the webserver adapter.
- *
- * Used only internally by the adapter.
- *
- * @module server
- */
 var httpInstance = null;
 
 /**
@@ -68,6 +63,13 @@ var httpInstance = null;
  * @function
  * @async
  */
+/**
+ * The server module of the webserver adapter.
+ *
+ * Used only internally by the adapter.
+ *
+ * @module server
+ */
 var startupServer = exports.startupServer = function startupServer(container, api) {
     var config = container.config;
     container.logger.debug('webServer config:' + JSON.stringify(config));
@@ -77,7 +79,7 @@ var startupServer = exports.startupServer = function startupServer(container, ap
     var server = (0, _express2.default)();
 
     // Configure the middlewares
-    server.use(_expressWinston2.default.logger({ transports: [container.logger] }));
+    server.use(_expressWinston2.default.logger({ transports: [container.logger], ignoreRoute: (0, _logUtils.ignoreRouteLogging)(container) }));
     server.use((0, _cookieParser2.default)()); // read cookies (needed for auth)
     server.use(_bodyParser2.default.json()); // for parsing application/json
     server.use(_bodyParser2.default.urlencoded({ extended: true })); // get information from html forms

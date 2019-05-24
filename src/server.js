@@ -15,6 +15,7 @@ import { setMiddlewares } from './middlewares'
 import { setRoutes } from './routes'
 import flash from 'connect-flash'
 import responseTime from 'response-time'
+import { ignoreRouteLogging } from './logUtils'
 
 /*
 TODO: Make HTTPS available too
@@ -43,7 +44,7 @@ export const startupServer = (container, api) => {
     const server = express()
 
     // Configure the middlewares
-    server.use(expressWinston.logger({ transports: [container.logger] }))
+    server.use(expressWinston.logger({ transports: [container.logger], ignoreRoute: ignoreRouteLogging(container) }))
     server.use(cookieParser()) // read cookies (needed for auth)
     server.use(bodyParser.json()) // for parsing application/json
     server.use(bodyParser.urlencoded({ extended: true })) // get information from html forms

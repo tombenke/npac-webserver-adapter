@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Module: npac-webserver-adapter</title>
+    <title>JSDoc: Module: logUtils</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Module: npac-webserver-adapter</h1>
+    <h1 class="page-title">Module: logUtils</h1>
 
     
 
@@ -38,7 +38,7 @@
     <div class="container-overview">
     
         
-            <div class="description"><p>The main module of the webserver adapter.</p></div>
+            <div class="description"><p>Helper functions required for logging</p></div>
         
 
         
@@ -137,7 +137,7 @@
     
 
     
-    <h4 class="name" id="~resolveOasFile"><span class="type-signature">(inner) </span>resolveOasFile<span class="signature">(container, oasFile)</span><span class="type-signature"> &rarr; {String|Object}</span></h4>
+    <h4 class="name" id=".getLogBlackList"><span class="type-signature">(static) </span>getLogBlackList<span class="signature">(pathsToSkipLogging)</span><span class="type-signature"> &rarr; {Array}</span></h4>
     
 
     
@@ -145,7 +145,7 @@
 
 
 <div class="description">
-    <p>Resolve the swagger descriptor to be loaded.</p>
+    <p>Make an array of strings out of a string that holds a comma-selarated list of URIs.</p>
 </div>
 
 
@@ -181,39 +181,13 @@
 
         <tr>
             
-                <td class="name"><code>container</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The container context</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>oasFile</code></td>
+                <td class="name"><code>pathsToSkipLogging</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">String</span>
-|
-
-<span class="param-type">Object</span>
 
 
             
@@ -223,7 +197,7 @@
 
             
 
-            <td class="description last"><p>The path string to the swagger file, or the swagger object itself</p></td>
+            <td class="description last"><p>The string that contains the comma-separated list of URIs that should not be logged.</p></td>
         </tr>
 
     
@@ -286,7 +260,9 @@
 
         
 <div class="param-desc">
-    <p>The full path resolved, if it is a path, or the swagger object.</p>
+    <ul>
+<li>The array of URI strings</li>
+</ul>
 </div>
 
 
@@ -297,10 +273,7 @@
     </dt>
     <dd>
         
-<span class="param-type">String</span>
-|
-
-<span class="param-type">Object</span>
+<span class="param-type">Array</span>
 
 
     </dd>
@@ -318,7 +291,7 @@
     
 
     
-    <h4 class="name" id="~shutdown"><span class="type-signature">(inner) </span>shutdown<span class="signature">(container)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".ignoreRouteLogging"><span class="type-signature">(static) </span>ignoreRouteLogging<span class="signature">(container, req, res)</span><span class="type-signature"> &rarr; {Boolean}</span></h4>
     
 
     
@@ -326,8 +299,8 @@
 
 
 <div class="description">
-    <p>The startup function of the adapter.</p>
-<p>This function has to be added to the <code>terminators</code> array of the container application to be executed during the startup process.</p>
+    <p>Tells if the path of the given request is on the blacklist, so it should be ignored for logging</p>
+<p>It is a curried function, that first gets the container object, that holds the blacklist in the configuration.<br>It returns a function that the winston logger can use via its <code>ignoreRoute</code> feature.</p>
 </div>
 
 
@@ -379,20 +352,20 @@
 
             
 
-            <td class="description last"><p>The actual state of the container context during the startup process.</p></td>
+            <td class="description last"><p>The container context</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code></code></td>
+                <td class="name"><code>req</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">function</span>
+<span class="param-type">Object</span>
 
 
             
@@ -402,7 +375,30 @@
 
             
 
-            <td class="description last"><p>The next function that must be called when the startup function has finished.<br>This is an error-first callback function. Its firs parameter is <code>null</code> if the execution was successful, or the error code, in case of problems.<br>Its second parameter -in case of successful execution- is the object, that has to be merged with the actual state to the context.</p></td>
+            <td class="description last"><p>The request object. The function uses only its <code>path</code> property.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The response object. Not used by this function.</p></td>
         </tr>
 
     
@@ -461,6 +457,28 @@
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Returns <code>true</code> if the path matches any of the blaclisted patterns, <code>false</code> otherwise.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Boolean</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -472,7 +490,7 @@
     
 
     
-    <h4 class="name" id="~startup"><span class="type-signature">(inner) </span>startup<span class="signature">(container)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".isPathBlackListed"><span class="type-signature">(static) </span>isPathBlackListed<span class="signature">(container, path)</span><span class="type-signature"> &rarr; {Boolean}</span></h4>
     
 
     
@@ -480,10 +498,7 @@
 
 
 <div class="description">
-    <p>The startup function of the adapter.</p>
-<p>This function has to be added to the <code>adapters</code> array of the container application to be executed during the startup process.</p>
-<p>The function will read its configuration from the <code>context.config.webServer</code> propery.<br>See the <code>config.js</code> file for details on the config parameters.</p>
-<p>The function reads the REST API from the swagger/OpenApi descriptor file(s), then starts a webserver according to the config parameter.<br>See the <code>inde.spec.js</code> for for examples of how to use this function and the adapter itself.</p>
+    <p>Tells if the path is blacklisted</p>
 </div>
 
 
@@ -535,20 +550,20 @@
 
             
 
-            <td class="description last"><p>The actual state of the container context during the startup process.</p></td>
+            <td class="description last"><p>The container context</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code></code></td>
+                <td class="name"><code>path</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">function</span>
+<span class="param-type">String</span>
 
 
             
@@ -558,7 +573,7 @@
 
             
 
-            <td class="description last"><p>The next function that must be called when the startup function has finished.<br>This is an error-first callback function. Its firs parameter is <code>null</code> if the execution was successful, or the error code, in case of problems.<br>Its second parameter -in case of successful execution- is the object, that has to be merged with the actual state to the context.</p></td>
+            <td class="description last"><p>The path to check if that matches any of the patterns listen on the blacklist</p></td>
         </tr>
 
     
@@ -617,6 +632,28 @@
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Returns <code>true</code> if the path matches any of the blaclisted patterns, <code>false</code> otherwise.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Boolean</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 

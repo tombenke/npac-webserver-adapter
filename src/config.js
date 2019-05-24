@@ -9,18 +9,7 @@
  * @module config
  */
 import path from 'path'
-import _ from 'lodash'
-/**
- * Make an array of strings out of a string that holds a comma-selarated list of URIs.
- *
- * @arg {String} pathsToSkipLogging - The string that contains the comma-separated list of URIs that should not be logged.
- *
- * @return {Array} - The array of URI strings
- *
- * @function
- */
-export const getLogBlackList = pathsToSkipLogging =>
-    !_.isUndefined(pathsToSkipLogging) && _.isString(pathsToSkipLogging) ? _.split(pathsToSkipLogging, ',') : []
+import { getLogBlackList } from './logUtils'
 
 /**
  * The default configuration for the webServer:

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.isBlackListed = exports.callPdmsForwarder = exports.callServiceFuntion = exports.setEndpoints = undefined;
+exports.callPdmsForwarder = exports.callServiceFuntion = exports.setEndpoints = undefined;
 
 var _lodash = require('lodash');
 
@@ -12,6 +12,8 @@ var _lodash2 = _interopRequireDefault(_lodash);
 var _circularJsonEs = require('circular-json-es6');
 
 var _circularJsonEs2 = _interopRequireDefault(_circularJsonEs);
+
+var _logUtils = require('./logUtils');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -24,15 +26,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  * @function
  */
-/**
- * The restapi module of the webserver adapter.
- *
- * This module implements the handler functions that serve the incoming endpoint calls
- *
- * Used only internally by the adapter.
- *
- * @module restapi
- */
 var setEndpoints = exports.setEndpoints = function setEndpoints(container, server, endpoints) {
     container.logger.debug('restapi.setEndpoints/endpointMap ' + JSON.stringify(_lodash2.default.map(endpoints, function (ep) {
         return [ep.method, ep.uri];
@@ -40,7 +33,16 @@ var setEndpoints = exports.setEndpoints = function setEndpoints(container, serve
     _lodash2.default.map(endpoints, function (endpoint) {
         server[endpoint.method](endpoint.jsfUri, mkHandlerFun(container, endpoint));
     });
-};
+}; /**
+    * The restapi module of the webserver adapter.
+    *
+    * This module implements the handler functions that serve the incoming endpoint calls
+    *
+    * Used only internally by the adapter.
+    *
+    * @module restapi
+    */
+
 var defaultResponseHeaders = {
     'Content-Type': 'application/json'
 
@@ -63,7 +65,7 @@ var defaultResponseHeaders = {
             method = endpoint.method,
             operationId = endpoint.operationId;
 
-        if (!isBlackListed(container, uri)) {
+        if (!(0, _logUtils.isPathBlackListed)(container, uri)) {
             container.logger.debug('REQ method:"' + method + '" uri:"' + uri + '"');
         }
 
@@ -163,15 +165,11 @@ var callPdmsForwarder = exports.callPdmsForwarder = function callPdmsForwarder(c
             container.logger.info('ERR ' + JSON.stringify(err));
             res.set(_lodash2.default.get(err, 'details.headers', {})).status(_lodash2.default.get(err, 'details.status', 500)).send(_lodash2.default.get(err, 'details.body', err));
         } else {
-            if (!isBlackListed(container, endpoint.uri)) {
+            if (!(0, _logUtils.isPathBlackListed)(container, endpoint.uri)) {
                 container.logger.debug('RES ' + JSON.stringify(resp));
             }
             res.set(resp.headers || {}).status(_lodash2.default.get(resp, 'status', 200)).send(resp.body);
         }
         next();
     });
-};
-
-var isBlackListed = exports.isBlackListed = function isBlackListed(container, uri) {
-    return _lodash2.default.includes(container.config.webServer.logBlackList, uri);
 };

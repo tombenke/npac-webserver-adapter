@@ -9,6 +9,7 @@
  */
 import _ from 'lodash'
 import CircularJSON from 'circular-json-es6'
+import { isPathBlackListed } from './logUtils'
 
 /**
  * Setup the non-static endpoints of the web server
@@ -46,7 +47,7 @@ const defaultResponseHeaders = {
  */
 const mkHandlerFun = (container, endpoint) => (req, res, next) => {
     const { uri, method, operationId } = endpoint
-    if (!isBlackListed(container, uri)) {
+    if (!isPathBlackListed(container, uri)) {
         container.logger.debug(`REQ method:"${method}" uri:"${uri}"`)
     }
 
@@ -159,7 +160,7 @@ export const callPdmsForwarder = (container, endpoint, req, res, next) => {
                     .status(_.get(err, 'details.status', 500))
                     .send(_.get(err, 'details.body', err))
             } else {
-                if (!isBlackListed(container, endpoint.uri)) {
+                if (!isPathBlackListed(container, endpoint.uri)) {
                     container.logger.debug(`RES ${JSON.stringify(resp)}`)
                 }
                 res.set(resp.headers || {})
@@ -170,5 +171,3 @@ export const callPdmsForwarder = (container, endpoint, req, res, next) => {
         }
     )
 }
-
-export const isBlackListed = (container, uri) => _.includes(container.config.webServer.logBlackList, uri)
