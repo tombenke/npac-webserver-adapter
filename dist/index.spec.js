@@ -153,6 +153,14 @@ describe('webServer adapter', function () {
             // pdms: { natsUri: 'nats://localhost:4222' }
         } })), _npac.addLogger, pdms.startup, server.startup];
 
+    var adaptersForMocking = [(0, _npac.mergeConfig)(_.merge({}, config, {
+        webServer: {
+            usePdms: false,
+            ignoreApiOperationIds: true,
+            enableMocking: true
+        }
+    })), _npac.addLogger, pdms.startup, server.startup];
+
     var terminators = [server.shutdown, pdms.shutdown, testAdapter.shutdown];
 
     it('#startup, #shutdown', function (done) {
@@ -255,6 +263,39 @@ describe('webServer adapter', function () {
         };
 
         (0, _npac.npacStart)(adapters, [testServer], terminators);
+    }).timeout(30000);
+
+    it('#call existing REST endpoint with adapter function but ignore operationId', function (done) {
+        (0, _npac.catchExitSignals)(sandbox, done);
+
+        var testServer = function testServer(container, next) {
+            var port = container.config.webServer.port;
+
+            var host = 'http://localhost:' + port;
+            var restEndpoint = '/test/endpoint';
+
+            container.logger.info('Run job to test server');
+            (0, _axios2.default)({
+                method: 'put',
+                url: '' + host + restEndpoint,
+                withCredentials: true,
+                headers: _defineProperty({
+                    Accept: 'application/json'
+                }, traceIdHeader, traceIdValue)
+            }).catch(function (err) {
+                var _err$response2 = err.response,
+                    status = _err$response2.status,
+                    data = _err$response2.data;
+
+                (0, _chai.expect)(status).to.equal(501);
+                (0, _chai.expect)(data).to.eql({ error: 'The endpoint is not implemented' });
+                (0, _chai.expect)(acceptCheckMwCall.calledOnce).to.be.true;
+                (0, _chai.expect)(tracerMwCall.calledOnce).to.be.true;
+                next(null, null);
+            });
+        };
+
+        (0, _npac.npacStart)(adaptersForMocking, [testServer], terminators);
     }).timeout(30000);
 
     it('#call existing REST endpoint with 500, Internal Server Error', function (done) {

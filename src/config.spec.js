@@ -21,6 +21,7 @@ describe('server/config', () => {
                 middlewares: { preRouting: [], postRouting: [] },
                 restApiPath: path.resolve(),
                 staticContentBasePath: path.resolve(),
+                ignoreApiOperationIds: false,
                 oasConfig: {
                     parse: {
                         yaml: {

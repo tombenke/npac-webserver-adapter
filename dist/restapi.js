@@ -64,12 +64,14 @@ var defaultResponseHeaders = {
         var uri = endpoint.uri,
             method = endpoint.method,
             operationId = endpoint.operationId;
+        var ignoreApiOperationIds = container.config.webServer.ignoreApiOperationIds;
+
 
         if (!(0, _logUtils.isPathBlackListed)(container, uri)) {
             container.logger.debug('REQ method:"' + method + '" uri:"' + uri + '"');
         }
 
-        if (operationId !== null) {
+        if (!ignoreApiOperationIds && operationId !== null) {
             // operationId is defined in the endpoint descriptor
             var serviceFun = _lodash2.default.get(container, operationId, null);
             if (_lodash2.default.isFunction(serviceFun)) {

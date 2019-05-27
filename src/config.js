@@ -21,10 +21,11 @@ module.exports = {
      * @property {Array} logBlackList - The array of URIs that should not be logged. Default: `[]`. Env.: `WEBSERVER_LOG_BLACKLIST`, the comma-separated list of URI strings.
      * @property {Number} port - The port where the webserver will listen. Env.: `WEBSERVER_PORT`. Default: `3007`.
      * @property {Boolean} useCompression - If `true` then the server will use the compression middleware. Env: `WEBSERVER_USE_COMPRESSION`. Default: `false`.
-     * @property {Boolean} usePdms: If `true` the adapter will use the API call forwarding towards NATS topics. Env.: `WEBSERVER_USE_PDMS`. Default: `false`.
-     * @property {Object} middlewares: The dictionary of middleware functions needs to be added. Defaults: `{ preRouting: [], postRouting: [] }`.
-     * @property {String} restApiPath: The path to the root file of the swagger/OpenApi descriptor file(s) Env.: `WEBSERVER_RESTAPIPATH`.
-     * @property {String} staticContentBasePath: The base path to the static endpoints of the REST API. Env.: `WEBSERVER_STATIC_CONTENT_BASEPATH`.
+     * @property {Boolean} usePdms - If `true` the adapter will use the API call forwarding towards NATS topics. Env.: `WEBSERVER_USE_PDMS`. Default: `false`.
+     * @property {Object} middlewares -The dictionary of middleware functions needs to be added. Defaults: `{ preRouting: [], postRouting: [] }`.
+     * @property {String} restApiPath -The path to the root file of the swagger/OpenApi descriptor file(s) Env.: `WEBSERVER_RESTAPIPATH`.
+     * @property {String} staticContentBasePath -The base path to the static endpoints of the REST API. Env.: `WEBSERVER_STATIC_CONTENT_BASEPATH`.
+     * @property {Boolean} ignoreApiOperationIds - Ignores the `operationId` property of the API endpoint descriptor if `true`. Env.: `WEBSERVER_IGNORE_API_OPERATION_IDS` || Default: `false`.
      * @property {Object} oasConfig - The swagger-parser configuration object. Defaults: `{ parse: { yaml: { allowEmpty: false }, resolve: { file: true } } }`
      *
      */
@@ -37,6 +38,7 @@ module.exports = {
         middlewares: { preRouting: [], postRouting: [] },
         restApiPath: process.env.WEBSERVER_RESTAPIPATH || path.resolve(),
         staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || path.resolve(),
+        ignoreApiOperationIds: process.env.WEBSERVER_IGNORE_API_OPERATION_IDS || false,
         oasConfig: {
             parse: {
                 yaml: {

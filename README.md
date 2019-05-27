@@ -41,6 +41,7 @@ The default parameters can be found in [`src/config.js`](src/config.js):
         middlewares: { preRouting: [], postRouting: [] },
         restApiPath: process.env.WEBSERVER_RESTAPIPATH || __dirname,
         staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || path.resolve(),
+        ignoreApiOperationIds: process.env.WEBSERVER_IGNORE_API_OPERATION_IDS || false,
         oasConfig: {
             parse: {
                 yaml: {

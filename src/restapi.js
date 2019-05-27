@@ -47,11 +47,13 @@ const defaultResponseHeaders = {
  */
 const mkHandlerFun = (container, endpoint) => (req, res, next) => {
     const { uri, method, operationId } = endpoint
+    const { ignoreApiOperationIds } = container.config.webServer
+
     if (!isPathBlackListed(container, uri)) {
         container.logger.debug(`REQ method:"${method}" uri:"${uri}"`)
     }
 
-    if (operationId !== null) {
+    if (!ignoreApiOperationIds && operationId !== null) {
         // operationId is defined in the endpoint descriptor
         const serviceFun = _.get(container, operationId, null)
         if (_.isFunction(serviceFun)) {

@@ -125,6 +125,21 @@ describe('webServer adapter', () => {
         server.startup
     ]
 
+    const adaptersForMocking = [
+        mergeConfig(
+            _.merge({}, config, {
+                webServer: {
+                    usePdms: false,
+                    ignoreApiOperationIds: true,
+                    enableMocking: true
+                }
+            })
+        ),
+        addLogger,
+        pdms.startup,
+        server.startup
+    ]
+
     const terminators = [server.shutdown, pdms.shutdown, testAdapter.shutdown]
 
     it('#startup, #shutdown', done => {
@@ -221,6 +236,36 @@ describe('webServer adapter', () => {
         }
 
         npacStart(adapters, [testServer], terminators)
+    }).timeout(30000)
+
+    it('#call existing REST endpoint with adapter function but ignore operationId', done => {
+        catchExitSignals(sandbox, done)
+
+        const testServer = (container, next) => {
+            const { port } = container.config.webServer
+            const host = `http://localhost:${port}`
+            const restEndpoint = `/test/endpoint`
+
+            container.logger.info(`Run job to test server`)
+            axios({
+                method: 'put',
+                url: `${host}${restEndpoint}`,
+                withCredentials: true,
+                headers: {
+                    Accept: 'application/json',
+                    [traceIdHeader]: traceIdValue
+                }
+            }).catch(err => {
+                const { status, data /*, statusText, headers, data*/ } = err.response
+                expect(status).to.equal(501)
+                expect(data).to.eql({ error: 'The endpoint is not implemented' })
+                expect(acceptCheckMwCall.calledOnce).to.be.true
+                expect(tracerMwCall.calledOnce).to.be.true
+                next(null, null)
+            })
+        }
+
+        npacStart(adaptersForMocking, [testServer], terminators)
     }).timeout(30000)
 
     it('#call existing REST endpoint with 500, Internal Server Error', done => {
