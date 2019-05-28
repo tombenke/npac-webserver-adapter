@@ -58,10 +58,11 @@ describe('webServer adapter', () => {
     let tracerMwCall
     const traceIdHeader = 'X-B3-Traceid'
     const traceIdValue = '42'
+    const accepts = ['*/*', 'application/json', 'text/plain', 'text/html', 'text/xml', 'unsupported/media-type']
 
     const acceptCheckMiddleware = container => (req, res, next) => {
         container.logger.debug(`acceptCheckMiddleware is called ${req.accepts()}`)
-        expect(_.includes(['*/*', 'application/json'], req.accepts()[0])).to.be.true
+        expect(_.includes(accepts, req.accepts()[0])).to.be.true
         acceptCheckMwCall()
         next()
     }
@@ -76,7 +77,7 @@ describe('webServer adapter', () => {
         //            `MiddlewareFn is called: ${method} "${hostname}" "${originalUrl}" "${traceId}" => ${statusCode} ${contentLength} ${responseTime} ============================`
         //        )
         expect(traceId).to.be.equal(traceIdValue)
-        expect(_.includes(['*/*', 'application/json'], req.accepts()[0])).to.be.true
+        expect(_.includes(accepts, req.accepts()[0])).to.be.true
         tracerMwCall()
         next()
     }
@@ -118,6 +119,21 @@ describe('webServer adapter', () => {
             _.merge({}, config, {
                 webServer: { usePdms: true }
                 // pdms: { natsUri: 'nats://localhost:4222' }
+            })
+        ),
+        addLogger,
+        pdms.startup,
+        server.startup
+    ]
+
+    const adaptersForIgnoreOperationIds = [
+        mergeConfig(
+            _.merge({}, config, {
+                webServer: {
+                    usePdms: false,
+                    ignoreApiOperationIds: true,
+                    enableMocking: false
+                }
             })
         ),
         addLogger,
@@ -199,7 +215,7 @@ describe('webServer adapter', () => {
             }).catch(err => {
                 const { status, data /*, statusText, headers, data*/ } = err.response
                 expect(status).to.equal(501)
-                expect(data).to.eql({ error: 'The endpoint is not implemented' })
+                expect(data).to.eql({ error: 'The endpoint is either not implemented or `operationId` is ignored' })
                 expect(acceptCheckMwCall.calledOnce).to.be.true
                 expect(tracerMwCall.calledOnce).to.be.true
                 next(null, null)
@@ -258,14 +274,14 @@ describe('webServer adapter', () => {
             }).catch(err => {
                 const { status, data /*, statusText, headers, data*/ } = err.response
                 expect(status).to.equal(501)
-                expect(data).to.eql({ error: 'The endpoint is not implemented' })
+                expect(data).to.eql({ error: 'The endpoint is either not implemented or `operationId` is ignored' })
                 expect(acceptCheckMwCall.calledOnce).to.be.true
                 expect(tracerMwCall.calledOnce).to.be.true
                 next(null, null)
             })
         }
 
-        npacStart(adaptersForMocking, [testServer], terminators)
+        npacStart(adaptersForIgnoreOperationIds, [testServer], terminators)
     }).timeout(30000)
 
     it('#call existing REST endpoint with 500, Internal Server Error', done => {
@@ -371,5 +387,132 @@ describe('webServer adapter', () => {
         }
 
         npacStart(adaptersWithPdms, [testServer], terminators)
+    }).timeout(30000)
+
+    it('#call existing REST endpoint with mocking but no examples', done => {
+        catchExitSignals(sandbox, done)
+
+        const testServer = (container, next) => {
+            const { port } = container.config.webServer
+            const host = `http://localhost:${port}`
+            const restEndpoint = `/test/endpoint`
+
+            container.logger.info(`Run job to test server`)
+            axios({
+                method: 'put',
+                url: `${host}${restEndpoint}`,
+                withCredentials: true,
+                headers: {
+                    Accept: 'application/json',
+                    [traceIdHeader]: traceIdValue
+                }
+            })
+                .then(response => {
+                    const { status, /*statusText, headers,*/ data } = response
+                    expect(status).to.equal(200)
+                    expect(data).to.equal('')
+                    expect(acceptCheckMwCall.calledOnce).to.be.true
+                    expect(tracerMwCall.calledOnce).to.be.true
+                    next(null, null)
+                })
+                .catch(err => next(null, null))
+        }
+
+        npacStart(adaptersForMocking, [testServer], terminators)
+    }).timeout(30000)
+
+    it('#call existing REST endpoint with mocking and examples. Accept: "application/json"', done => {
+        catchExitSignals(sandbox, done)
+
+        const testServer = (container, next) => {
+            const { port } = container.config.webServer
+            const host = `http://localhost:${port}`
+            const restEndpoint = `/test/endpoint-with-examples`
+
+            container.logger.info(`Run job to test server`)
+            axios({
+                method: 'get',
+                url: `${host}${restEndpoint}`,
+                withCredentials: true,
+                headers: {
+                    Accept: 'application/json',
+                    [traceIdHeader]: traceIdValue
+                }
+            }).then(response => {
+                const { status, statusText, /*headers,*/ data } = response
+                expect(status).to.equal(200)
+                expect(statusText).to.equal('OK')
+                expect(data).to.eql({ identity: 'Universe', meaning: 42 })
+                expect(acceptCheckMwCall.calledOnce).to.be.true
+                expect(tracerMwCall.calledOnce).to.be.true
+                next(null, null)
+            })
+        }
+
+        npacStart(adaptersForMocking, [testServer], terminators)
+    }).timeout(30000)
+
+    it('#call existing REST endpoint with mocking and examples. Accept: "text/plain"', done => {
+        catchExitSignals(sandbox, done)
+
+        const testServer = (container, next) => {
+            const { port } = container.config.webServer
+            const host = `http://localhost:${port}`
+            const restEndpoint = `/test/endpoint-with-examples`
+
+            container.logger.info(`Run job to test server`)
+            axios({
+                method: 'get',
+                url: `${host}${restEndpoint}`,
+                withCredentials: true,
+                headers: {
+                    Accept: 'text/plain',
+                    [traceIdHeader]: traceIdValue
+                }
+            }).then(response => {
+                const { status, statusText, /*headers,*/ data } = response
+                expect(status).to.equal(200)
+                expect(statusText).to.equal('OK')
+                expect(data).to.equal('The meaning of Universe is 42')
+                expect(acceptCheckMwCall.calledOnce).to.be.true
+                expect(tracerMwCall.calledOnce).to.be.true
+                next(null, null)
+            })
+        }
+
+        npacStart(adaptersForMocking, [testServer], terminators)
+    }).timeout(30000)
+
+    it('#call existing REST endpoint with mocking and examples. Accept: "unsupported-media-type"', done => {
+        catchExitSignals(sandbox, done)
+
+        const testServer = (container, next) => {
+            const { port } = container.config.webServer
+            const host = `http://localhost:${port}`
+            const restEndpoint = `/test/endpoint-with-examples`
+
+            container.logger.info(`Run job to test server`)
+            axios({
+                method: 'get',
+                url: `${host}${restEndpoint}`,
+                withCredentials: true,
+                headers: {
+                    Accept: 'unsupported/media-type',
+                    [traceIdHeader]: traceIdValue
+                }
+            }).catch(error => {
+                const { status, statusText, headers, data } = error.response
+                container.logger.error(
+                    `status: ${status}, statusText: ${statusText}, headers: ${JSON.stringify(
+                        headers
+                    )}, data: ${JSON.stringify(data)}`
+                )
+                expect(status).to.equal(415)
+                expect(statusText).to.equal('Unsupported Media Type')
+                next(null, null)
+            })
+        }
+
+        npacStart(adaptersForMocking, [testServer], terminators)
     }).timeout(30000)
 })

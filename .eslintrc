@@ -15,10 +15,12 @@
     },
     "parserOptions": {
         "sourceType": "module",
+        "ecmaVersion": 6,
         "ecmaFeatures": {
             "jsx": true,
             "modules": true,
             "spread" : true,
+            "experimentalObjectRestSpread": true,
             "restParams" : true
         }
     },

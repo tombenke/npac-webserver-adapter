@@ -22,6 +22,7 @@ describe('server/config', () => {
                 restApiPath: path.resolve(),
                 staticContentBasePath: path.resolve(),
                 ignoreApiOperationIds: false,
+                enableMocking: false,
                 oasConfig: {
                     parse: {
                         yaml: {

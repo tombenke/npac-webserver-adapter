@@ -1,0 +1,24 @@
+# /test/endpoint-with-examples:
+get:
+  tags: 
+    - "non-static"
+  summary: Test resource
+  description: |
+      This endpoint provides several kinds of representations of the resource.
+      It also contains examples for each mime-types.
+  consumes:
+    - application/json
+  produces: 
+    - application/json
+    - text/plain
+    - text/html
+  responses: 
+    "200": 
+      description: OK
+      examples:
+          "application/json":
+              identity: Universe
+              meaning: 42
+          "text/plain": The meaning of Universe is 42
+          "text/html": "<html><head><title>The meaning of the Universe</title></head><body><h1>The meaning of Universe is 42</h1></body>"
+  deprecated: false

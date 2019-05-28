@@ -32,7 +32,8 @@ module.exports = {
      * @property {Object} middlewares -The dictionary of middleware functions needs to be added. Defaults: `{ preRouting: [], postRouting: [] }`.
      * @property {String} restApiPath -The path to the root file of the swagger/OpenApi descriptor file(s) Env.: `WEBSERVER_RESTAPIPATH`.
      * @property {String} staticContentBasePath -The base path to the static endpoints of the REST API. Env.: `WEBSERVER_STATIC_CONTENT_BASEPATH`.
-     * @property {Boolean} ignoreApiOperationIds - Ignores the `operationId` property of the API endpoint descriptor if `true`. Env.: `WEBSERVER_IGNORE_API_OPERATION_IDS` || Default: `false`.
+     * @property {Boolean} ignoreApiOperationIds - Ignores the `operationId` property of the API endpoint descriptor if `true`. Env.: `WEBSERVER_IGNORE_API_OPERATION_IDS`. Default: `false`.
+     * @property {Boolean} enableMocking - Responses the first example found in the `examples` array of endpoint descriptor if there is any. For proper working, it requires the `ignoreApiOperationIds` config parameter to be `true` in case the `operationId`s of the endpoints are defined. Env.: `WEBSERVER_ENABLE_MOCKING`. Default: `false`.
      * @property {Object} oasConfig - The swagger-parser configuration object. Defaults: `{ parse: { yaml: { allowEmpty: false }, resolve: { file: true } } }`
      *
      */
@@ -46,6 +47,7 @@ module.exports = {
         restApiPath: process.env.WEBSERVER_RESTAPIPATH || _path2.default.resolve(),
         staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || _path2.default.resolve(),
         ignoreApiOperationIds: process.env.WEBSERVER_IGNORE_API_OPERATION_IDS || false,
+        enableMocking: process.env.WEBSERVER_ENABLE_MOCKING || false,
         oasConfig: {
             parse: {
                 yaml: {

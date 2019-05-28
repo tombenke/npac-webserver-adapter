@@ -32,6 +32,7 @@ describe('server/config', function () {
                 restApiPath: _path2.default.resolve(),
                 staticContentBasePath: _path2.default.resolve(),
                 ignoreApiOperationIds: false,
+                enableMocking: false,
                 oasConfig: {
                     parse: {
                         yaml: {

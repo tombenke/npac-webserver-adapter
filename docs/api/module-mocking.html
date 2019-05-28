@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Module: npac-webserver-adapter</title>
+    <title>JSDoc: Module: mocking</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Module: npac-webserver-adapter</h1>
+    <h1 class="page-title">Module: mocking</h1>
 
     
 
@@ -38,7 +38,9 @@
     <div class="container-overview">
     
         
-            <div class="description"><p>The main module of the webserver adapter.</p></div>
+            <div class="description"><p>The mocking module of the webserver adapter.</p>
+<p>This module implements the handler functions that serve mock data from the examples defined under the responses section of the endpoint descriptors</p>
+<p>Used only internally by the adapter.</p></div>
         
 
         
@@ -139,7 +141,7 @@
     
 
     
-    <h4 class="name" id="~resolveOasFile"><span class="type-signature">(inner) </span>resolveOasFile<span class="signature">(container, oasFile)</span><span class="type-signature"> &rarr; {String|Object}</span></h4>
+    <h4 class="name" id=".callMockingServiceFunction"><span class="type-signature">(static) </span>callMockingServiceFunction<span class="signature">(container, endpoint, req, res, next)</span><span class="type-signature"></span></h4>
     
 
     
@@ -147,7 +149,11 @@
 
 
 <div class="description">
-    <p>Resolve the swagger descriptor to be loaded.</p>
+    <p>Call the generic mocking service function that provides responses to the incoming requests using the examples defined for the endpoint.</p>
+<p>The function tries to respond the content and representation format that is accepted by the client.<br>
+If there is no example found with the right media-type, then a <code>415 Unsupported Media Type</code> error will be responded.</p>
+<p>NOTE: Currently a single mime-type value is accepted without weight.<br>
+TODO: Implement multiple values ordered by weight when find the right example response.</p>
 </div>
 
 
@@ -206,15 +212,12 @@
 
         <tr>
             
-                <td class="name"><code>oasFile</code></td>
+                <td class="name"><code>endpoint</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">String</span>
-|
-
 <span class="param-type">Object</span>
 
 
@@ -225,7 +228,254 @@
 
             
 
-            <td class="description last"><p>The path string to the swagger file, or the swagger object itself</p></td>
+            <td class="description last"><p>The endpoint descriptor</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>req</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The request object</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The response object</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>next</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>An error-first call-back that the service function must call at the end, to pass the control to the next middleware function.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".determineMediaType"><span class="type-signature">(static) </span>determineMediaType<span class="signature">(container, endpoint, accept)</span><span class="type-signature"> &rarr; {String|null}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Determine the resultant media-type for the response</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>container</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The container context</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endpoint</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The endpoint decriptor object</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>accept</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The actual value of the &quot;Accept&quot; header of the request, or <code>* / *</code> if not defined.</p></td>
         </tr>
 
     
@@ -290,7 +540,7 @@
 
         
 <div class="param-desc">
-    <p>The full path resolved, if it is a path, or the swagger object.</p>
+    <p>The resultant media-type that will be the value of the <code>Content-Type</code> header. If the <code>Accept</code> header is specific, but it is not supported by the endpoint, then returns with <code>null</code>.</p>
 </div>
 
 
@@ -304,333 +554,13 @@
 <span class="param-type">String</span>
 |
 
-<span class="param-type">Object</span>
+<span class="param-type">null</span>
 
 
     </dd>
 </dl>
 
     
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="~shutdown"><span class="type-signature">(inner) </span>shutdown<span class="signature">(container)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>The startup function of the adapter.</p>
-<p>This function has to be added to the <code>terminators</code> array of the container application to be executed during the startup process.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>container</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The actual state of the container context during the startup process.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code></code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The next function that must be called when the startup function has finished.<br>
-This is an error-first callback function. Its firs parameter is <code>null</code> if the execution was successful, or the error code, in case of problems.<br>
-Its second parameter -in case of successful execution- is the object, that has to be merged with the actual state to the context.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="~startup"><span class="type-signature">(inner) </span>startup<span class="signature">(container)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>The startup function of the adapter.</p>
-<p>This function has to be added to the <code>adapters</code> array of the container application to be executed during the startup process.</p>
-<p>The function will read its configuration from the <code>context.config.webServer</code> propery.<br>
-See the <code>config.js</code> file for details on the config parameters.</p>
-<p>The function reads the REST API from the swagger/OpenApi descriptor file(s), then starts a webserver according to the config parameter.<br>
-See the <code>inde.spec.js</code> for for examples of how to use this function and the adapter itself.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>container</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The actual state of the container context during the startup process.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code></code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The next function that must be called when the startup function has finished.<br>
-This is an error-first callback function. Its firs parameter is <code>null</code> if the execution was successful, or the error code, in case of problems.<br>
-Its second parameter -in case of successful execution- is the object, that has to be merged with the actual state to the context.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

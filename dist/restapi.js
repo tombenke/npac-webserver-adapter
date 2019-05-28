@@ -15,6 +15,8 @@ var _circularJsonEs2 = _interopRequireDefault(_circularJsonEs);
 
 var _logUtils = require('./logUtils');
 
+var _mocking = require('./mocking');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -26,6 +28,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  * @function
  */
+/**
+ * The restapi module of the webserver adapter.
+ *
+ * This module implements the handler functions that serve the incoming endpoint calls
+ *
+ * Used only internally by the adapter.
+ *
+ * @module restapi
+ */
 var setEndpoints = exports.setEndpoints = function setEndpoints(container, server, endpoints) {
     container.logger.debug('restapi.setEndpoints/endpointMap ' + JSON.stringify(_lodash2.default.map(endpoints, function (ep) {
         return [ep.method, ep.uri];
@@ -33,16 +44,7 @@ var setEndpoints = exports.setEndpoints = function setEndpoints(container, serve
     _lodash2.default.map(endpoints, function (endpoint) {
         server[endpoint.method](endpoint.jsfUri, mkHandlerFun(container, endpoint));
     });
-}; /**
-    * The restapi module of the webserver adapter.
-    *
-    * This module implements the handler functions that serve the incoming endpoint calls
-    *
-    * Used only internally by the adapter.
-    *
-    * @module restapi
-    */
-
+};
 var defaultResponseHeaders = {
     'Content-Type': 'application/json'
 
@@ -83,14 +85,16 @@ var defaultResponseHeaders = {
                 next();
             }
         } else {
-            // The operationId is null
-            if (container.config.webServer.usePdms) {
+            // The operationId is null or ignored
+            if (container.config.webServer.enableMocking) {
+                (0, _mocking.callMockingServiceFunction)(container, endpoint, req, res, next);
+            } else if (container.config.webServer.usePdms) {
                 // Do PDMS forwarding
                 callPdmsForwarder(container, endpoint, req, res, next);
             } else {
                 // No operationId, no PDMS forwarding enabled
                 res.set(defaultResponseHeaders).status(501).json({
-                    error: 'The endpoint is not implemented'
+                    error: 'The endpoint is either not implemented or `operationId` is ignored'
                 });
                 next();
             }
@@ -117,8 +121,7 @@ var defaultResponseHeaders = {
  */
 var callServiceFuntion = exports.callServiceFuntion = function callServiceFuntion(container, endpoint, req, res, serviceFun, next) {
     serviceFun(req, endpoint).then(function (result) {
-        // TODO: Manage several media types of response bodies, not only JSON
-        res.set(result.headers).status(200).json(result.body);
+        res.set(result.headers).status(200).send(result.body);
         next();
     }).catch(function (errResult) {
         container.logger.error(_circularJsonEs2.default.stringify(errResult));
@@ -163,7 +166,6 @@ var callPdmsForwarder = exports.callPdmsForwarder = function callPdmsForwarder(c
         }
     }, function (err, resp) {
         if (err) {
-            console.log(JSON.stringify(err, null, 2));
             container.logger.info('ERR ' + JSON.stringify(err));
             res.set(_lodash2.default.get(err, 'details.headers', {})).status(_lodash2.default.get(err, 'details.status', 500)).send(_lodash2.default.get(err, 'details.body', err));
         } else {

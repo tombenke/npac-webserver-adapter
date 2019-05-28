@@ -41,6 +41,9 @@ paths:
   /test/endpoint:
     $ref: ./test/endpoint/endpoint.yml
 
+  /test/endpoint-with-examples:
+    $ref: ./test/endpoint-with-examples/endpoint.yml
+
 # Static content service endpoint
   /docs/:
     $ref: ./docs/endpoint.yml

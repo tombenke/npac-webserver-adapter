@@ -23,15 +23,23 @@ import { setEndpoints } from './restapi'
  * @function
  */
 export const setRoutes = (container, server, api) => {
+    const { staticContentBasePath, enableMocking, ignoreApiOperationIds } = container.config.webServer
+
     // Setup static endpoints
     _.map(api.getStaticEndpoints(), staticEndpoint => {
-        const contentPath = path.resolve(
-            container.config.webServer.staticContentBasePath,
-            staticEndpoint.static.contentPath
-        )
+        const contentPath = path.resolve(staticContentBasePath, staticEndpoint.static.contentPath)
+
         container.logger.debug(`Bind ${contentPath} to ${staticEndpoint.uri} as static content service`)
         server.use(staticEndpoint.uri, /*TODO: authGuard,*/ express.static(contentPath), serveIndex(contentPath))
     })
+
     // Setup non-static endpoints
-    setEndpoints(container, server, api.getNonStaticEndpoints())
+    if (enableMocking) {
+        if (!ignoreApiOperationIds) {
+            container.logger.warning('Mocking is enabled, but `ignoreApiOperationIds` is `false`.')
+        }
+        setEndpoints(container, server, api.getNonStaticEndpoints({ includeExamples: true }))
+    } else {
+        setEndpoints(container, server, api.getNonStaticEndpoints())
+    }
 }

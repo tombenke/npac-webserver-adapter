@@ -89,11 +89,12 @@ describe('webServer adapter', function () {
     var tracerMwCall = void 0;
     var traceIdHeader = 'X-B3-Traceid';
     var traceIdValue = '42';
+    var accepts = ['*/*', 'application/json', 'text/plain', 'text/html', 'text/xml', 'unsupported/media-type'];
 
     var acceptCheckMiddleware = function acceptCheckMiddleware(container) {
         return function (req, res, next) {
             container.logger.debug('acceptCheckMiddleware is called ' + req.accepts());
-            (0, _chai.expect)(_.includes(['*/*', 'application/json'], req.accepts()[0])).to.be.true;
+            (0, _chai.expect)(_.includes(accepts, req.accepts()[0])).to.be.true;
             acceptCheckMwCall();
             next();
         };
@@ -110,7 +111,7 @@ describe('webServer adapter', function () {
             //            `MiddlewareFn is called: ${method} "${hostname}" "${originalUrl}" "${traceId}" => ${statusCode} ${contentLength} ${responseTime} ============================`
             //        )
             (0, _chai.expect)(traceId).to.be.equal(traceIdValue);
-            (0, _chai.expect)(_.includes(['*/*', 'application/json'], req.accepts()[0])).to.be.true;
+            (0, _chai.expect)(_.includes(accepts, req.accepts()[0])).to.be.true;
             tracerMwCall();
             next();
         };
@@ -152,6 +153,14 @@ describe('webServer adapter', function () {
         webServer: { usePdms: true
             // pdms: { natsUri: 'nats://localhost:4222' }
         } })), _npac.addLogger, pdms.startup, server.startup];
+
+    var adaptersForIgnoreOperationIds = [(0, _npac.mergeConfig)(_.merge({}, config, {
+        webServer: {
+            usePdms: false,
+            ignoreApiOperationIds: true,
+            enableMocking: false
+        }
+    })), _npac.addLogger, pdms.startup, server.startup];
 
     var adaptersForMocking = [(0, _npac.mergeConfig)(_.merge({}, config, {
         webServer: {
@@ -225,7 +234,7 @@ describe('webServer adapter', function () {
                     data = _err$response.data;
 
                 (0, _chai.expect)(status).to.equal(501);
-                (0, _chai.expect)(data).to.eql({ error: 'The endpoint is not implemented' });
+                (0, _chai.expect)(data).to.eql({ error: 'The endpoint is either not implemented or `operationId` is ignored' });
                 (0, _chai.expect)(acceptCheckMwCall.calledOnce).to.be.true;
                 (0, _chai.expect)(tracerMwCall.calledOnce).to.be.true;
                 next(null, null);
@@ -288,14 +297,14 @@ describe('webServer adapter', function () {
                     data = _err$response2.data;
 
                 (0, _chai.expect)(status).to.equal(501);
-                (0, _chai.expect)(data).to.eql({ error: 'The endpoint is not implemented' });
+                (0, _chai.expect)(data).to.eql({ error: 'The endpoint is either not implemented or `operationId` is ignored' });
                 (0, _chai.expect)(acceptCheckMwCall.calledOnce).to.be.true;
                 (0, _chai.expect)(tracerMwCall.calledOnce).to.be.true;
                 next(null, null);
             });
         };
 
-        (0, _npac.npacStart)(adaptersForMocking, [testServer], terminators);
+        (0, _npac.npacStart)(adaptersForIgnoreOperationIds, [testServer], terminators);
     }).timeout(30000);
 
     it('#call existing REST endpoint with 500, Internal Server Error', function (done) {
@@ -405,5 +414,141 @@ describe('webServer adapter', function () {
         };
 
         (0, _npac.npacStart)(adaptersWithPdms, [testServer], terminators);
+    }).timeout(30000);
+
+    it('#call existing REST endpoint with mocking but no examples', function (done) {
+        (0, _npac.catchExitSignals)(sandbox, done);
+
+        var testServer = function testServer(container, next) {
+            var port = container.config.webServer.port;
+
+            var host = 'http://localhost:' + port;
+            var restEndpoint = '/test/endpoint';
+
+            container.logger.info('Run job to test server');
+            (0, _axios2.default)({
+                method: 'put',
+                url: '' + host + restEndpoint,
+                withCredentials: true,
+                headers: _defineProperty({
+                    Accept: 'application/json'
+                }, traceIdHeader, traceIdValue)
+            }).then(function (response) {
+                var status = response.status,
+                    data = response.data;
+
+                (0, _chai.expect)(status).to.equal(200);
+                (0, _chai.expect)(data).to.equal('');
+                (0, _chai.expect)(acceptCheckMwCall.calledOnce).to.be.true;
+                (0, _chai.expect)(tracerMwCall.calledOnce).to.be.true;
+                next(null, null);
+            }).catch(function (err) {
+                return next(null, null);
+            });
+        };
+
+        (0, _npac.npacStart)(adaptersForMocking, [testServer], terminators);
+    }).timeout(30000);
+
+    it('#call existing REST endpoint with mocking and examples. Accept: "application/json"', function (done) {
+        (0, _npac.catchExitSignals)(sandbox, done);
+
+        var testServer = function testServer(container, next) {
+            var port = container.config.webServer.port;
+
+            var host = 'http://localhost:' + port;
+            var restEndpoint = '/test/endpoint-with-examples';
+
+            container.logger.info('Run job to test server');
+            (0, _axios2.default)({
+                method: 'get',
+                url: '' + host + restEndpoint,
+                withCredentials: true,
+                headers: _defineProperty({
+                    Accept: 'application/json'
+                }, traceIdHeader, traceIdValue)
+            }).then(function (response) {
+                var status = response.status,
+                    statusText = response.statusText,
+                    data = response.data;
+
+                (0, _chai.expect)(status).to.equal(200);
+                (0, _chai.expect)(statusText).to.equal('OK');
+                (0, _chai.expect)(data).to.eql({ identity: 'Universe', meaning: 42 });
+                (0, _chai.expect)(acceptCheckMwCall.calledOnce).to.be.true;
+                (0, _chai.expect)(tracerMwCall.calledOnce).to.be.true;
+                next(null, null);
+            });
+        };
+
+        (0, _npac.npacStart)(adaptersForMocking, [testServer], terminators);
+    }).timeout(30000);
+
+    it('#call existing REST endpoint with mocking and examples. Accept: "text/plain"', function (done) {
+        (0, _npac.catchExitSignals)(sandbox, done);
+
+        var testServer = function testServer(container, next) {
+            var port = container.config.webServer.port;
+
+            var host = 'http://localhost:' + port;
+            var restEndpoint = '/test/endpoint-with-examples';
+
+            container.logger.info('Run job to test server');
+            (0, _axios2.default)({
+                method: 'get',
+                url: '' + host + restEndpoint,
+                withCredentials: true,
+                headers: _defineProperty({
+                    Accept: 'text/plain'
+                }, traceIdHeader, traceIdValue)
+            }).then(function (response) {
+                var status = response.status,
+                    statusText = response.statusText,
+                    data = response.data;
+
+                (0, _chai.expect)(status).to.equal(200);
+                (0, _chai.expect)(statusText).to.equal('OK');
+                (0, _chai.expect)(data).to.equal('The meaning of Universe is 42');
+                (0, _chai.expect)(acceptCheckMwCall.calledOnce).to.be.true;
+                (0, _chai.expect)(tracerMwCall.calledOnce).to.be.true;
+                next(null, null);
+            });
+        };
+
+        (0, _npac.npacStart)(adaptersForMocking, [testServer], terminators);
+    }).timeout(30000);
+
+    it('#call existing REST endpoint with mocking and examples. Accept: "unsupported-media-type"', function (done) {
+        (0, _npac.catchExitSignals)(sandbox, done);
+
+        var testServer = function testServer(container, next) {
+            var port = container.config.webServer.port;
+
+            var host = 'http://localhost:' + port;
+            var restEndpoint = '/test/endpoint-with-examples';
+
+            container.logger.info('Run job to test server');
+            (0, _axios2.default)({
+                method: 'get',
+                url: '' + host + restEndpoint,
+                withCredentials: true,
+                headers: _defineProperty({
+                    Accept: 'unsupported/media-type'
+                }, traceIdHeader, traceIdValue)
+            }).catch(function (error) {
+                var _error$response3 = error.response,
+                    status = _error$response3.status,
+                    statusText = _error$response3.statusText,
+                    headers = _error$response3.headers,
+                    data = _error$response3.data;
+
+                container.logger.error('status: ' + status + ', statusText: ' + statusText + ', headers: ' + JSON.stringify(headers) + ', data: ' + JSON.stringify(data));
+                (0, _chai.expect)(status).to.equal(415);
+                (0, _chai.expect)(statusText).to.equal('Unsupported Media Type');
+                next(null, null);
+            });
+        };
+
+        (0, _npac.npacStart)(adaptersForMocking, [testServer], terminators);
     }).timeout(30000);
 });

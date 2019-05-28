@@ -10,6 +10,7 @@
 import _ from 'lodash'
 import CircularJSON from 'circular-json-es6'
 import { isPathBlackListed } from './logUtils'
+import { callMockingServiceFunction } from './mocking'
 
 /**
  * Setup the non-static endpoints of the web server
@@ -67,8 +68,10 @@ const mkHandlerFun = (container, endpoint) => (req, res, next) => {
             next()
         }
     } else {
-        // The operationId is null
-        if (container.config.webServer.usePdms) {
+        // The operationId is null or ignored
+        if (container.config.webServer.enableMocking) {
+            callMockingServiceFunction(container, endpoint, req, res, next)
+        } else if (container.config.webServer.usePdms) {
             // Do PDMS forwarding
             callPdmsForwarder(container, endpoint, req, res, next)
         } else {
@@ -76,7 +79,7 @@ const mkHandlerFun = (container, endpoint) => (req, res, next) => {
             res.set(defaultResponseHeaders)
                 .status(501)
                 .json({
-                    error: 'The endpoint is not implemented'
+                    error: 'The endpoint is either not implemented or `operationId` is ignored'
                 })
             next()
         }
@@ -103,10 +106,9 @@ const mkHandlerFun = (container, endpoint) => (req, res, next) => {
 export const callServiceFuntion = (container, endpoint, req, res, serviceFun, next) => {
     serviceFun(req, endpoint)
         .then(result => {
-            // TODO: Manage several media types of response bodies, not only JSON
             res.set(result.headers)
                 .status(200)
-                .json(result.body)
+                .send(result.body)
             next()
         })
         .catch(errResult => {
@@ -156,7 +158,6 @@ export const callPdmsForwarder = (container, endpoint, req, res, next) => {
         },
         (err, resp) => {
             if (err) {
-                console.log(JSON.stringify(err, null, 2))
                 container.logger.info(`ERR ${JSON.stringify(err)}`)
                 res.set(_.get(err, 'details.headers', {}))
                     .status(_.get(err, 'details.status', 500))

@@ -439,7 +439,30 @@ This object will appear as the default setup within the <code>container.config.w
 
             
 
-            <td class="description last"><p>Ignores the <code>operationId</code> property of the API endpoint descriptor if <code>true</code>. Env.: <code>WEBSERVER_IGNORE_API_OPERATION_IDS</code> || Default: <code>false</code>.</p></td>
+            <td class="description last"><p>Ignores the <code>operationId</code> property of the API endpoint descriptor if <code>true</code>. Env.: <code>WEBSERVER_IGNORE_API_OPERATION_IDS</code>. Default: <code>false</code>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>enableMocking</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Responses the first example found in the <code>examples</code> array of endpoint descriptor if there is any. For proper working, it requires the <code>ignoreApiOperationIds</code> config parameter to be <code>true</code> in case the <code>operationId</code>s of the endpoints are defined. Env.: <code>WEBSERVER_ENABLE_MOCKING</code>. Default: <code>false</code>.</p></td>
         </tr>
 
     
@@ -530,7 +553,7 @@ This object will appear as the default setup within the <code>container.config.w
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config.html">config</a></li><li><a href="module-logUtils.html">logUtils</a></li><li><a href="module-middlewares.html">middlewares</a></li><li><a href="module-npac-webserver-adapter.html">npac-webserver-adapter</a></li><li><a href="module-restapi.html">restapi</a></li><li><a href="module-routes.html">routes</a></li><li><a href="module-server.html">server</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config.html">config</a></li><li><a href="module-logUtils.html">logUtils</a></li><li><a href="module-middlewares.html">middlewares</a></li><li><a href="module-mocking.html">mocking</a></li><li><a href="module-npac-webserver-adapter.html">npac-webserver-adapter</a></li><li><a href="module-restapi.html">restapi</a></li><li><a href="module-routes.html">routes</a></li><li><a href="module-server.html">server</a></li></ul>
 </nav>
 
 <br class="clear">

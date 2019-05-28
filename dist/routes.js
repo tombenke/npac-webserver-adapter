@@ -35,14 +35,29 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @function
  */
 var setRoutes = exports.setRoutes = function setRoutes(container, server, api) {
+    var _container$config$web = container.config.webServer,
+        staticContentBasePath = _container$config$web.staticContentBasePath,
+        enableMocking = _container$config$web.enableMocking,
+        ignoreApiOperationIds = _container$config$web.ignoreApiOperationIds;
+
     // Setup static endpoints
+
     _lodash2.default.map(api.getStaticEndpoints(), function (staticEndpoint) {
-        var contentPath = _path2.default.resolve(container.config.webServer.staticContentBasePath, staticEndpoint.static.contentPath);
+        var contentPath = _path2.default.resolve(staticContentBasePath, staticEndpoint.static.contentPath);
+
         container.logger.debug('Bind ' + contentPath + ' to ' + staticEndpoint.uri + ' as static content service');
         server.use(staticEndpoint.uri, /*TODO: authGuard,*/_express2.default.static(contentPath), (0, _serveIndex2.default)(contentPath));
     });
+
     // Setup non-static endpoints
-    (0, _restapi.setEndpoints)(container, server, api.getNonStaticEndpoints());
+    if (enableMocking) {
+        if (!ignoreApiOperationIds) {
+            container.logger.warning('Mocking is enabled, but `ignoreApiOperationIds` is `false`.');
+        }
+        (0, _restapi.setEndpoints)(container, server, api.getNonStaticEndpoints({ includeExamples: true }));
+    } else {
+        (0, _restapi.setEndpoints)(container, server, api.getNonStaticEndpoints());
+    }
 }; /**
     * The routes module of the webserver adapter.
     *
