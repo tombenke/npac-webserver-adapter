@@ -36,7 +36,7 @@ export const setRoutes = (container, server, api) => {
     // Setup non-static endpoints
     if (enableMocking) {
         if (!ignoreApiOperationIds) {
-            container.logger.warning('Mocking is enabled, but `ignoreApiOperationIds` is `false`.')
+            container.logger.warn('Mocking is enabled, but `ignoreApiOperationIds` is `false`.')
         }
         setEndpoints(container, server, api.getNonStaticEndpoints({ includeExamples: true }))
     } else {
