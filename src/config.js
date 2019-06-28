@@ -27,8 +27,8 @@ module.exports = {
      * @property {String} staticContentBasePath -The base path to the static endpoints of the REST API. Env.: `WEBSERVER_STATIC_CONTENT_BASEPATH`.
      * @property {Boolean} ignoreApiOperationIds - Ignores the `operationId` property of the API endpoint descriptor if `true`. Env.: `WEBSERVER_IGNORE_API_OPERATION_IDS`. Default: `false`.
      * @property {Boolean} enableMocking - Responses the first example found in the `examples` array of endpoint descriptor if there is any. For proper working, it requires the `ignoreApiOperationIds` config parameter to be `true` in case the `operationId`s of the endpoints are defined. Env.: `WEBSERVER_ENABLE_MOCKING`. Default: `false`.
+     * @property {String} basePath - Define the base-path (prefix) for the REST API endpoints. Env.: `WEBSERVER_BASEPATH. `Default: `/`.
      * @property {Object} oasConfig - The swagger-parser configuration object. Defaults: `{ parse: { yaml: { allowEmpty: false }, resolve: { file: true } } }`
-     *
      */
     webServer: {
         logBlackList: getLogBlackList(process.env.WEBSERVER_LOG_BLACKLIST),

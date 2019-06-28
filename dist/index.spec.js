@@ -150,7 +150,7 @@ describe('webServer adapter', function () {
     var adapters = [(0, _npac.mergeConfig)(config), _npac.addLogger, testAdapter.startup, pdms.startup, server.startup];
 
     var adaptersWithBasePath = [(0, _npac.mergeConfig)(_.merge({}, config, {
-        webServer: { basePath: "/base/path" }
+        webServer: { basePath: '/base/path' }
     })), _npac.addLogger, testAdapter.startup, pdms.startup, server.startup];
 
     var adaptersWithPdms = [(0, _npac.mergeConfig)(_.merge({}, config, {

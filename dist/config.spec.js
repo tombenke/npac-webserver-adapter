@@ -33,7 +33,7 @@ describe('server/config', function () {
                 staticContentBasePath: _path2.default.resolve(),
                 ignoreApiOperationIds: false,
                 enableMocking: false,
-                basePath: "/",
+                basePath: '/',
                 oasConfig: {
                     parse: {
                         yaml: {
