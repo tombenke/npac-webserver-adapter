@@ -1,7 +1,7 @@
 {
   "name": "npac-webserver-adapter",
   "description": "npac adapter with webServer api, using Express.js",
-  "version": "2.5.2",
+  "version": "2.6.0",
   "keywords": [
     "cli",
     "util",
