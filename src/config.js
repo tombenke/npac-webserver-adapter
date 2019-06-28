@@ -41,6 +41,7 @@ module.exports = {
         staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || path.resolve(),
         ignoreApiOperationIds: process.env.WEBSERVER_IGNORE_API_OPERATION_IDS || false,
         enableMocking: process.env.WEBSERVER_ENABLE_MOCKING || false,
+        basePath: process.env.WEBSERVER_BASEPATH || '/',
         oasConfig: {
             parse: {
                 yaml: {

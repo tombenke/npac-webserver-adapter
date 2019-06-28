@@ -149,6 +149,10 @@ describe('webServer adapter', function () {
 
     var adapters = [(0, _npac.mergeConfig)(config), _npac.addLogger, testAdapter.startup, pdms.startup, server.startup];
 
+    var adaptersWithBasePath = [(0, _npac.mergeConfig)(_.merge({}, config, {
+        webServer: { basePath: "/base/path" }
+    })), _npac.addLogger, testAdapter.startup, pdms.startup, server.startup];
+
     var adaptersWithPdms = [(0, _npac.mergeConfig)(_.merge({}, config, {
         webServer: { usePdms: true
             // pdms: { natsUri: 'nats://localhost:4222' }
@@ -272,6 +276,36 @@ describe('webServer adapter', function () {
         };
 
         (0, _npac.npacStart)(adapters, [testServer], terminators);
+    }).timeout(30000);
+
+    it('#call existing REST endpoint with adapter function using basePath', function (done) {
+        (0, _npac.catchExitSignals)(sandbox, done);
+
+        var testServer = function testServer(container, next) {
+            var port = container.config.webServer.port;
+
+            var host = 'http://localhost:' + port;
+            var restEndpoint = '/base/path/test/endpoint';
+
+            container.logger.info('Run job to test server');
+            (0, _axios2.default)({
+                method: 'put',
+                url: '' + host + restEndpoint,
+                withCredentials: true,
+                headers: _defineProperty({
+                    Accept: 'application/json'
+                }, traceIdHeader, traceIdValue)
+            }).then(function (response) {
+                var status = response.status;
+
+                (0, _chai.expect)(status).to.equal(200);
+                (0, _chai.expect)(acceptCheckMwCall.calledOnce).to.be.true;
+                (0, _chai.expect)(tracerMwCall.calledOnce).to.be.true;
+                next(null, null);
+            });
+        };
+
+        (0, _npac.npacStart)(adaptersWithBasePath, [testServer], terminators);
     }).timeout(30000);
 
     it('#call existing REST endpoint with adapter function but ignore operationId', function (done) {

@@ -38,11 +38,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @module restapi
  */
 var setEndpoints = exports.setEndpoints = function setEndpoints(container, server, endpoints) {
+    var basePath = container.config.webServer.basePath === "/" ? "" : container.config.webServer.basePath;
     container.logger.debug('restapi.setEndpoints/endpointMap ' + JSON.stringify(_lodash2.default.map(endpoints, function (ep) {
-        return [ep.method, ep.uri];
+        return [ep.method, basePath + ep.jsfUri];
     }), null, ''));
     _lodash2.default.map(endpoints, function (endpoint) {
-        server[endpoint.method](endpoint.jsfUri, mkHandlerFun(container, endpoint));
+        server[endpoint.method](basePath + endpoint.jsfUri, mkHandlerFun(container, endpoint));
     });
 };
 var defaultResponseHeaders = {

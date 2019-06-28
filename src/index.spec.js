@@ -114,6 +114,18 @@ describe('webServer adapter', () => {
 
     const adapters = [mergeConfig(config), addLogger, testAdapter.startup, pdms.startup, server.startup]
 
+    const adaptersWithBasePath = [
+        mergeConfig(
+            _.merge({}, config, {
+                webServer: { basePath: '/base/path' }
+            })
+        ),
+        addLogger,
+        testAdapter.startup,
+        pdms.startup,
+        server.startup
+    ]
+
     const adaptersWithPdms = [
         mergeConfig(
             _.merge({}, config, {
@@ -252,6 +264,35 @@ describe('webServer adapter', () => {
         }
 
         npacStart(adapters, [testServer], terminators)
+    }).timeout(30000)
+
+    it('#call existing REST endpoint with adapter function using basePath', done => {
+        catchExitSignals(sandbox, done)
+
+        const testServer = (container, next) => {
+            const { port } = container.config.webServer
+            const host = `http://localhost:${port}`
+            const restEndpoint = `/base/path/test/endpoint`
+
+            container.logger.info(`Run job to test server`)
+            axios({
+                method: 'put',
+                url: `${host}${restEndpoint}`,
+                withCredentials: true,
+                headers: {
+                    Accept: 'application/json',
+                    [traceIdHeader]: traceIdValue
+                }
+            }).then(response => {
+                const { status /*, statusText, headers, data*/ } = response
+                expect(status).to.equal(200)
+                expect(acceptCheckMwCall.calledOnce).to.be.true
+                expect(tracerMwCall.calledOnce).to.be.true
+                next(null, null)
+            })
+        }
+
+        npacStart(adaptersWithBasePath, [testServer], terminators)
     }).timeout(30000)
 
     it('#call existing REST endpoint with adapter function but ignore operationId', done => {

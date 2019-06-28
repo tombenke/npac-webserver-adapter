@@ -22,11 +22,16 @@ import { callMockingServiceFunction } from './mocking'
  * @function
  */
 export const setEndpoints = (container, server, endpoints) => {
+    const basePath = container.config.webServer.basePath === '/' ? '' : container.config.webServer.basePath
     container.logger.debug(
-        `restapi.setEndpoints/endpointMap ${JSON.stringify(_.map(endpoints, ep => [ep.method, ep.uri]), null, '')}`
+        `restapi.setEndpoints/endpointMap ${JSON.stringify(
+            _.map(endpoints, ep => [ep.method, basePath + ep.jsfUri]),
+            null,
+            ''
+        )}`
     )
     _.map(endpoints, endpoint => {
-        server[endpoint.method](endpoint.jsfUri, mkHandlerFun(container, endpoint))
+        server[endpoint.method](basePath + endpoint.jsfUri, mkHandlerFun(container, endpoint))
     })
 }
 const defaultResponseHeaders = {
