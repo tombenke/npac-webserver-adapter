@@ -132,8 +132,8 @@ describe('webServer adapter', () => {
     const adaptersWithPdms = [
         mergeConfig(
             _.merge({}, config, {
-                webServer: { usePdms: true }
-                // pdms: { natsUri: 'nats://localhost:4222' }
+                webServer: { usePdms: true },
+                pdms: { timeout: 2500/*, natsUri: 'nats://localhost:4222'*/ }
             })
         ),
         addLogger,
@@ -161,6 +161,21 @@ describe('webServer adapter', () => {
             _.merge({}, config, {
                 webServer: {
                     usePdms: false,
+                    ignoreApiOperationIds: true,
+                    enableMocking: true
+                }
+            })
+        ),
+        addLogger,
+        pdms.startup,
+        server.startup
+    ]
+
+    const adaptersForMockingAndPdms = [
+        mergeConfig(
+            _.merge({}, config, {
+                webServer: {
+                    usePdms: true,
                     ignoreApiOperationIds: true,
                     enableMocking: true
                 }
@@ -200,7 +215,7 @@ describe('webServer adapter', () => {
                     Accept: '*/*'
                 }
             }).then(response => {
-                const { status /*, statusText, headers, data*/ } = response
+                const { status } = response
                 expect(status).to.equal(200)
                 expect(acceptCheckMwCall.calledOnce).to.be.true
                 next(null, null)
@@ -228,7 +243,7 @@ describe('webServer adapter', () => {
                     [traceIdHeader]: traceIdValue
                 }
             }).catch(err => {
-                const { status, data /*, statusText, headers, data*/ } = err.response
+                const { status, data } = err.response
                 expect(status).to.equal(501)
                 expect(data).to.eql({ error: 'The endpoint is either not implemented or `operationId` is ignored' })
                 expect(acceptCheckMwCall.calledOnce).to.be.true
@@ -258,7 +273,7 @@ describe('webServer adapter', () => {
                     [traceIdHeader]: traceIdValue
                 }
             }).then(response => {
-                const { status /*, statusText, headers, data*/ } = response
+                const { status } = response
                 expect(status).to.equal(200)
                 expect(acceptCheckMwCall.calledOnce).to.be.true
                 expect(tracerMwCall.calledOnce).to.be.true
@@ -287,7 +302,7 @@ describe('webServer adapter', () => {
                     [traceIdHeader]: traceIdValue
                 }
             }).then(response => {
-                const { status /*, statusText, headers, data*/ } = response
+                const { status } = response
                 expect(status).to.equal(200)
                 expect(acceptCheckMwCall.calledOnce).to.be.true
                 expect(tracerMwCall.calledOnce).to.be.true
@@ -316,7 +331,7 @@ describe('webServer adapter', () => {
                     [traceIdHeader]: traceIdValue
                 }
             }).catch(err => {
-                const { status, data /*, statusText, headers, data*/ } = err.response
+                const { status, data } = err.response
                 expect(status).to.equal(501)
                 expect(data).to.eql({ error: 'The endpoint is either not implemented or `operationId` is ignored' })
                 expect(acceptCheckMwCall.calledOnce).to.be.true
@@ -422,7 +437,7 @@ describe('webServer adapter', () => {
                     [traceIdHeader]: traceIdValue
                 }
             }).then(response => {
-                const { status, /* statusText, headers,*/ data } = response
+                const { status, data } = response
                 expect(status).to.equal(200)
                 expect(data).to.eql(expectedBody)
                 expect(acceptCheckMwCall.calledOnce).to.be.true
@@ -453,7 +468,7 @@ describe('webServer adapter', () => {
                 }
             })
                 .then(response => {
-                    const { status, /*statusText, headers,*/ data } = response
+                    const { status, data } = response
                     expect(status).to.equal(200)
                     expect(data).to.equal('')
                     expect(acceptCheckMwCall.calledOnce).to.be.true
@@ -484,7 +499,7 @@ describe('webServer adapter', () => {
                     [traceIdHeader]: traceIdValue
                 }
             }).then(response => {
-                const { status, statusText, /*headers,*/ data } = response
+                const { status, statusText, data } = response
                 expect(status).to.equal(200)
                 expect(statusText).to.equal('OK')
                 expect(data).to.eql({ identity: 'Universe', meaning: 42 })
@@ -515,7 +530,7 @@ describe('webServer adapter', () => {
                     [traceIdHeader]: traceIdValue
                 }
             }).then(response => {
-                const { status, statusText, /*headers,*/ data } = response
+                const { status, statusText, data } = response
                 expect(status).to.equal(200)
                 expect(statusText).to.equal('OK')
                 expect(data).to.equal('The meaning of Universe is 42')
@@ -568,6 +583,38 @@ describe('webServer adapter', () => {
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
             const restEndpointMethod = 'get'
+            const restEndpointPath = `/test/endpoint-with-examples`
+
+            container.logger.info(`Run job to test server`)
+            axios({
+                method: restEndpointMethod,
+                url: `${host}${restEndpointPath}`,
+                withCredentials: true,
+                headers: {
+                    Accept: 'application/json',
+                    [traceIdHeader]: traceIdValue
+                }
+            }).then(response => {
+                const { status, statusText, data } = response
+                expect(status).to.equal(200)
+                expect(statusText).to.equal('OK')
+                expect(data).to.eql({ identity: 'Universe', meaning: 42 })
+                expect(acceptCheckMwCall.calledOnce).to.be.true
+                expect(tracerMwCall.calledOnce).to.be.true
+                next(null, null)
+            })
+        }
+
+        npacStart(adaptersForMockingAndPdms, [testServer], terminators)
+    }).timeout(30000)
+
+    it('#call with PDMS and mocking enabled, no endpoint implementation, mock example does not exists', done => {
+        catchExitSignals(sandbox, done)
+
+        const testServer = (container, next) => {
+            const { port } = container.config.webServer
+            const host = `http://localhost:${port}`
+            const restEndpointMethod = 'get'
             const restEndpointPath = `/test/endpoint`
 
             container.logger.info(`Run job to test server`)
@@ -580,19 +627,15 @@ describe('webServer adapter', () => {
                     [traceIdHeader]: traceIdValue
                 }
             }).catch(error => {
-                const { status, statusText, headers, data } = error.response
-                container.logger.error(
-                    `status: ${status}, statusText: ${statusText}, headers: ${JSON.stringify(
-                        headers
-                    )}, data: ${JSON.stringify(data)}`
-                )
-                expect(status).to.equal(500)
-                expect(data.message).to.equal('Client timeout')
+                const { status, statusText, headers } = error.response
+                container.logger.error(`status: ${status}, ${statusText}, headers: ${JSON.stringify(headers)}`)
+                expect(status).to.equal(404)
+                expect(statusText).to.equal('Not Found')
                 next(null, null)
             })
         }
 
-        npacStart(adaptersWithPdms, [testServer], terminators)
+        npacStart(adaptersForMockingAndPdms, [testServer], terminators)
     }).timeout(30000)
 
 })

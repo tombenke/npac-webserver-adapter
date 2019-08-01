@@ -60,6 +60,58 @@ export const callMockingServiceFunction = (container, endpoint, req, res, next) 
 }
 
 /**
+ * Get the mocking response from the endpoint descriptor and from the request parameters.
+ *
+ * If there is no example found with the right media-type, then a `415 Unsupported Media Type` error will be returned.
+ *
+ * NOTE: Currently a single mime-type value is accepted without weight.
+ * TODO: Implement multiple values ordered by weight when find the right example response.
+ *
+ * @arg {Object} container - The container context
+ * @arg {Object} endpoint - The endpoint descriptor
+ * @arg {Object} req - The request object
+ *
+ * @function
+ */
+export const getMockingResponse = (container, endpoint, req) => {
+    // Determine which media-type the client accepts
+    const accept = _.get(req.headers, 'accept', '*/*')
+
+    // Determine the response media-type
+    const mediaType = determineMediaType(container, endpoint, accept)
+
+    if (mediaType === null) {
+        // Unsupported media-type
+        return {
+            status: 415
+        }
+    } else {
+        // Get the example of the given media-type
+        const examples = _.get(endpoint.responses['200'].examples, mediaType, {})
+        const exampleNames = _.keys(examples)
+        const emptyExample = { value: undefined }
+        const example = exampleNames.length > 0 ? _.get(examples, exampleNames[0], emptyExample) : emptyExample
+        const headers = { ...endpoint.responses['200'].headers, 'content-type': mediaType }
+
+        // Send response
+        if (_.isUndefined(example.value)) {
+            // There is no example found
+            return {
+                status: 404,
+                headers: headers
+            }
+        } else {
+            return {
+                status: 200,
+                headers: headers,
+                body: example.value
+            }
+        }
+    }
+}
+
+
+/**
  * Determine the resultant media-type for the response
  *
  * @arg {Object} container - The container context
