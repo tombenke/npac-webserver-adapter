@@ -42,6 +42,43 @@ var setEndpoints = exports.setEndpoints = function setEndpoints(container, serve
     container.logger.debug('restapi.setEndpoints/endpointMap ' + JSON.stringify(_lodash2.default.map(endpoints, function (ep) {
         return [ep.method, basePath + ep.jsfUri];
     }), null, ''));
+
+    // In case both PDMS and mocking is enabled,
+    // then get prepared for catch unhandled PDMS endpoints
+    // and substitute them with example mock data if available
+    var _container$config$web = container.config.webServer,
+        ignoreApiOperationIds = _container$config$web.ignoreApiOperationIds,
+        enableMocking = _container$config$web.enableMocking,
+        usePdms = _container$config$web.usePdms,
+        pdmsTopic = _container$config$web.pdmsTopic;
+
+    if (usePdms && enableMocking && ignoreApiOperationIds) {
+        container.pdms.add({ topic: pdmsTopic }, function (data, cb) {
+            var _getMockingResponse = (0, _mocking.getMockingResponse)(container, data.endpointDesc, data.request),
+                status = _getMockingResponse.status,
+                headers = _getMockingResponse.headers,
+                body = _getMockingResponse.body;
+
+            var defaultHeaders = {
+                'Content-Type': 'application/json; charset=utf-8'
+            };
+
+            if (_lodash2.default.isUndefined(body)) {
+                cb(null, {
+                    status: status,
+                    headers: headers || defaultHeaders
+                });
+            } else {
+                cb(null, {
+                    status: status,
+                    headers: headers || defaultHeaders,
+                    body: body
+                });
+            }
+        });
+    }
+
+    // Setup endpoints
     _lodash2.default.map(endpoints, function (endpoint) {
         server[endpoint.method](basePath + endpoint.jsfUri, mkHandlerFun(container, endpoint));
     });
@@ -67,7 +104,11 @@ var defaultResponseHeaders = {
         var uri = endpoint.uri,
             method = endpoint.method,
             operationId = endpoint.operationId;
-        var ignoreApiOperationIds = container.config.webServer.ignoreApiOperationIds;
+        var _container$config$web2 = container.config.webServer,
+            ignoreApiOperationIds = _container$config$web2.ignoreApiOperationIds,
+            enableMocking = _container$config$web2.enableMocking,
+            usePdms = _container$config$web2.usePdms,
+            pdmsTopic = _container$config$web2.pdmsTopic;
 
 
         if (!(0, _logUtils.isPathBlackListed)(container, uri)) {
@@ -87,10 +128,13 @@ var defaultResponseHeaders = {
             }
         } else {
             // The operationId is null or ignored
-            if (container.config.webServer.enableMocking) {
+            if (enableMocking && !usePdms) {
+                // Do mocking without PDMS
+                container.logger.debug("Do mocking without PDMS");
                 (0, _mocking.callMockingServiceFunction)(container, endpoint, req, res, next);
-            } else if (container.config.webServer.usePdms) {
-                // Do PDMS forwarding
+            } else if (usePdms) {
+                // Do PDMS forwarding with or without mocking
+                container.logger.debug("Do PDMS forwarding with or without mocking");
                 callPdmsForwarder(container, endpoint, req, res, next);
             } else {
                 // No operationId, no PDMS forwarding enabled
@@ -125,8 +169,16 @@ var callServiceFuntion = exports.callServiceFuntion = function callServiceFuntio
         res.set(result.headers).status(200).send(result.body);
         next();
     }).catch(function (errResult) {
-        container.logger.error(_circularJsonEs2.default.stringify(errResult));
-        res.set(errResult.headers).status(errResult.status).json(errResult.body);
+        var status = errResult.status,
+            headers = errResult.headers,
+            body = errResult.body;
+
+        if (_lodash2.default.isUndefined(status)) {
+            res.status(500);
+        } else {
+            container.logger.error(_circularJsonEs2.default.stringify(errResult));
+            res.set(headers || defaultResponseHeaders).status(status).json(body);
+        }
         next();
     });
 };
@@ -134,7 +186,7 @@ var callServiceFuntion = exports.callServiceFuntion = function callServiceFuntio
 /**
  * Call the PDMS forwarder service function
  *
- * Executes a synchronous PDMS act, that puts the request to the topic named by the endpoint.uri.
+ * Executes a synchronous PDMS act, that puts the request to the topic named by the `config.webServer.pdmsTopic` parameter.
  * The message also containts the `method` and `uri` properties as well as
  * the normalized version of the request object and the endpoint descriptor.
  *
@@ -149,9 +201,10 @@ var callServiceFuntion = exports.callServiceFuntion = function callServiceFuntio
  * @function
  */
 var callPdmsForwarder = exports.callPdmsForwarder = function callPdmsForwarder(container, endpoint, req, res, next) {
-    container.logger.info('PDMS.ACT topic: "' + endpoint.uri + '" method:"' + endpoint.method + '" uri:"' + endpoint.uri + '"');
+    var topic = container.config.webServer.pdmsTopic;
+    container.logger.info('PDMS.ACT topic: "' + topic + '" method:"' + endpoint.method + '" uri:"' + endpoint.uri + '"');
     container.pdms.act({
-        topic: endpoint.uri,
+        topic: topic,
         method: endpoint.method,
         uri: endpoint.uri,
         endpointDesc: endpoint,

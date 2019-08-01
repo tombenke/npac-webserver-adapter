@@ -22,6 +22,7 @@ module.exports = {
      * @property {Number} port - The port where the webserver will listen. Env.: `WEBSERVER_PORT`. Default: `3007`.
      * @property {Boolean} useCompression - If `true` then the server will use the compression middleware. Env: `WEBSERVER_USE_COMPRESSION`. Default: `false`.
      * @property {Boolean} usePdms - If `true` the adapter will use the API call forwarding towards NATS topics. Env.: `WEBSERVER_USE_PDMS`. Default: `false`.
+     * @property {String} pdmsTopic - The name of the NATS topic where the PDMS adapter will forward the REST API endpoint calls. Env.: `WEBSERVER_PDMS_TOPIC`. Default: `easer`.
      * @property {Object} middlewares -The dictionary of middleware functions needs to be added. Defaults: `{ preRouting: [], postRouting: [] }`.
      * @property {String} restApiPath -The path to the root file of the swagger/OpenApi descriptor file(s) Env.: `WEBSERVER_RESTAPIPATH`.
      * @property {String} staticContentBasePath -The base path to the static endpoints of the REST API. Env.: `WEBSERVER_STATIC_CONTENT_BASEPATH`.

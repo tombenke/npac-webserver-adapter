@@ -68,11 +68,8 @@ var startup = function startup(container, next) {
     var config = _lodash2.default.merge({}, _config2.default, { webServer: container.config.webServer || {} });
 
     // Load the Swagger/OpenAPI format API definition
-
     var oasFile = resolveOasFile(container, config.webServer.restApiPath);
-    return (0, _restToolCommon.loadOas)(oasFile, config.webServer.oasConfig).catch(function (err) {
-        container.logger.error('API loading error ' + err);
-    }).then(function (api) {
+    return (0, _restToolCommon.loadOas)(oasFile, config.webServer.oasConfig).then(function (api) {
         (0, _server.startupServer)(container, api).then(function (httpInstance) {
             // Call next setup function with the context extension
             next(null, {
@@ -81,6 +78,9 @@ var startup = function startup(container, next) {
                 }
             });
         });
+    }).catch(function (err) {
+        container.logger.error('API loading error ' + err);
+        next(err, err);
     });
 };
 

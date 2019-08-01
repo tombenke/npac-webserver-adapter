@@ -28,6 +28,7 @@ describe('server/config', function () {
                 useCompression: false,
                 useResponseTime: false,
                 usePdms: false,
+                pdmsTopic: 'easer',
                 middlewares: { preRouting: [], postRouting: [] },
                 restApiPath: _path2.default.resolve(),
                 staticContentBasePath: _path2.default.resolve(),

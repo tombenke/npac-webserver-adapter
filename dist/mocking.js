@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.determineMediaType = exports.callMockingServiceFunction = undefined;
+exports.determineMediaType = exports.getMockingResponse = exports.callMockingServiceFunction = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /**
                                                                                                                                                                                                                                                                    * The mocking module of the webserver adapter.
@@ -40,6 +40,35 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @function
  */
 var callMockingServiceFunction = exports.callMockingServiceFunction = function callMockingServiceFunction(container, endpoint, req, res, next) {
+    var _getMockingResponse = getMockingResponse(container, endpoint, req),
+        status = _getMockingResponse.status,
+        headers = _getMockingResponse.headers,
+        body = _getMockingResponse.body;
+
+    if (_lodash2.default.isUndefined(body)) {
+        res.status(status).send();
+    } else {
+        res.set(headers).status(status).send(body);
+    }
+
+    next();
+};
+
+/**
+ * Get the mocking response from the endpoint descriptor and from the request parameters.
+ *
+ * If there is no example found with the right media-type, then a `415 Unsupported Media Type` error will be returned.
+ *
+ * NOTE: Currently a single mime-type value is accepted without weight.
+ * TODO: Implement multiple values ordered by weight when find the right example response.
+ *
+ * @arg {Object} container - The container context
+ * @arg {Object} endpoint - The endpoint descriptor
+ * @arg {Object} req - The request object
+ *
+ * @function
+ */
+var getMockingResponse = exports.getMockingResponse = function getMockingResponse(container, endpoint, req) {
     // Determine which media-type the client accepts
     var accept = _lodash2.default.get(req.headers, 'accept', '*/*');
 
@@ -48,7 +77,9 @@ var callMockingServiceFunction = exports.callMockingServiceFunction = function c
 
     if (mediaType === null) {
         // Unsupported media-type
-        res.status(415).send();
+        return {
+            status: 415
+        };
     } else {
         // Get the example of the given media-type
         var examples = _lodash2.default.get(endpoint.responses['200'].examples, mediaType, {});
@@ -59,13 +90,19 @@ var callMockingServiceFunction = exports.callMockingServiceFunction = function c
 
             // Send response
         });if (_lodash2.default.isUndefined(example.value)) {
-            // There is no body to respond
-            res.set(headers).status(200).send();
+            // There is no example found
+            return {
+                status: 404,
+                headers: headers
+            };
         } else {
-            res.set(headers).status(200).send(example.value);
+            return {
+                status: 200,
+                headers: headers,
+                body: example.value
+            };
         }
     }
-    next();
 };
 
 /**
