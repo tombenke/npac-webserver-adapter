@@ -27,35 +27,14 @@ import _ from 'lodash'
  * @function
  */
 export const callMockingServiceFunction = (container, endpoint, req, res, next) => {
-    // Determine which media-type the client accepts
-    const accept = _.get(req.headers, 'accept', '*/*')
+    const { status, headers, body } = getMockingResponse(container, endpoint, req)
 
-    // Determine the response media-type
-    const mediaType = determineMediaType(container, endpoint, accept)
-
-    if (mediaType === null) {
-        // Unsupported media-type
-        res.status(415).send()
+    if (_.isUndefined(body)) {
+        res.status(status).send()
     } else {
-        // Get the example of the given media-type
-        const examples = _.get(endpoint.responses['200'].examples, mediaType, {})
-        const exampleNames = _.keys(examples)
-        const emptyExample = { value: undefined }
-        const example = exampleNames.length > 0 ? _.get(examples, exampleNames[0], emptyExample) : emptyExample
-        const headers = { ...endpoint.responses['200'].headers, 'content-type': mediaType }
-
-        // Send response
-        if (_.isUndefined(example.value)) {
-            // There is no body to respond
-            res.set(headers)
-                .status(200)
-                .send()
-        } else {
-            res.set(headers)
-                .status(200)
-                .send(example.value)
-        }
+        res.set(headers).status(status).send(body)
     }
+
     next()
 }
 
@@ -109,7 +88,6 @@ export const getMockingResponse = (container, endpoint, req) => {
         }
     }
 }
-
 
 /**
  * Determine the resultant media-type for the response
