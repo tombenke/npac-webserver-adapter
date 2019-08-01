@@ -38,7 +38,7 @@
     "express-session": "^1.16.2",
     "express-winston": "^3.2.1",
     "lodash": "^4.17.15",
-    "npac": "^2.1.5",
+    "npac": "^2.1.6",
     "npac-pdms-hemera-adapter": "^1.4.6",
     "response-time": "^2.3.2",
     "rest-tool-common": "^2.7.2",

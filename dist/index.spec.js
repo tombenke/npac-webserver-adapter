@@ -68,7 +68,7 @@ var testAdapterEndpointErr500Fun = function testAdapterEndpointErr500Fun(contain
 var testAdapterEndpointErrUnknownFun = function testAdapterEndpointErrUnknownFun(container) {
     return function (req, endp) {
         return new Promise(function (resolve, reject) {
-            reject(new Error("Internal error occured..."));
+            reject(new Error('Internal error occured...'));
         });
     };
 };

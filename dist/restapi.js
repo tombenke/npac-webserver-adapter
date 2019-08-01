@@ -130,11 +130,11 @@ var defaultResponseHeaders = {
             // The operationId is null or ignored
             if (enableMocking && !usePdms) {
                 // Do mocking without PDMS
-                container.logger.debug("Do mocking without PDMS");
+                container.logger.debug('Do mocking without PDMS');
                 (0, _mocking.callMockingServiceFunction)(container, endpoint, req, res, next);
             } else if (usePdms) {
                 // Do PDMS forwarding with or without mocking
-                container.logger.debug("Do PDMS forwarding with or without mocking");
+                container.logger.debug('Do PDMS forwarding with or without mocking');
                 callPdmsForwarder(container, endpoint, req, res, next);
             } else {
                 // No operationId, no PDMS forwarding enabled

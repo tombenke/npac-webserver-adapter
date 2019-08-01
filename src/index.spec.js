@@ -36,7 +36,7 @@ const testAdapterEndpointErr500Fun = container => (req, endp) => {
 // An endpoint operation callback that always returns with an unknown error, with no status, header and body info
 const testAdapterEndpointErrUnknownFun = container => (req, endp) => {
     return new Promise((resolve, reject) => {
-        reject(new Error("Internal error occured..."))
+        reject(new Error('Internal error occured...'))
     })
 }
 
@@ -141,7 +141,7 @@ describe('webServer adapter', () => {
         mergeConfig(
             _.merge({}, config, {
                 webServer: { usePdms: true },
-                pdms: { timeout: 2500/*, natsUri: 'nats://localhost:4222'*/ }
+                pdms: { timeout: 2500 /*, natsUri: 'nats://localhost:4222'*/ }
             })
         ),
         addLogger,
@@ -676,5 +676,4 @@ describe('webServer adapter', () => {
 
         npacStart(adaptersForMockingAndPdms, [testServer], terminators)
     }).timeout(30000)
-
 })
