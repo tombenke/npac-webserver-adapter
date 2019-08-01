@@ -7,6 +7,7 @@ import * as pdms from 'npac-pdms-hemera-adapter'
 import * as _ from 'lodash'
 import axios from 'axios'
 
+// An endpoint operation callback that always successfully responds with an empty JSON object
 const testAdapterEndpointFun = container => (req, endp) => {
     return new Promise((resolve, reject) => {
         resolve({
@@ -18,6 +19,7 @@ const testAdapterEndpointFun = container => (req, endp) => {
     })
 }
 
+// An endpoint operation callback that always returns with 500 status and a JSON null response body
 const testAdapterEndpointErr500Fun = container => (req, endp) => {
     return new Promise((resolve, reject) => {
         reject({
@@ -31,6 +33,7 @@ const testAdapterEndpointErr500Fun = container => (req, endp) => {
     })
 }
 
+// Test adapter that holds two endpoint implementations (operations), a success and an error one.
 const testAdapter = {
     startup: (container, next) => {
         // Merges the defaults with the config coming from the outer world
@@ -213,12 +216,12 @@ describe('webServer adapter', () => {
         const testServer = (container, next) => {
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
-            const restEndpoint = `/test/endpoint`
+            const restEndpointPath = `/test/endpoint`
 
             container.logger.info(`Run job to test server`)
             axios({
                 method: 'get',
-                url: `${host}${restEndpoint}`,
+                url: `${host}${restEndpointPath}`,
                 withCredentials: true,
                 headers: {
                     Accept: 'application/json',
@@ -243,12 +246,12 @@ describe('webServer adapter', () => {
         const testServer = (container, next) => {
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
-            const restEndpoint = `/test/endpoint`
+            const restEndpointPath = `/test/endpoint`
 
             container.logger.info(`Run job to test server`)
             axios({
                 method: 'put',
-                url: `${host}${restEndpoint}`,
+                url: `${host}${restEndpointPath}`,
                 withCredentials: true,
                 headers: {
                     Accept: 'application/json',
@@ -272,12 +275,12 @@ describe('webServer adapter', () => {
         const testServer = (container, next) => {
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
-            const restEndpoint = `/base/path/test/endpoint`
+            const restEndpointPath = `/base/path/test/endpoint`
 
             container.logger.info(`Run job to test server`)
             axios({
                 method: 'put',
-                url: `${host}${restEndpoint}`,
+                url: `${host}${restEndpointPath}`,
                 withCredentials: true,
                 headers: {
                     Accept: 'application/json',
@@ -301,12 +304,12 @@ describe('webServer adapter', () => {
         const testServer = (container, next) => {
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
-            const restEndpoint = `/test/endpoint`
+            const restEndpointPath = `/test/endpoint`
 
             container.logger.info(`Run job to test server`)
             axios({
                 method: 'put',
-                url: `${host}${restEndpoint}`,
+                url: `${host}${restEndpointPath}`,
                 withCredentials: true,
                 headers: {
                     Accept: 'application/json',
@@ -331,12 +334,12 @@ describe('webServer adapter', () => {
         const testServer = (container, next) => {
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
-            const restEndpoint = `/test/endpoint`
+            const restEndpointPath = `/test/endpoint`
 
             container.logger.info(`Run job to test server`)
             axios({
                 method: 'post',
-                url: `${host}${restEndpoint}`,
+                url: `${host}${restEndpointPath}`,
                 withCredentials: true,
                 headers: {
                     Accept: 'application/json',
@@ -362,12 +365,12 @@ describe('webServer adapter', () => {
         const testServer = (container, next) => {
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
-            const restEndpoint = `/test/endpoint`
+            const restEndpointPath = `/test/endpoint`
 
             container.logger.info(`Run job to test server`)
             axios({
                 method: 'get',
-                url: `${host}${restEndpoint}`,
+                url: `${host}${restEndpointPath}`,
                 withCredentials: true,
                 headers: {
                     Accept: 'application/json',
@@ -395,11 +398,12 @@ describe('webServer adapter', () => {
         const testServer = (container, next) => {
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
-            const restEndpoint = `/test/endpoint`
+            const restEndpointMethod = 'get'
+            const restEndpointPath = `/test/endpoint`
             const expectedBody = { status: 'OK' }
 
             // Add built-in service
-            container.pdms.add({ topic: restEndpoint, method: 'get', uri: restEndpoint }, (data, cb) => {
+            container.pdms.add({ topic: 'easer', method: restEndpointMethod, uri: restEndpointPath }, (data, cb) => {
                 cb(null, {
                     headers: {
                         'Content-Type': 'application/json; charset=utf-8'
@@ -410,8 +414,8 @@ describe('webServer adapter', () => {
 
             container.logger.info(`Run job to test server`)
             axios({
-                method: 'get',
-                url: `${host}${restEndpoint}`,
+                method: restEndpointMethod,
+                url: `${host}${restEndpointPath}`,
                 withCredentials: true,
                 headers: {
                     Accept: 'application/json',
@@ -436,12 +440,12 @@ describe('webServer adapter', () => {
         const testServer = (container, next) => {
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
-            const restEndpoint = `/test/endpoint`
+            const restEndpointPath = `/test/endpoint`
 
             container.logger.info(`Run job to test server`)
             axios({
                 method: 'put',
-                url: `${host}${restEndpoint}`,
+                url: `${host}${restEndpointPath}`,
                 withCredentials: true,
                 headers: {
                     Accept: 'application/json',
@@ -468,12 +472,12 @@ describe('webServer adapter', () => {
         const testServer = (container, next) => {
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
-            const restEndpoint = `/test/endpoint-with-examples`
+            const restEndpointPath = `/test/endpoint-with-examples`
 
             container.logger.info(`Run job to test server`)
             axios({
                 method: 'get',
-                url: `${host}${restEndpoint}`,
+                url: `${host}${restEndpointPath}`,
                 withCredentials: true,
                 headers: {
                     Accept: 'application/json',
@@ -499,12 +503,12 @@ describe('webServer adapter', () => {
         const testServer = (container, next) => {
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
-            const restEndpoint = `/test/endpoint-with-examples`
+            const restEndpointPath = `/test/endpoint-with-examples`
 
             container.logger.info(`Run job to test server`)
             axios({
                 method: 'get',
-                url: `${host}${restEndpoint}`,
+                url: `${host}${restEndpointPath}`,
                 withCredentials: true,
                 headers: {
                     Accept: 'text/plain',
@@ -530,12 +534,12 @@ describe('webServer adapter', () => {
         const testServer = (container, next) => {
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
-            const restEndpoint = `/test/endpoint-with-examples`
+            const restEndpointPath = `/test/endpoint-with-examples`
 
             container.logger.info(`Run job to test server`)
             axios({
                 method: 'get',
-                url: `${host}${restEndpoint}`,
+                url: `${host}${restEndpointPath}`,
                 withCredentials: true,
                 headers: {
                     Accept: 'unsupported/media-type',
@@ -556,4 +560,39 @@ describe('webServer adapter', () => {
 
         npacStart(adaptersForMocking, [testServer], terminators)
     }).timeout(30000)
+
+    it('#call with PDMS and mocking enabled, no endpoint implementation, mock example exists', done => {
+        catchExitSignals(sandbox, done)
+
+        const testServer = (container, next) => {
+            const { port } = container.config.webServer
+            const host = `http://localhost:${port}`
+            const restEndpointMethod = 'get'
+            const restEndpointPath = `/test/endpoint`
+
+            container.logger.info(`Run job to test server`)
+            axios({
+                method: restEndpointMethod,
+                url: `${host}${restEndpointPath}`,
+                withCredentials: true,
+                headers: {
+                    Accept: 'application/json',
+                    [traceIdHeader]: traceIdValue
+                }
+            }).catch(error => {
+                const { status, statusText, headers, data } = error.response
+                container.logger.error(
+                    `status: ${status}, statusText: ${statusText}, headers: ${JSON.stringify(
+                        headers
+                    )}, data: ${JSON.stringify(data)}`
+                )
+                expect(status).to.equal(500)
+                expect(data.message).to.equal('Client timeout')
+                next(null, null)
+            })
+        }
+
+        npacStart(adaptersWithPdms, [testServer], terminators)
+    }).timeout(30000)
+
 })

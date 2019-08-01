@@ -54,7 +54,6 @@ const startup = (container, next) => {
     const config = _.merge({}, defaults, { webServer: container.config.webServer || {} })
 
     // Load the Swagger/OpenAPI format API definition
-
     const oasFile = resolveOasFile(container, config.webServer.restApiPath)
     return loadOas(oasFile, config.webServer.oasConfig)
         .catch(err => {

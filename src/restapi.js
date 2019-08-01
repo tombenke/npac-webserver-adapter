@@ -128,7 +128,7 @@ export const callServiceFuntion = (container, endpoint, req, res, serviceFun, ne
 /**
  * Call the PDMS forwarder service function
  *
- * Executes a synchronous PDMS act, that puts the request to the topic named by the endpoint.uri.
+ * Executes a synchronous PDMS act, that puts the request to the topic named by the `config.webServer.pdmsTopic` parameter.
  * The message also containts the `method` and `uri` properties as well as
  * the normalized version of the request object and the endpoint descriptor.
  *
@@ -143,10 +143,11 @@ export const callServiceFuntion = (container, endpoint, req, res, serviceFun, ne
  * @function
  */
 export const callPdmsForwarder = (container, endpoint, req, res, next) => {
-    container.logger.info(`PDMS.ACT topic: "${endpoint.uri}" method:"${endpoint.method}" uri:"${endpoint.uri}"`)
+    const topic = container.config.webServer.pdmsTopic
+    container.logger.info(`PDMS.ACT topic: "${topic}" method:"${endpoint.method}" uri:"${endpoint.uri}"`)
     container.pdms.act(
         {
-            topic: endpoint.uri,
+            topic: topic,
             method: endpoint.method,
             uri: endpoint.uri,
             endpointDesc: endpoint,
