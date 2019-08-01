@@ -149,10 +149,15 @@ export const callServiceFuntion = (container, endpoint, req, res, serviceFun, ne
             next()
         })
         .catch(errResult => {
-            container.logger.error(CircularJSON.stringify(errResult))
-            res.set(errResult.headers)
-                .status(errResult.status)
-                .json(errResult.body)
+            const { status, headers, body } = errResult
+            if (_.isUndefined(status)) {
+                res.status(500)
+            } else {
+                container.logger.error(CircularJSON.stringify(errResult))
+                res.set(headers || defaultResponseHeaders)
+                    .status(status)
+                    .json(body)
+            }
             next()
         })
 }

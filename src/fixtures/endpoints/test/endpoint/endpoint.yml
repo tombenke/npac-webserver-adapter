@@ -2,7 +2,7 @@
 get:
   tags: 
     - "non-static"
-  summary: Test resource
+  summary: Test resource GET method
   description: |
       If PDMS is enabled then forward the request toward the NATS middleware,
       otherwise responses with 501 error, since there is no implementation function defined
@@ -19,7 +19,7 @@ get:
 put:
   tags: 
     - "non-static"
-  summary: Test resource
+  summary: Test resource PUT method
   description: Will call the test.endpoint() function to respond
   operationId: testAdapter.endpoint
   consumes:
@@ -34,9 +34,24 @@ put:
 post:
   tags: 
     - "non-static"
-  summary: Test resource
+  summary: Test resource POST method
   description: Will call the test.endpointErr500() function to respond
   operationId: testAdapter.endpointErr500
+  consumes:
+    - application/json
+  produces: 
+    - application/json
+  responses: 
+    "200": 
+      description: OK
+  deprecated: false
+
+delete:
+  tags: 
+    - "non-static"
+  summary: Test resource DELETE method
+  description: Will call the test.endpointErrUnknown() function to respond
+  operationId: testAdapter.endpointErrUnknown
   consumes:
     - application/json
   produces: 

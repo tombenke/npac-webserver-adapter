@@ -33,6 +33,13 @@ const testAdapterEndpointErr500Fun = container => (req, endp) => {
     })
 }
 
+// An endpoint operation callback that always returns with an unknown error, with no status, header and body info
+const testAdapterEndpointErrUnknownFun = container => (req, endp) => {
+    return new Promise((resolve, reject) => {
+        reject(new Error("Internal error occured..."))
+    })
+}
+
 // Test adapter that holds two endpoint implementations (operations), a success and an error one.
 const testAdapter = {
     startup: (container, next) => {
@@ -45,7 +52,8 @@ const testAdapter = {
             config: testAdapterConfig,
             testAdapter: {
                 endpoint: testAdapterEndpointFun(container),
-                endpointErr500: testAdapterEndpointErr500Fun(container)
+                endpointErr500: testAdapterEndpointErr500Fun(container),
+                endpointErrUnknown: testAdapterEndpointErrUnknownFun(container)
             }
         })
     },
@@ -343,7 +351,7 @@ describe('webServer adapter', () => {
         npacStart(adaptersForIgnoreOperationIds, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with 500, Internal Server Error', done => {
+    it('#call existing REST endpoint with 500, Internal Server Error returned by the operation', done => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -354,6 +362,37 @@ describe('webServer adapter', () => {
             container.logger.info(`Run job to test server`)
             axios({
                 method: 'post',
+                url: `${host}${restEndpointPath}`,
+                withCredentials: true,
+                headers: {
+                    Accept: 'application/json',
+                    [traceIdHeader]: traceIdValue
+                }
+            }).catch(error => {
+                const { status, statusText, headers, data } = error.response
+                container.logger.error(
+                    `status: ${status}, statusText: ${statusText}, headers: ${JSON.stringify(
+                        headers
+                    )}, data: ${JSON.stringify(data)}`
+                )
+                next(null, null)
+            })
+        }
+
+        npacStart(adapters, [testServer], terminators)
+    }).timeout(30000)
+
+    it('#call existing REST endpoint with 500, Internal Server Error no information', done => {
+        catchExitSignals(sandbox, done)
+
+        const testServer = (container, next) => {
+            const { port } = container.config.webServer
+            const host = `http://localhost:${port}`
+            const restEndpointPath = `/test/endpoint`
+
+            container.logger.info(`Run job to test server`)
+            axios({
+                method: 'delete',
                 url: `${host}${restEndpointPath}`,
                 withCredentials: true,
                 headers: {
