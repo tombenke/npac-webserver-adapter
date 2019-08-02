@@ -43,41 +43,6 @@ var setEndpoints = exports.setEndpoints = function setEndpoints(container, serve
         return [ep.method, basePath + ep.jsfUri];
     }), null, ''));
 
-    // In case both PDMS and mocking is enabled,
-    // then get prepared for catch unhandled PDMS endpoints
-    // and substitute them with example mock data if available
-    var _container$config$web = container.config.webServer,
-        ignoreApiOperationIds = _container$config$web.ignoreApiOperationIds,
-        enableMocking = _container$config$web.enableMocking,
-        usePdms = _container$config$web.usePdms,
-        pdmsTopic = _container$config$web.pdmsTopic;
-
-    if (usePdms && enableMocking && ignoreApiOperationIds) {
-        container.pdms.add({ topic: pdmsTopic }, function (data, cb) {
-            var _getMockingResponse = (0, _mocking.getMockingResponse)(container, data.endpointDesc, data.request),
-                status = _getMockingResponse.status,
-                headers = _getMockingResponse.headers,
-                body = _getMockingResponse.body;
-
-            var defaultHeaders = {
-                'Content-Type': 'application/json; charset=utf-8'
-            };
-
-            if (_lodash2.default.isUndefined(body)) {
-                cb(null, {
-                    status: status,
-                    headers: headers || defaultHeaders
-                });
-            } else {
-                cb(null, {
-                    status: status,
-                    headers: headers || defaultHeaders,
-                    body: body
-                });
-            }
-        });
-    }
-
     // Setup endpoints
     _lodash2.default.map(endpoints, function (endpoint) {
         server[endpoint.method](basePath + endpoint.jsfUri, mkHandlerFun(container, endpoint));
@@ -104,11 +69,11 @@ var defaultResponseHeaders = {
         var uri = endpoint.uri,
             method = endpoint.method,
             operationId = endpoint.operationId;
-        var _container$config$web2 = container.config.webServer,
-            ignoreApiOperationIds = _container$config$web2.ignoreApiOperationIds,
-            enableMocking = _container$config$web2.enableMocking,
-            usePdms = _container$config$web2.usePdms,
-            pdmsTopic = _container$config$web2.pdmsTopic;
+        var _container$config$web = container.config.webServer,
+            ignoreApiOperationIds = _container$config$web.ignoreApiOperationIds,
+            enableMocking = _container$config$web.enableMocking,
+            usePdms = _container$config$web.usePdms,
+            pdmsTopic = _container$config$web.pdmsTopic;
 
 
         if (!(0, _logUtils.isPathBlackListed)(container, uri)) {
@@ -221,7 +186,34 @@ var callPdmsForwarder = exports.callPdmsForwarder = function callPdmsForwarder(c
     }, function (err, resp) {
         if (err) {
             container.logger.info('ERR ' + JSON.stringify(err));
-            res.set(_lodash2.default.get(err, 'details.headers', {})).status(_lodash2.default.get(err, 'details.status', 500)).send(_lodash2.default.get(err, 'details.body', err));
+
+            // In case both PDMS and mocking is enabled,
+            // then get prepared for catch unhandled PDMS endpoints
+            // and substitute them with example mock data if available
+            var _container$config$web2 = container.config.webServer,
+                ignoreApiOperationIds = _container$config$web2.ignoreApiOperationIds,
+                enableMocking = _container$config$web2.enableMocking,
+                usePdms = _container$config$web2.usePdms,
+                pdmsTopic = _container$config$web2.pdmsTopic;
+
+            if (usePdms && enableMocking && ignoreApiOperationIds) {
+                var _getMockingResponse = (0, _mocking.getMockingResponse)(container, endpoint, req),
+                    status = _getMockingResponse.status,
+                    headers = _getMockingResponse.headers,
+                    body = _getMockingResponse.body;
+
+                var defaultHeaders = {
+                    'Content-Type': 'application/json; charset=utf-8'
+                };
+
+                if (_lodash2.default.isUndefined(body)) {
+                    res.set(headers || defaultHeaders).status(status).send();
+                } else {
+                    res.set(headers || defaultHeaders).status(status).send(body);
+                }
+            } else {
+                res.set(_lodash2.default.get(err, 'details.headers', {})).status(_lodash2.default.get(err, 'details.status', 500)).send(_lodash2.default.get(err, 'details.body', err));
+            }
         } else {
             if (!(0, _logUtils.isPathBlackListed)(container, endpoint.uri)) {
                 container.logger.debug('RES ' + JSON.stringify(resp));
