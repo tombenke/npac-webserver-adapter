@@ -31,32 +31,6 @@ export const setEndpoints = (container, server, endpoints) => {
         )}`
     )
 
-    // In case both PDMS and mocking is enabled,
-    // then get prepared for catch unhandled PDMS endpoints
-    // and substitute them with example mock data if available
-    const { ignoreApiOperationIds, enableMocking, usePdms, pdmsTopic } = container.config.webServer
-    if (usePdms && enableMocking && ignoreApiOperationIds) {
-        container.pdms.add({ topic: pdmsTopic }, (data, cb) => {
-            const { status, headers, body } = getMockingResponse(container, data.endpointDesc, data.request)
-            const defaultHeaders = {
-                'Content-Type': 'application/json; charset=utf-8'
-            }
-
-            if (_.isUndefined(body)) {
-                cb(null, {
-                    status: status,
-                    headers: headers || defaultHeaders
-                })
-            } else {
-                cb(null, {
-                    status: status,
-                    headers: headers || defaultHeaders,
-                    body: body
-                })
-            }
-        })
-    }
-
     // Setup endpoints
     _.map(endpoints, endpoint => {
         server[endpoint.method](basePath + endpoint.jsfUri, mkHandlerFun(container, endpoint))
@@ -201,9 +175,27 @@ export const callPdmsForwarder = (container, endpoint, req, res, next) => {
         (err, resp) => {
             if (err) {
                 container.logger.info(`ERR ${JSON.stringify(err)}`)
-                res.set(_.get(err, 'details.headers', {}))
-                    .status(_.get(err, 'details.status', 500))
-                    .send(_.get(err, 'details.body', err))
+
+                // In case both PDMS and mocking is enabled,
+                // then get prepared for catch unhandled PDMS endpoints
+                // and substitute them with example mock data if available
+                const { ignoreApiOperationIds, enableMocking, usePdms, pdmsTopic } = container.config.webServer
+                if (usePdms && enableMocking && ignoreApiOperationIds) {
+                    const { status, headers, body } = getMockingResponse(container, endpoint, req)
+                    const defaultHeaders = {
+                        'Content-Type': 'application/json; charset=utf-8'
+                    }
+
+                    if (_.isUndefined(body)) {
+                        res.set(headers || defaultHeaders).status(status).send()
+                    } else {
+                        res.set(headers || defaultHeaders).status(status).send(body)
+                    }
+                } else {
+                    res.set(_.get(err, 'details.headers', {}))
+                        .status(_.get(err, 'details.status', 500))
+                        .send(_.get(err, 'details.body', err))
+                }
             } else {
                 if (!isPathBlackListed(container, endpoint.uri)) {
                     container.logger.debug(`RES ${JSON.stringify(resp)}`)
