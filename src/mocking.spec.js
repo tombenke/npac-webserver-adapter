@@ -9,14 +9,14 @@ describe('mocking', () => {
     let endpoints = []
 
     const getEndpoint = (method, path) =>
-        _.find(endpoints, endpoint => endpoint.method === method && endpoint.uri === path)
+        _.find(endpoints, (endpoint) => endpoint.method === method && endpoint.uri === path)
 
-    before(done => {
+    before((done) => {
         loadOas(path.resolve('src/fixtures/endpoints/api.yml'))
-            .catch(err => {
+            .catch((err) => {
                 console.log(`API loading error ${err}`)
             })
-            .then(api => {
+            .then((api) => {
                 testApi = api
                 endpoints = testApi.getEndpoints({ includeExamples: true })
                 done()
@@ -27,7 +27,7 @@ describe('mocking', () => {
         logger: console
     }
 
-    it('#determineMediaType', done => {
+    it('#determineMediaType', (done) => {
         _.map(
             [
                 ['*/*', 'application/json'],
@@ -35,7 +35,7 @@ describe('mocking', () => {
                 ['text/plain', 'text/plain'],
                 ['invalid_mediatype', null]
             ],
-            mapping =>
+            (mapping) =>
                 expect(
                     determineMediaType(dummyContainer, getEndpoint('get', '/test/endpoint-with-examples'), mapping[0])
                 ).to.equal(mapping[1])

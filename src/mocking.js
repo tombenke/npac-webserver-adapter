@@ -32,9 +32,7 @@ export const callMockingServiceFunction = (container, endpoint, req, res, next) 
     if (_.isUndefined(body)) {
         res.status(status).send()
     } else {
-        res.set(headers)
-            .status(status)
-            .send(body)
+        res.set(headers).status(status).send(body)
     }
 
     next()

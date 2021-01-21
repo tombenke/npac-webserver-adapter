@@ -26,7 +26,7 @@ export const setRoutes = (container, server, api) => {
     const { staticContentBasePath, enableMocking, ignoreApiOperationIds } = container.config.webServer
 
     // Setup static endpoints
-    _.map(api.getStaticEndpoints(), staticEndpoint => {
+    _.map(api.getStaticEndpoints(), (staticEndpoint) => {
         const contentPath = path.resolve(staticContentBasePath, staticEndpoint.static.contentPath)
 
         container.logger.debug(`Bind ${contentPath} to ${staticEndpoint.uri} as static content service`)

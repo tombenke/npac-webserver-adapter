@@ -12,7 +12,7 @@ describe('logUtils', () => {
         }
     }
 
-    it('getLogBlackList', done => {
+    it('getLogBlackList', (done) => {
         expect(getLogBlackList(null)).to.eql([])
         expect(getLogBlackList('')).to.eql([])
         expect(getLogBlackList('/health')).to.eql(['/health'])
@@ -20,14 +20,14 @@ describe('logUtils', () => {
         done()
     })
 
-    it('ignoreRouteLogging', done => {
+    it('ignoreRouteLogging', (done) => {
         expect(ignoreRouteLogging(container)({ path: '/health' }, null)).to.be.true
         expect(ignoreRouteLogging(container)({ path: '/currencies/USD' }, null)).to.be.true
         expect(ignoreRouteLogging(container)({ path: '/currencies/USA_DOLLAR' }, null)).to.be.false
         done()
     })
 
-    it('isPathBlackListed', done => {
+    it('isPathBlackListed', (done) => {
         expect(isPathBlackListed(container, '/health')).to.be.true
         expect(isPathBlackListed(container, '/users')).to.be.false
         expect(isPathBlackListed(container, '/customers/123fsfs-434a42g-13g1j1-32kk3l4')).to.be.true

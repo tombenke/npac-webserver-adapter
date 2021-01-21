@@ -8,7 +8,7 @@ import * as _ from 'lodash'
 import axios from 'axios'
 
 // An endpoint operation callback that always successfully responds with an empty JSON object
-const testAdapterEndpointFun = container => (req, endp) => {
+const testAdapterEndpointFun = (container) => (req, endp) => {
     return new Promise((resolve, reject) => {
         resolve({
             headers: {
@@ -20,7 +20,7 @@ const testAdapterEndpointFun = container => (req, endp) => {
 }
 
 // An endpoint operation callback that always returns with 500 status and a JSON null response body
-const testAdapterEndpointErr500Fun = container => (req, endp) => {
+const testAdapterEndpointErr500Fun = (container) => (req, endp) => {
     return new Promise((resolve, reject) => {
         reject({
             status: 500,
@@ -34,7 +34,7 @@ const testAdapterEndpointErr500Fun = container => (req, endp) => {
 }
 
 // An endpoint operation callback that always returns with an unknown error, with no status, header and body info
-const testAdapterEndpointErrUnknownFun = container => (req, endp) => {
+const testAdapterEndpointErrUnknownFun = (container) => (req, endp) => {
     return new Promise((resolve, reject) => {
         reject(new Error('Internal error occured...'))
     })
@@ -71,14 +71,14 @@ describe('webServer adapter', () => {
     const traceIdValue = '42'
     const accepts = ['*/*', 'application/json', 'text/plain', 'text/html', 'text/xml', 'unsupported/media-type']
 
-    const acceptCheckMiddleware = container => (req, res, next) => {
+    const acceptCheckMiddleware = (container) => (req, res, next) => {
         container.logger.debug(`acceptCheckMiddleware is called ${req.accepts()}`)
         expect(_.includes(accepts, req.accepts()[0])).to.be.true
         acceptCheckMwCall()
         next()
     }
 
-    const tracerMiddleware = container => (req, res, next) => {
+    const tracerMiddleware = (container) => (req, res, next) => {
         //        const { hostname, originalUrl, route, method } = req
         const traceId = req.get(traceIdHeader)
         //        const { statusCode } = res
@@ -107,7 +107,7 @@ describe('webServer adapter', () => {
         }
     })
 
-    beforeEach(done => {
+    beforeEach((done) => {
         removeSignalHandlers()
         sandbox = sinon.createSandbox({
             properties: ['spy']
@@ -117,7 +117,7 @@ describe('webServer adapter', () => {
         done()
     })
 
-    afterEach(done => {
+    afterEach((done) => {
         removeSignalHandlers()
         sandbox.restore()
         done()
@@ -196,7 +196,7 @@ describe('webServer adapter', () => {
 
     const terminators = [server.shutdown, pdms.shutdown, testAdapter.shutdown]
 
-    it('#startup, #shutdown', done => {
+    it('#startup, #shutdown', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -207,7 +207,7 @@ describe('webServer adapter', () => {
         npacStart(adapters, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call static content index', done => {
+    it('#call static content index', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -222,7 +222,7 @@ describe('webServer adapter', () => {
                 headers: {
                     Accept: '*/*'
                 }
-            }).then(response => {
+            }).then((response) => {
                 const { status } = response
                 expect(status).to.equal(200)
                 expect(acceptCheckMwCall.calledOnce).to.be.true
@@ -233,7 +233,7 @@ describe('webServer adapter', () => {
         npacStart(adapters, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with no adapter function, NO PDMS used', done => {
+    it('#call existing REST endpoint with no adapter function, NO PDMS used', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -250,7 +250,7 @@ describe('webServer adapter', () => {
                     Accept: 'application/json',
                     [traceIdHeader]: traceIdValue
                 }
-            }).catch(err => {
+            }).catch((err) => {
                 const { status, data } = err.response
                 expect(status).to.equal(501)
                 expect(data).to.eql({ error: 'The endpoint is either not implemented or `operationId` is ignored' })
@@ -263,7 +263,7 @@ describe('webServer adapter', () => {
         npacStart(adapters, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with adapter function', done => {
+    it('#call existing REST endpoint with adapter function', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -280,7 +280,7 @@ describe('webServer adapter', () => {
                     Accept: 'application/json',
                     [traceIdHeader]: traceIdValue
                 }
-            }).then(response => {
+            }).then((response) => {
                 const { status } = response
                 expect(status).to.equal(200)
                 expect(acceptCheckMwCall.calledOnce).to.be.true
@@ -292,7 +292,7 @@ describe('webServer adapter', () => {
         npacStart(adapters, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with adapter function using basePath', done => {
+    it('#call existing REST endpoint with adapter function using basePath', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -309,7 +309,7 @@ describe('webServer adapter', () => {
                     Accept: 'application/json',
                     [traceIdHeader]: traceIdValue
                 }
-            }).then(response => {
+            }).then((response) => {
                 const { status } = response
                 expect(status).to.equal(200)
                 expect(acceptCheckMwCall.calledOnce).to.be.true
@@ -321,7 +321,7 @@ describe('webServer adapter', () => {
         npacStart(adaptersWithBasePath, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with adapter function but ignore operationId', done => {
+    it('#call existing REST endpoint with adapter function but ignore operationId', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -338,7 +338,7 @@ describe('webServer adapter', () => {
                     Accept: 'application/json',
                     [traceIdHeader]: traceIdValue
                 }
-            }).catch(err => {
+            }).catch((err) => {
                 const { status, data } = err.response
                 expect(status).to.equal(501)
                 expect(data).to.eql({ error: 'The endpoint is either not implemented or `operationId` is ignored' })
@@ -351,7 +351,7 @@ describe('webServer adapter', () => {
         npacStart(adaptersForIgnoreOperationIds, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with 500, Internal Server Error returned by the operation', done => {
+    it('#call existing REST endpoint with 500, Internal Server Error returned by the operation', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -368,7 +368,7 @@ describe('webServer adapter', () => {
                     Accept: 'application/json',
                     [traceIdHeader]: traceIdValue
                 }
-            }).catch(error => {
+            }).catch((error) => {
                 const { status, statusText, headers, data } = error.response
                 container.logger.error(
                     `status: ${status}, statusText: ${statusText}, headers: ${JSON.stringify(
@@ -382,7 +382,7 @@ describe('webServer adapter', () => {
         npacStart(adapters, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with 500, Internal Server Error no information', done => {
+    it('#call existing REST endpoint with 500, Internal Server Error no information', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -399,7 +399,7 @@ describe('webServer adapter', () => {
                     Accept: 'application/json',
                     [traceIdHeader]: traceIdValue
                 }
-            }).catch(error => {
+            }).catch((error) => {
                 const { status, statusText, headers, data } = error.response
                 container.logger.error(
                     `status: ${status}, statusText: ${statusText}, headers: ${JSON.stringify(
@@ -413,7 +413,7 @@ describe('webServer adapter', () => {
         npacStart(adapters, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with PDMS forwarder function - PDMS Client Timeout', done => {
+    it('#call existing REST endpoint with PDMS forwarder function - PDMS Client Timeout', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -430,7 +430,7 @@ describe('webServer adapter', () => {
                     Accept: 'application/json',
                     [traceIdHeader]: traceIdValue
                 }
-            }).catch(error => {
+            }).catch((error) => {
                 const { status, statusText, headers, data } = error.response
                 container.logger.error(
                     `status: ${status}, statusText: ${statusText}, headers: ${JSON.stringify(
@@ -446,7 +446,7 @@ describe('webServer adapter', () => {
         npacStart(adaptersWithPdms, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with PDMS forwarder function', done => {
+    it('#call existing REST endpoint with PDMS forwarder function', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -475,7 +475,7 @@ describe('webServer adapter', () => {
                     Accept: 'application/json',
                     [traceIdHeader]: traceIdValue
                 }
-            }).then(response => {
+            }).then((response) => {
                 const { status, data } = response
                 expect(status).to.equal(200)
                 expect(data).to.eql(expectedBody)
@@ -488,7 +488,7 @@ describe('webServer adapter', () => {
         npacStart(adaptersWithPdms, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with mocking but no examples', done => {
+    it('#call existing REST endpoint with mocking but no examples', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -506,7 +506,7 @@ describe('webServer adapter', () => {
                     [traceIdHeader]: traceIdValue
                 }
             })
-                .then(response => {
+                .then((response) => {
                     const { status, data } = response
                     expect(status).to.equal(200)
                     expect(data).to.equal('')
@@ -514,13 +514,13 @@ describe('webServer adapter', () => {
                     expect(tracerMwCall.calledOnce).to.be.true
                     next(null, null)
                 })
-                .catch(err => next(null, null))
+                .catch((err) => next(null, null))
         }
 
         npacStart(adaptersForMocking, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with mocking and examples. Accept: "application/json"', done => {
+    it('#call existing REST endpoint with mocking and examples. Accept: "application/json"', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -537,7 +537,7 @@ describe('webServer adapter', () => {
                     Accept: 'application/json',
                     [traceIdHeader]: traceIdValue
                 }
-            }).then(response => {
+            }).then((response) => {
                 const { status, statusText, data } = response
                 expect(status).to.equal(200)
                 expect(statusText).to.equal('OK')
@@ -551,7 +551,7 @@ describe('webServer adapter', () => {
         npacStart(adaptersForMocking, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with mocking and examples. Accept: "text/plain"', done => {
+    it('#call existing REST endpoint with mocking and examples. Accept: "text/plain"', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -568,7 +568,7 @@ describe('webServer adapter', () => {
                     Accept: 'text/plain',
                     [traceIdHeader]: traceIdValue
                 }
-            }).then(response => {
+            }).then((response) => {
                 const { status, statusText, data } = response
                 expect(status).to.equal(200)
                 expect(statusText).to.equal('OK')
@@ -582,7 +582,7 @@ describe('webServer adapter', () => {
         npacStart(adaptersForMocking, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with mocking and examples. Accept: "unsupported-media-type"', done => {
+    it('#call existing REST endpoint with mocking and examples. Accept: "unsupported-media-type"', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -599,7 +599,7 @@ describe('webServer adapter', () => {
                     Accept: 'unsupported/media-type',
                     [traceIdHeader]: traceIdValue
                 }
-            }).catch(error => {
+            }).catch((error) => {
                 const { status, statusText, headers, data } = error.response
                 container.logger.error(
                     `status: ${status}, statusText: ${statusText}, headers: ${JSON.stringify(
@@ -615,7 +615,7 @@ describe('webServer adapter', () => {
         npacStart(adaptersForMocking, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call with PDMS and mocking enabled, no endpoint implementation, mock example exists', done => {
+    it('#call with PDMS and mocking enabled, no endpoint implementation, mock example exists', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -633,7 +633,7 @@ describe('webServer adapter', () => {
                     Accept: 'application/json',
                     [traceIdHeader]: traceIdValue
                 }
-            }).then(response => {
+            }).then((response) => {
                 const { status, statusText, data } = response
                 expect(status).to.equal(200)
                 expect(statusText).to.equal('OK')
@@ -647,7 +647,7 @@ describe('webServer adapter', () => {
         npacStart(adaptersForMockingAndPdms, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call with PDMS and mocking enabled, no endpoint implementation, mock example does not exists', done => {
+    it('#call with PDMS and mocking enabled, no endpoint implementation, mock example does not exists', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -665,7 +665,7 @@ describe('webServer adapter', () => {
                     Accept: 'application/json',
                     [traceIdHeader]: traceIdValue
                 }
-            }).catch(error => {
+            }).catch((error) => {
                 const { status, statusText, headers } = error.response
                 container.logger.error(`status: ${status}, ${statusText}, headers: ${JSON.stringify(headers)}`)
                 expect(status).to.equal(404)

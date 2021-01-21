@@ -2,15 +2,15 @@ import path from 'path'
 import { expect } from 'chai'
 import config from './config'
 
-before(done => {
+before((done) => {
     done()
 })
-after(done => {
+after((done) => {
     done()
 })
 
 describe('server/config', () => {
-    it('defaults', done => {
+    it('defaults', (done) => {
         const expected = {
             webServer: {
                 logBlackList: [],

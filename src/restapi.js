@@ -25,14 +25,14 @@ export const setEndpoints = (container, server, endpoints) => {
     const basePath = container.config.webServer.basePath === '/' ? '' : container.config.webServer.basePath
     container.logger.debug(
         `restapi.setEndpoints/endpointMap ${JSON.stringify(
-            _.map(endpoints, ep => [ep.method, basePath + ep.jsfUri]),
+            _.map(endpoints, (ep) => [ep.method, basePath + ep.jsfUri]),
             null,
             ''
         )}`
     )
 
     // Setup endpoints
-    _.map(endpoints, endpoint => {
+    _.map(endpoints, (endpoint) => {
         server[endpoint.method](basePath + endpoint.jsfUri, mkHandlerFun(container, endpoint))
     })
 }
@@ -67,11 +67,9 @@ const mkHandlerFun = (container, endpoint) => (req, res, next) => {
         if (_.isFunction(serviceFun)) {
             callServiceFuntion(container, endpoint, req, res, serviceFun, next)
         } else {
-            res.set(defaultResponseHeaders)
-                .status(501)
-                .json({
-                    error: 'The operationId refers to a non-existing service function'
-                })
+            res.set(defaultResponseHeaders).status(501).json({
+                error: 'The operationId refers to a non-existing service function'
+            })
             next()
         }
     } else {
@@ -86,11 +84,9 @@ const mkHandlerFun = (container, endpoint) => (req, res, next) => {
             callPdmsForwarder(container, endpoint, req, res, next)
         } else {
             // No operationId, no PDMS forwarding enabled
-            res.set(defaultResponseHeaders)
-                .status(501)
-                .json({
-                    error: 'The endpoint is either not implemented or `operationId` is ignored'
-                })
+            res.set(defaultResponseHeaders).status(501).json({
+                error: 'The endpoint is either not implemented or `operationId` is ignored'
+            })
             next()
         }
     }
@@ -115,13 +111,11 @@ const mkHandlerFun = (container, endpoint) => (req, res, next) => {
  */
 export const callServiceFuntion = (container, endpoint, req, res, serviceFun, next) => {
     serviceFun(req, endpoint)
-        .then(result => {
-            res.set(result.headers)
-                .status(200)
-                .send(result.body)
+        .then((result) => {
+            res.set(result.headers).status(200).send(result.body)
             next()
         })
-        .catch(errResult => {
+        .catch((errResult) => {
             const { status, headers, body } = errResult
             if (_.isUndefined(status)) {
                 res.status(500)

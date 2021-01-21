@@ -14,7 +14,7 @@ import _ from 'lodash'
  *
  * @function
  */
-export const getLogBlackList = pathsToSkipLogging =>
+export const getLogBlackList = (pathsToSkipLogging) =>
     !_.isUndefined(pathsToSkipLogging) && _.isString(pathsToSkipLogging)
         ? pathsToSkipLogging === ''
             ? []
@@ -35,7 +35,7 @@ export const getLogBlackList = pathsToSkipLogging =>
  *
  * @function
  */
-export const ignoreRouteLogging = container => (req, res) => isPathBlackListed(container, req.path)
+export const ignoreRouteLogging = (container) => (req, res) => isPathBlackListed(container, req.path)
 
 /**
  * Tells if the path is blacklisted
@@ -48,4 +48,4 @@ export const ignoreRouteLogging = container => (req, res) => isPathBlackListed(c
  * @function
  */
 export const isPathBlackListed = (container, path) =>
-    !_.isUndefined(_.find(container.config.webServer.logBlackList, it => path.match(new RegExp(it))))
+    !_.isUndefined(_.find(container.config.webServer.logBlackList, (it) => path.match(new RegExp(it))))

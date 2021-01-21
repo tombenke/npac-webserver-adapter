@@ -98,7 +98,7 @@ export const startupServer = (container, api) => {
  *
  * @function
  */
-export const shutdownServer = container => {
+export const shutdownServer = (container) => {
     httpInstance.close()
     container.logger.info('Shut down webServer')
 }

@@ -24,7 +24,7 @@ export const addMiddlewares = (container, server, middlewares) => {
     // Add middlewares, if there is any defined
     if (_.isArray(middlewares)) {
         _.chain(middlewares)
-            .filter(adderFn => {
+            .filter((adderFn) => {
                 if (_.isFunction(adderFn)) {
                     // The `adderFn` will be registered as middleware
                     return true
@@ -34,7 +34,7 @@ export const addMiddlewares = (container, server, middlewares) => {
                     return false
                 }
             })
-            .map(adderFn => server.use(adderFn(container)))
+            .map((adderFn) => server.use(adderFn(container)))
             .value()
     }
 }

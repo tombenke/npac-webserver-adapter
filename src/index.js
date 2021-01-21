@@ -56,8 +56,8 @@ const startup = (container, next) => {
     // Load the Swagger/OpenAPI format API definition
     const oasFile = resolveOasFile(container, config.webServer.restApiPath)
     return loadOas(oasFile, config.webServer.oasConfig)
-        .then(api => {
-            startupServer(container, api).then(httpInstance => {
+        .then((api) => {
+            startupServer(container, api).then((httpInstance) => {
                 // Call next setup function with the context extension
                 next(null, {
                     webServer: {
@@ -66,7 +66,7 @@ const startup = (container, next) => {
                 })
             })
         })
-        .catch(err => {
+        .catch((err) => {
             container.logger.error(`API loading error ${err}`)
             next(err, err)
         })
