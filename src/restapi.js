@@ -55,7 +55,7 @@ const defaultResponseHeaders = {
  */
 const mkHandlerFun = (container, endpoint) => (req, res, next) => {
     const { uri, method, operationId } = endpoint
-    const { ignoreApiOperationIds, enableMocking, usePdms, pdmsTopic } = container.config.webServer
+    const { ignoreApiOperationIds, enableMocking, usePdms } = container.config.webServer
 
     if (!isPathBlackListed(container, uri)) {
         container.logger.debug(`REQ method:"${method}" uri:"${uri}"`)
@@ -179,7 +179,7 @@ export const callPdmsForwarder = (container, endpoint, req, res, next) => {
                 // In case both PDMS and mocking is enabled,
                 // then get prepared for catch unhandled PDMS endpoints
                 // and substitute them with example mock data if available
-                const { ignoreApiOperationIds, enableMocking, usePdms, pdmsTopic } = container.config.webServer
+                const { ignoreApiOperationIds, enableMocking, usePdms } = container.config.webServer
                 if (usePdms && enableMocking && ignoreApiOperationIds) {
                     const { status, headers, body } = getMockingResponse(container, endpoint, req)
                     const defaultHeaders = {
@@ -187,9 +187,13 @@ export const callPdmsForwarder = (container, endpoint, req, res, next) => {
                     }
 
                     if (_.isUndefined(body)) {
-                        res.set(headers || defaultHeaders).status(status).send()
+                        res.set(headers || defaultHeaders)
+                            .status(status)
+                            .send()
                     } else {
-                        res.set(headers || defaultHeaders).status(status).send(body)
+                        res.set(headers || defaultHeaders)
+                            .status(status)
+                            .send(body)
                     }
                 } else {
                     res.set(_.get(err, 'details.headers', {}))
