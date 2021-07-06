@@ -72,8 +72,7 @@ var defaultResponseHeaders = {
         var _container$config$web = container.config.webServer,
             ignoreApiOperationIds = _container$config$web.ignoreApiOperationIds,
             enableMocking = _container$config$web.enableMocking,
-            usePdms = _container$config$web.usePdms,
-            pdmsTopic = _container$config$web.pdmsTopic;
+            usePdms = _container$config$web.usePdms;
 
 
         if (!(0, _logUtils.isPathBlackListed)(container, uri)) {
@@ -193,8 +192,7 @@ var callPdmsForwarder = exports.callPdmsForwarder = function callPdmsForwarder(c
             var _container$config$web2 = container.config.webServer,
                 ignoreApiOperationIds = _container$config$web2.ignoreApiOperationIds,
                 enableMocking = _container$config$web2.enableMocking,
-                usePdms = _container$config$web2.usePdms,
-                pdmsTopic = _container$config$web2.pdmsTopic;
+                usePdms = _container$config$web2.usePdms;
 
             if (usePdms && enableMocking && ignoreApiOperationIds) {
                 var _getMockingResponse = (0, _mocking.getMockingResponse)(container, endpoint, req),
