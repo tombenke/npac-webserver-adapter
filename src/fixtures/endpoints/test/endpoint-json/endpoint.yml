@@ -1,0 +1,16 @@
+# /test/endpoint-json:
+
+post:
+  tags: 
+    - "non-static"
+  summary: Test resource POST method with JSON body parser
+  description: Will call the test.endpoint.json() function to respond
+  operationId: testAdapter.endpoint.json
+  consumes:
+    - application/json
+  produces: 
+    - application/json
+  responses: 
+    "200": 
+      description: OK
+  deprecated: false

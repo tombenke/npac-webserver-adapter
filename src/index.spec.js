@@ -357,7 +357,7 @@ describe('webServer adapter', () => {
         const testServer = (container, next) => {
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
-            const restEndpointPath = `/test/endpoint`
+            const restEndpointPath = `/test/endpoint-error`
 
             container.logger.info(`Run job to test server`)
             axios({
@@ -388,7 +388,7 @@ describe('webServer adapter', () => {
         const testServer = (container, next) => {
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
-            const restEndpointPath = `/test/endpoint`
+            const restEndpointPath = `/test/endpoint-error`
 
             container.logger.info(`Run job to test server`)
             axios({

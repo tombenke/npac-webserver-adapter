@@ -8,9 +8,9 @@
 import express from 'express'
 import expressWinston from 'express-winston'
 import cookieParser from 'cookie-parser'
-import bodyParser from 'body-parser'
 import session from 'express-session'
 import compression from 'compression'
+import { setParsers } from './parser'
 import { setMiddlewares } from './middlewares'
 import { setRoutes } from './routes'
 import flash from 'connect-flash'
@@ -46,8 +46,9 @@ export const startupServer = (container, api) => {
     // Configure the middlewares
     server.use(expressWinston.logger({ transports: [container.logger], ignoreRoute: ignoreRouteLogging(container) }))
     server.use(cookieParser()) // read cookies (needed for auth)
-    server.use(bodyParser.json()) // for parsing application/json
-    server.use(bodyParser.urlencoded({ extended: true })) // get information from html forms
+
+    // Use parsers if enabled
+    setParsers(container, server)
 
     // Use compression if enabled
     if (config.webServer.useCompression) {

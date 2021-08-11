@@ -1,0 +1,16 @@
+# /test/endpoint-urlencoded:
+
+post:
+  tags: 
+    - "non-static"
+  summary: Test resource POST method with urlencoded body parser
+  description: Will call the test.endpoint.urlencoded() function to respond
+  operationId: testAdapter.endpoint.urlencoded
+  consumes:
+    - application/x-www-form-urlencoded
+  produces: 
+    - application/json
+  responses: 
+    "200": 
+      description: OK
+  deprecated: false

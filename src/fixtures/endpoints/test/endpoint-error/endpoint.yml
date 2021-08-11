@@ -1,0 +1,32 @@
+# /test/endpoint-error:
+
+post:
+  tags: 
+    - "non-static"
+  summary: Test resource POST method
+  description: Will call the test.endpointErr500() function to respond
+  operationId: testAdapter.endpointErr500
+  consumes:
+    - application/json
+  produces: 
+    - application/json
+  responses: 
+    "500": 
+      description: Internal Server Error
+  deprecated: false
+
+delete:
+  tags: 
+    - "non-static"
+  summary: Test resource DELETE method
+  description: Will call the test.endpointErrUnknown() function to respond
+  operationId: testAdapter.endpointErrUnknown
+  consumes:
+    - application/json
+  produces: 
+    - application/json
+  responses: 
+    "404": 
+      description: NotFound
+  deprecated: false
+

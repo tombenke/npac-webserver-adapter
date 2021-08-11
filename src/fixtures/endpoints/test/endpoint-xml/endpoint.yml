@@ -1,0 +1,16 @@
+# /test/endpoint-xml:
+
+post:
+  tags: 
+    - "non-static"
+  summary: Test resource POST method with XML body parser
+  description: Will call the test.endpoint.xml() function to respond
+  operationId: testAdapter.endpoint.xml
+  consumes:
+    - text/xml
+  produces: 
+    - application/json
+  responses: 
+    "200": 
+      description: OK
+  deprecated: false
