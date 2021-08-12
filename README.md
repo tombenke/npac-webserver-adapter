@@ -1,7 +1,7 @@
 npac-webserver-adapter
 ======================
 
-[![Actions Status][githu-qa-badge]](https://github.com/tombenke/npac-webserver-adapter)
+[![Actions Status](https://github.com/tombenke/npac-webserver-adapter/workflows/Quality%20Check/badge.svg)](https://github.com/tombenke/npac-webserver-adapter)
 [![Coveralls][BadgeCoveralls]][Coveralls]
 [![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
 [![npm version][npm-badge]][npm-url]
@@ -56,9 +56,9 @@ The default parameters can be found in [`src/config.js`](src/config.js):
             }
         },
         bodyParser: {
-            json: process.env.BODY_PARSE_JSON || false,
-            xml: process.env.BODY_PARSE_XML || false,
-            urlencoded: process.env.BODY_PARSE_URL_ENCODED || false
+            json: process.env.PARSE_JSON_BODY || false,
+            xml: process.env.PARSE_XML_BODY || false,
+            urlencoded: process.env.PARSE_URL_ENCODED_BODY || false
         }
     }
 }
@@ -66,7 +66,6 @@ The default parameters can be found in [`src/config.js`](src/config.js):
 
 ---
 
-[github-qa-badge]: https://github.com/tombenke/npac-webserver-adapter/workflows/Quality%20Check/badge.svg
 [npm-badge]: https://badge.fury.io/js/npac-webserver-adapter.svg
 [npm-url]: https://badge.fury.io/js/npac-webserver-adapter
 [Coveralls]: https://coveralls.io/github/tombenke/npac-webserver-adapter?branch=master

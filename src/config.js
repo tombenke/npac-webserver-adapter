@@ -56,9 +56,9 @@ module.exports = {
             }
         },
         bodyParser: {
-            json: process.env.BODY_PARSE_JSON || false,
-            xml: process.env.BODY_PARSE_XML || false,
-            urlencoded: process.env.BODY_PARSE_URL_ENCODED || false
+            json: process.env.PARSE_JSON_BODY || false,
+            xml: process.env.PARSE_XML_BODY || false,
+            urlencoded: process.env.PARSE_URL_ENCODED_BODY || false
         }
     }
 }
