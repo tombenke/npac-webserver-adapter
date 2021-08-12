@@ -18,7 +18,7 @@ import xmlParser from 'express-xml-bodyparser'
  * @function
  */
 export const setParsers = (container, server) => {
-    const { json, urlencoded, xml } = container.config.webServer.bodyParser
+    const { raw, json, urlencoded, xml } = container.config.webServer.bodyParser
     
     if (json) {
         server.use(express.json()) // for parsing application/json
@@ -30,5 +30,9 @@ export const setParsers = (container, server) => {
 
     if (xml) {
         server.use(xmlParser()) // for parsing text/xml
+    }
+
+    if (raw) {
+        server.use(express.raw({ type: '*/*'})) // for parsing text/xml
     }
 }

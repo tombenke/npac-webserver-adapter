@@ -36,6 +36,7 @@ describe('server/config', () => {
                     }
                 },
                 bodyParser: {
+                    raw: true,
                     json: false,
                     xml: false,
                     urlencoded: false

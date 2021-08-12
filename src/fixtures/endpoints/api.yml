@@ -53,6 +53,9 @@ paths:
   /test/endpoint-urlencoded:
     $ref: ./test/endpoint-urlencoded/endpoint.yml
 
+  /test/endpoint-raw:
+    $ref: ./test/endpoint-raw/endpoint.yml
+
   /test/endpoint-error:
     $ref: ./test/endpoint-error/endpoint.yml
 

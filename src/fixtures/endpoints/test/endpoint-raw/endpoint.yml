@@ -1,0 +1,15 @@
+# /test/endpoint-raw:
+post:
+  tags: 
+    - "non-static"
+  summary: Test resource POST method
+  description: Will call the testAdapter.endpoint.raw() function to respond
+  operationId: testAdapter.endpoint.raw
+  consumes:
+    - application/json
+  produces: 
+    - application/json
+  responses: 
+    "200": 
+      description: OK
+  deprecated: false

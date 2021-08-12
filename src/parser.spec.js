@@ -35,6 +35,7 @@ const testAdapter = {
                     json: testAdapterEndpointFun(container),
                     xml: testAdapterEndpointFun(container),
                     urlencoded: testAdapterEndpointFun(container),
+                    raw: testAdapterEndpointFun(container),
                 }
             }
         })
@@ -45,7 +46,7 @@ const testAdapter = {
     }
 }
 
-describe('webServer adapter', () => {
+describe('webServer adapter with parsing enabled', () => {
     let sandbox
 
     const config = _.merge({}, defaults, pdms.defaults, {
@@ -201,6 +202,85 @@ describe('webServer adapter', () => {
                 expect(statusText).to.equal('OK')
                 expect(data).to.eql({ identity: 'Universe', meaning: '42' })
 
+                next(null, null)
+            })
+        }
+
+        npacStart(adaptersWithPdms, [testServer], terminators)
+    }).timeout(30000)
+})
+
+describe('webServer adapter with only raw parsing', () => {
+    let sandbox
+
+    const config = _.merge({}, defaults, pdms.defaults, {
+        logger: {
+            level: 'debug'
+        },
+        webServer: {
+            logBlackList: ['/test/endpoint-json'],
+            useCompression: true,
+            useResponseTime: true,
+            restApiPath: __dirname + '/fixtures/endpoints/api.yml',
+            staticContentBasePath: __dirname, // + '/fixtures/content/'
+        }
+    })
+
+    beforeEach((done) => {
+        removeSignalHandlers()
+        sandbox = sinon.createSandbox({
+            properties: ['spy']
+        })
+        done()
+    })
+
+    afterEach((done) => {
+        removeSignalHandlers()
+        sandbox.restore()
+        done()
+    })
+
+    const adaptersWithPdms = [
+        mergeConfig(
+            _.merge({}, config, {
+                webServer: { usePdms: true },
+                pdms: { timeout: 2500 }
+            })
+        ),
+        addLogger,
+        pdms.startup,
+        testAdapter.startup,
+        server.startup
+    ]
+
+    const terminators = [server.shutdown, pdms.shutdown, testAdapter.shutdown]
+
+    it('#call POST endpoint without parser', (done) => {
+        catchExitSignals(sandbox, done)
+
+        let testBody = '{ "identity": "Universe", "meaning": 42 }'
+
+        const testServer = (container, next) => {
+            const { port } = container.config.webServer
+            const host = `http://localhost:${port}`
+            const restEndpointPath = `/test/endpoint-raw`
+
+            container.logger.info(`Run job to test server`)
+            axios({
+                method: 'post',
+                url: `${host}${restEndpointPath}`,
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json'
+                },
+                data: testBody
+            }).then((response) => {
+                const { status, statusText, data } = response
+
+                expect(status).to.equal(200)
+                expect(statusText).to.equal('OK')
+                expect(data).to.eql({ identity: 'Universe', meaning: 42 })
                 next(null, null)
             })
         }

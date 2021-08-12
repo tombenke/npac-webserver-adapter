@@ -56,6 +56,7 @@ module.exports = {
             }
         },
         bodyParser: {
+            raw: process.env.PARSE_RAW_BODY || true,
             json: process.env.PARSE_JSON_BODY || false,
             xml: process.env.PARSE_XML_BODY || false,
             urlencoded: process.env.PARSE_URL_ENCODED_BODY || false
