@@ -4,7 +4,6 @@ on:
     branches:
       - "*" # matches every branch
       - "*/*" # matches every branch containing a single '/'
-      - "!master" # excludes master
 
 jobs:
   build:
@@ -17,8 +16,10 @@ jobs:
       - name: Install dependencies
         run: npm install
       
-      - run: npm test
+      - name: Run tests
+        run: npm test
         env:
           CI: true
       
-      - run: npm build
+      - name: Run build
+        run: npm build

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Module: server</title>
+    <title>JSDoc: Module: bodyParser</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Module: server</h1>
+    <h1 class="page-title">Module: bodyParser</h1>
 
     
 
@@ -38,7 +38,7 @@
     <div class="container-overview">
     
         
-            <div class="description"><p>The server module of the webserver adapter.</p>
+            <div class="description"><p>The body parser module of the webserver adapter.</p>
 <p>Used only internally by the adapter.</p></div>
         
 
@@ -140,7 +140,7 @@
     
 
     
-    <h4 class="name" id=".shutdownServer"><span class="type-signature">(static) </span>shutdownServer<span class="signature">(container)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".setParsers"><span class="type-signature">(static) </span>setParsers<span class="signature">(container, server)</span><span class="type-signature"></span></h4>
     
 
     
@@ -148,7 +148,7 @@
 
 
 <div class="description">
-    <p>Shut down the server instance</p>
+    <p>Setup body parsers of the webserver</p>
 </div>
 
 
@@ -201,6 +201,29 @@
             
 
             <td class="description last"><p>The container context</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>server</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The webserver object the endpoints will be added to</p></td>
         </tr>
 
     
@@ -261,183 +284,6 @@
 
 
 
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".startupServer"><span class="type-signature">(async, static) </span>startupServer<span class="signature">(container, api)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Setup and start the server instance</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>container</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The container context</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>api</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The array of REST API endpoints</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>A promise, that resolves to the server instance</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise</span>
-
-
-    </dd>
-</dl>
-
-    
 
 
 
