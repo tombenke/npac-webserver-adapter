@@ -30,6 +30,7 @@ module.exports = {
      * @property {Boolean} enableMocking - Responses the first example found in the `examples` array of endpoint descriptor if there is any. For proper working, it requires the `ignoreApiOperationIds` config parameter to be `true` in case the `operationId`s of the endpoints are defined. Env.: `WEBSERVER_ENABLE_MOCKING`. Default: `false`.
      * @property {String} basePath - Define the base-path (prefix) for the REST API endpoints. Env.: `WEBSERVER_BASEPATH. `Default: `/`.
      * @property {Object} oasConfig - The swagger-parser configuration object. Defaults: `{ parse: { yaml: { allowEmpty: false }, resolve: { file: true } } }`
+     * @property {Object} bodyParser - The request body parser configuration object. Defaults: all types default to false.
      */
     webServer: {
         logBlackList: getLogBlackList(process.env.WEBSERVER_LOG_BLACKLIST),
@@ -53,6 +54,12 @@ module.exports = {
                     file: true // Resolve local file references
                 }
             }
+        },
+        bodyParser: {
+            raw: process.env.PARSE_RAW_BODY || true,
+            json: process.env.PARSE_JSON_BODY || false,
+            xml: process.env.PARSE_XML_BODY || false,
+            urlencoded: process.env.PARSE_URL_ENCODED_BODY || false
         }
     }
 }

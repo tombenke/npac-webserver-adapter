@@ -44,6 +44,12 @@ describe('server/config', function () {
                             file: true
                         }
                     }
+                },
+                bodyParser: {
+                    raw: true,
+                    json: false,
+                    xml: false,
+                    urlencoded: false
                 }
             }
         };

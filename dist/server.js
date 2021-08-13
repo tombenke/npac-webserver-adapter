@@ -17,10 +17,6 @@ var _cookieParser = require('cookie-parser');
 
 var _cookieParser2 = _interopRequireDefault(_cookieParser);
 
-var _bodyParser = require('body-parser');
-
-var _bodyParser2 = _interopRequireDefault(_bodyParser);
-
 var _expressSession = require('express-session');
 
 var _expressSession2 = _interopRequireDefault(_expressSession);
@@ -28,6 +24,8 @@ var _expressSession2 = _interopRequireDefault(_expressSession);
 var _compression = require('compression');
 
 var _compression2 = _interopRequireDefault(_compression);
+
+var _parser = require('./parser');
 
 var _middlewares = require('./middlewares');
 
@@ -81,8 +79,9 @@ var startupServer = exports.startupServer = function startupServer(container, ap
     // Configure the middlewares
     server.use(_expressWinston2.default.logger({ transports: [container.logger], ignoreRoute: (0, _logUtils.ignoreRouteLogging)(container) }));
     server.use((0, _cookieParser2.default)()); // read cookies (needed for auth)
-    server.use(_bodyParser2.default.json()); // for parsing application/json
-    server.use(_bodyParser2.default.urlencoded({ extended: true })); // get information from html forms
+
+    // Use parsers if enabled
+    (0, _parser.setParsers)(container, server);
 
     // Use compression if enabled
     if (config.webServer.useCompression) {

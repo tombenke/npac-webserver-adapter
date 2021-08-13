@@ -44,10 +44,10 @@
 
     <section>
         <article><h1>npac-webserver-adapter</h1>
-<p><a href="http://github.com/badges/stability-badges"><img src="http://badges.github.io/stability-badges/dist/stable.svg" alt="stable"></a><br>
-<a href="https://badge.fury.io/js/npac-webserver-adapter"><img src="https://badge.fury.io/js/npac-webserver-adapter.svg" alt="npm version"></a><br>
-<a href="https://travis-ci.org/tombenke/npac-webserver-adapter"><img src="https://api.travis-ci.org/tombenke/npac-webserver-adapter.svg" alt="Build Status"></a><br>
-<a href="https://coveralls.io/github/tombenke/npac-webserver-adapter?branch=master"><img src="https://coveralls.io/repos/github/tombenke/npac-webserver-adapter/badge.svg?branch=master" alt="Coveralls"></a></p>
+<p><a href="https://github.com/tombenke/npac-webserver-adapter"><img src="https://github.com/tombenke/npac-webserver-adapter/workflows/Quality%20Check/badge.svg" alt="Actions Status"></a><br>
+<a href="https://coveralls.io/github/tombenke/npac-webserver-adapter?branch=master"><img src="https://coveralls.io/repos/github/tombenke/npac-webserver-adapter/badge.svg?branch=master" alt="Coveralls"></a><br>
+<a href="http://github.com/badges/stability-badges"><img src="http://badges.github.io/stability-badges/dist/stable.svg" alt="stable"></a><br>
+<a href="https://badge.fury.io/js/npac-webserver-adapter"><img src="https://badge.fury.io/js/npac-webserver-adapter.svg" alt="npm version"></a></p>
 <h2>About</h2>
 <p>npac adapter with webServer api, using Express.js</p>
 <p>It is a complete web server, that loads the API specification from swagger/OpenApi descriptors.</p>
@@ -84,6 +84,12 @@ See also the test cases in <a href="src/index.spec.js"><code>src/index.spec.js</
                     file: true // Resolve local file references
                 }
             }
+        },
+        bodyParser: {
+            raw: process.env.PARSE_RAW_BODY || true,
+            json: process.env.PARSE_JSON_BODY || false,
+            xml: process.env.PARSE_XML_BODY || false,
+            urlencoded: process.env.PARSE_URL_ENCODED_BODY || false
         }
     }
 }
@@ -99,7 +105,7 @@ See also the test cases in <a href="src/index.spec.js"><code>src/index.spec.js</
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config.html">config</a></li><li><a href="module-logUtils.html">logUtils</a></li><li><a href="module-middlewares.html">middlewares</a></li><li><a href="module-mocking.html">mocking</a></li><li><a href="module-npac-webserver-adapter.html">npac-webserver-adapter</a></li><li><a href="module-restapi.html">restapi</a></li><li><a href="module-routes.html">routes</a></li><li><a href="module-server.html">server</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-bodyParser.html">bodyParser</a></li><li><a href="module-config.html">config</a></li><li><a href="module-logUtils.html">logUtils</a></li><li><a href="module-middlewares.html">middlewares</a></li><li><a href="module-mocking.html">mocking</a></li><li><a href="module-npac-webserver-adapter.html">npac-webserver-adapter</a></li><li><a href="module-restapi.html">restapi</a></li><li><a href="module-routes.html">routes</a></li><li><a href="module-server.html">server</a></li></ul>
 </nav>
 
 <br class="clear">

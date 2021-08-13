@@ -1,10 +1,10 @@
 npac-webserver-adapter
 ======================
 
+[![Actions Status](https://github.com/tombenke/npac-webserver-adapter/workflows/Quality%20Check/badge.svg)](https://github.com/tombenke/npac-webserver-adapter)
+[![Coveralls][BadgeCoveralls]][Coveralls]
 [![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
 [![npm version][npm-badge]][npm-url]
-[![Build Status][travis-badge]][travis-url]
-[![Coveralls][BadgeCoveralls]][Coveralls]
 
 ## About
 
@@ -54,6 +54,12 @@ The default parameters can be found in [`src/config.js`](src/config.js):
                     file: true // Resolve local file references
                 }
             }
+        },
+        bodyParser: {
+            raw: process.env.PARSE_RAW_BODY || true,
+            json: process.env.PARSE_JSON_BODY || false,
+            xml: process.env.PARSE_XML_BODY || false,
+            urlencoded: process.env.PARSE_URL_ENCODED_BODY || false
         }
     }
 }
@@ -63,7 +69,5 @@ The default parameters can be found in [`src/config.js`](src/config.js):
 
 [npm-badge]: https://badge.fury.io/js/npac-webserver-adapter.svg
 [npm-url]: https://badge.fury.io/js/npac-webserver-adapter
-[travis-badge]: https://api.travis-ci.org/tombenke/npac-webserver-adapter.svg
-[travis-url]: https://travis-ci.org/tombenke/npac-webserver-adapter
 [Coveralls]: https://coveralls.io/github/tombenke/npac-webserver-adapter?branch=master
 [BadgeCoveralls]: https://coveralls.io/repos/github/tombenke/npac-webserver-adapter/badge.svg?branch=master

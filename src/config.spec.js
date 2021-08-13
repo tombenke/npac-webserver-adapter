@@ -34,6 +34,12 @@ describe('server/config', () => {
                             file: true
                         }
                     }
+                },
+                bodyParser: {
+                    raw: true,
+                    json: false,
+                    xml: false,
+                    urlencoded: false
                 }
             }
         }

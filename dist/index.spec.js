@@ -369,7 +369,7 @@ describe('webServer adapter', function () {
             var port = container.config.webServer.port;
 
             var host = 'http://localhost:' + port;
-            var restEndpointPath = '/test/endpoint';
+            var restEndpointPath = '/test/endpoint-error';
 
             container.logger.info('Run job to test server');
             (0, _axios2.default)({
@@ -401,7 +401,7 @@ describe('webServer adapter', function () {
             var port = container.config.webServer.port;
 
             var host = 'http://localhost:' + port;
-            var restEndpointPath = '/test/endpoint';
+            var restEndpointPath = '/test/endpoint-error';
 
             container.logger.info('Run job to test server');
             (0, _axios2.default)({
