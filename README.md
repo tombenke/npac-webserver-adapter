@@ -2,7 +2,6 @@ npac-webserver-adapter
 ======================
 
 [![Actions Status](https://github.com/tombenke/npac-webserver-adapter/workflows/Quality%20Check/badge.svg)](https://github.com/tombenke/npac-webserver-adapter)
-[![Coveralls][BadgeCoveralls]][Coveralls]
 [![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
 [![npm version][npm-badge]][npm-url]
 
@@ -69,5 +68,3 @@ The default parameters can be found in [`src/config.js`](src/config.js):
 
 [npm-badge]: https://badge.fury.io/js/npac-webserver-adapter.svg
 [npm-url]: https://badge.fury.io/js/npac-webserver-adapter
-[Coveralls]: https://coveralls.io/github/tombenke/npac-webserver-adapter?branch=master
-[BadgeCoveralls]: https://coveralls.io/repos/github/tombenke/npac-webserver-adapter/badge.svg?branch=master

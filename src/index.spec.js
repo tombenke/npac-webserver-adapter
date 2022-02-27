@@ -97,6 +97,7 @@ describe('webServer adapter', () => {
         logger: {
             level: 'debug'
         },
+        pdms: { natsUri: 'nats://localhost:4222' },
         webServer: {
             logBlackList: ['/test/endpoint'],
             useCompression: true,

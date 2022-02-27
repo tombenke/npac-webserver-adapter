@@ -35,7 +35,7 @@ const testAdapter = {
                     json: testAdapterEndpointFun(container),
                     xml: testAdapterEndpointFun(container),
                     urlencoded: testAdapterEndpointFun(container),
-                    raw: testAdapterEndpointFun(container),
+                    raw: testAdapterEndpointFun(container)
                 }
             }
         })
@@ -53,6 +53,7 @@ describe('webServer adapter with parsing enabled', () => {
         logger: {
             level: 'debug'
         },
+        pdms: { natsUri: 'nats://localhost:4222' },
         webServer: {
             logBlackList: ['/test/endpoint-json'],
             useCompression: true,
@@ -85,7 +86,7 @@ describe('webServer adapter with parsing enabled', () => {
         mergeConfig(
             _.merge({}, config, {
                 webServer: { usePdms: true },
-                pdms: { timeout: 2500 }
+                pdms: { natsUri: 'nats://localhost:4222', timeout: 2500 }
             })
         ),
         addLogger,
@@ -95,10 +96,10 @@ describe('webServer adapter with parsing enabled', () => {
     ]
 
     const terminators = [server.shutdown, pdms.shutdown, testAdapter.shutdown]
-    
+
     it('#call POST endpoint with JSON body parser. Accept: "application/json"', (done) => {
         catchExitSignals(sandbox, done)
-        
+
         let testBody = '{ "identity": "Universe", "meaning": 42 }'
 
         const testServer = (container, next) => {
@@ -129,7 +130,7 @@ describe('webServer adapter with parsing enabled', () => {
 
         npacStart(adaptersWithPdms, [testServer], terminators)
     }).timeout(30000)
-    
+
     it('#call POST endpoint with XML body parser. Accept: "text/xml"', (done) => {
         catchExitSignals(sandbox, done)
 
@@ -138,7 +139,7 @@ describe('webServer adapter with parsing enabled', () => {
                 <character name="Luke Skywalker" />
                 <character name="Darth Vader" />
             </starwars>`
-        
+
         const testServer = (container, next) => {
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
@@ -161,10 +162,7 @@ describe('webServer adapter with parsing enabled', () => {
                 expect(statusText).to.equal('OK')
                 expect(data).to.eql({
                     starwars: {
-                        character: [
-                            { '$': { name: 'Luke Skywalker' } },
-                            { '$': { name: 'Darth Vader' } }
-                        ]
+                        character: [{ $: { name: 'Luke Skywalker' } }, { $: { name: 'Darth Vader' } }]
                     }
                 })
 
@@ -174,12 +172,12 @@ describe('webServer adapter with parsing enabled', () => {
 
         npacStart(adaptersWithPdms, [testServer], terminators)
     }).timeout(30000)
-    
+
     it('#call POST endpoint with URL encoded body parser. Accept: "application/x-www-form-urlencoded"', (done) => {
         catchExitSignals(sandbox, done)
 
         let testBody = qs.stringify({ identity: 'Universe', meaning: 42 })
-        
+
         const testServer = (container, next) => {
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
@@ -217,12 +215,13 @@ describe('webServer adapter with only raw parsing', () => {
         logger: {
             level: 'debug'
         },
+        pdms: { natsUri: 'nats://localhost:4222' },
         webServer: {
             logBlackList: ['/test/endpoint-json'],
             useCompression: true,
             useResponseTime: true,
             restApiPath: __dirname + '/fixtures/endpoints/api.yml',
-            staticContentBasePath: __dirname, // + '/fixtures/content/'
+            staticContentBasePath: __dirname // + '/fixtures/content/'
         }
     })
 

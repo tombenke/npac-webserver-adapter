@@ -187,7 +187,7 @@ describe('webServer adapter with parsing enabled', function () {
                 (0, _chai.expect)(statusText).to.equal('OK');
                 (0, _chai.expect)(data).to.eql({
                     starwars: {
-                        character: [{ '$': { name: 'Luke Skywalker' } }, { '$': { name: 'Darth Vader' } }]
+                        character: [{ $: { name: 'Luke Skywalker' } }, { $: { name: 'Darth Vader' } }]
                     }
                 });
 
