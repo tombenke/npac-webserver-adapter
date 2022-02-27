@@ -1,26 +1,19 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
-exports.determineMediaType = exports.getMockingResponse = exports.callMockingServiceFunction = undefined;
+exports.determineMediaType = exports.getMockingResponse = exports.callMockingServiceFunction = void 0;
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /**
-                                                                                                                                                                                                                                                                   * The mocking module of the webserver adapter.
-                                                                                                                                                                                                                                                                   *
-                                                                                                                                                                                                                                                                   * This module implements the handler functions that serve mock data from the examples defined under the responses section of the endpoint descriptors
-                                                                                                                                                                                                                                                                   *
-                                                                                                                                                                                                                                                                   * Used only internally by the adapter.
-                                                                                                                                                                                                                                                                   *
-                                                                                                                                                                                                                                                                   * @module mocking
-                                                                                                                                                                                                                                                                   */
+var _lodash = _interopRequireDefault(require("lodash"));
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-var _lodash = require('lodash');
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
-var _lodash2 = _interopRequireDefault(_lodash);
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /**
  * Call the generic mocking service function that provides responses to the incoming requests using the examples defined for the endpoint.
@@ -39,21 +32,20 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  * @function
  */
-var callMockingServiceFunction = exports.callMockingServiceFunction = function callMockingServiceFunction(container, endpoint, req, res, next) {
-    var _getMockingResponse = getMockingResponse(container, endpoint, req),
-        status = _getMockingResponse.status,
-        headers = _getMockingResponse.headers,
-        body = _getMockingResponse.body;
+var callMockingServiceFunction = function callMockingServiceFunction(container, endpoint, req, res, next) {
+  var _getMockingResponse = getMockingResponse(container, endpoint, req),
+      status = _getMockingResponse.status,
+      headers = _getMockingResponse.headers,
+      body = _getMockingResponse.body;
 
-    if (_lodash2.default.isUndefined(body)) {
-        res.status(status).send();
-    } else {
-        res.set(headers).status(status).send(body);
-    }
+  if (_lodash["default"].isUndefined(body)) {
+    res.status(status).send();
+  } else {
+    res.set(headers).status(status).send(body);
+  }
 
-    next();
+  next();
 };
-
 /**
  * Get the mocking response from the endpoint descriptor and from the request parameters.
  *
@@ -68,43 +60,53 @@ var callMockingServiceFunction = exports.callMockingServiceFunction = function c
  *
  * @function
  */
-var getMockingResponse = exports.getMockingResponse = function getMockingResponse(container, endpoint, req) {
-    // Determine which media-type the client accepts
-    var accept = _lodash2.default.get(req.headers, 'accept', '*/*');
 
-    // Determine the response media-type
-    var mediaType = determineMediaType(container, endpoint, accept);
 
-    if (mediaType === null) {
-        // Unsupported media-type
-        return {
-            status: 415
-        };
+exports.callMockingServiceFunction = callMockingServiceFunction;
+
+var getMockingResponse = function getMockingResponse(container, endpoint, req) {
+  // Determine which media-type the client accepts
+  var accept = _lodash["default"].get(req.headers, 'accept', '*/*'); // Determine the response media-type
+
+
+  var mediaType = determineMediaType(container, endpoint, accept);
+
+  if (mediaType === null) {
+    // Unsupported media-type
+    return {
+      status: 415
+    };
+  } else {
+    // Get the example of the given media-type
+    var examples = _lodash["default"].get(endpoint.responses['200'].examples, mediaType, {});
+
+    var exampleNames = _lodash["default"].keys(examples);
+
+    var emptyExample = {
+      value: undefined
+    };
+    var example = exampleNames.length > 0 ? _lodash["default"].get(examples, exampleNames[0], emptyExample) : emptyExample;
+
+    var headers = _objectSpread(_objectSpread({}, endpoint.responses['200'].headers), {}, {
+      'content-type': mediaType
+    }); // Send response
+
+
+    if (_lodash["default"].isUndefined(example.value)) {
+      // There is no example found
+      return {
+        status: 404,
+        headers: headers
+      };
     } else {
-        // Get the example of the given media-type
-        var examples = _lodash2.default.get(endpoint.responses['200'].examples, mediaType, {});
-        var exampleNames = _lodash2.default.keys(examples);
-        var emptyExample = { value: undefined };
-        var example = exampleNames.length > 0 ? _lodash2.default.get(examples, exampleNames[0], emptyExample) : emptyExample;
-        var headers = _extends({}, endpoint.responses['200'].headers, { 'content-type': mediaType
-
-            // Send response
-        });if (_lodash2.default.isUndefined(example.value)) {
-            // There is no example found
-            return {
-                status: 404,
-                headers: headers
-            };
-        } else {
-            return {
-                status: 200,
-                headers: headers,
-                body: example.value
-            };
-        }
+      return {
+        status: 200,
+        headers: headers,
+        body: example.value
+      };
     }
+  }
 };
-
 /**
  * Determine the resultant media-type for the response
  *
@@ -116,21 +118,27 @@ var getMockingResponse = exports.getMockingResponse = function getMockingRespons
  *
  * @function
  */
-var determineMediaType = exports.determineMediaType = function determineMediaType(container, endpoint, accept) {
-    if (accept !== '*/*') {
-        // Check if the expected media-type is supported
-        if (_lodash2.default.includes(endpoint.produces, accept)) {
-            // Media-type is specific, supported, and there is example for it
-            return accept;
-        } else {
-            // Media-type is specific but not supported
-            container.logger.error('The "' + accept + '" media-type is not supported by the ' + endpoint.method + ' ' + endpoint.uri + ' operation');
-            return null;
-        }
+
+
+exports.getMockingResponse = getMockingResponse;
+
+var determineMediaType = function determineMediaType(container, endpoint, accept) {
+  if (accept !== '*/*') {
+    // Check if the expected media-type is supported
+    if (_lodash["default"].includes(endpoint.produces, accept)) {
+      // Media-type is specific, supported, and there is example for it
+      return accept;
     } else {
-        // Accepts anything, so determine the default media-type
-        var headers = endpoint.responses['200'].headers;
-        var mediaType = endpoint.produces.length > 0 ? endpoint.produces[0] : _lodash2.default.get(headers, 'content-type', 'text/html');
-        return mediaType;
+      // Media-type is specific but not supported
+      container.logger.error("The \"".concat(accept, "\" media-type is not supported by the ").concat(endpoint.method, " ").concat(endpoint.uri, " operation"));
+      return null;
     }
+  } else {
+    // Accepts anything, so determine the default media-type
+    var headers = endpoint.responses['200'].headers;
+    var mediaType = endpoint.produces.length > 0 ? endpoint.produces[0] : _lodash["default"].get(headers, 'content-type', 'text/html');
+    return mediaType;
+  }
 };
+
+exports.determineMediaType = determineMediaType;
