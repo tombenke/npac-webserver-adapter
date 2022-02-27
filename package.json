@@ -41,7 +41,7 @@
     "npac": "^2.1.11",
     "npac-pdms-hemera-adapter": "^1.4.12",
     "response-time": "^2.3.2",
-    "rest-tool-common": "^2.7.5",
+    "rest-tool-common": "^2.7.7",
     "serve-index": "^1.9.1"
   },
   "devDependencies": {
@@ -93,7 +93,6 @@
     "docgen": "node_modules/.bin/gulp docgen",
     "precommit": "lint-staged",
     "prettier": "prettier --single-quote --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
-    "prepublishOnly": "npm run prettier && lint-staged && npm run test && npm run build && npm run docs",
     "all": "npm run coverage && npm run build && npm run docs"
   }
 }
