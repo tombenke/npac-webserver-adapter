@@ -1,0 +1,26 @@
+env:
+  es2021: true
+  es6: true,
+  node: true,
+  mocha: true,
+  browser: true
+extends:
+  - eslint:recommended
+parserOptions:
+  ecmaFeatures:
+    jsx: true
+    modules: true
+    spread : true
+    experimentalObjectRestSpread: true
+    restParams : true
+  ecmaVersion: latest
+  sourceType: module
+plugins: []
+rules: {
+        "no-prototype-builtins": 0,
+        "no-trailing-spaces": ["error", { "skipBlankLines": true }],
+        "no-unused-vars": ["error", { "args": "none", "varsIgnorePattern": "should" }],
+        "comma-spacing": ["error", { "before": false, "after": true }],
+        no-console: 0,
+        "key-spacing": ["error", { "beforeColon": false }]
+    }
