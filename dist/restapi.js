@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.callPdmsForwarder = exports.callServiceFuntion = exports.setEndpoints = void 0;
+exports.setEndpoints = exports.callServiceFuntion = exports.callPdmsForwarder = void 0;
 
 var _lodash = _interopRequireDefault(require("lodash"));
 

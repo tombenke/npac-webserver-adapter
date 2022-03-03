@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.shutdownServer = exports.startupServer = void 0;
+exports.startupServer = exports.shutdownServer = void 0;
 
 var _express = _interopRequireDefault(require("express"));
 

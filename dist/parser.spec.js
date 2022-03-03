@@ -1,6 +1,6 @@
 "use strict";
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 var _npac = require("npac");
 
@@ -76,6 +76,9 @@ describe('webServer adapter with parsing enabled', function () {
     logger: {
       level: 'debug'
     },
+    pdms: {
+      natsUri: 'nats://localhost:4222'
+    },
     webServer: {
       logBlackList: ['/test/endpoint-json'],
       useCompression: true,
@@ -108,6 +111,7 @@ describe('webServer adapter with parsing enabled', function () {
       usePdms: true
     },
     pdms: {
+      natsUri: 'nats://localhost:4222',
       timeout: 2500
     }
   })), _npac.addLogger, pdms.startup, testAdapter.startup, server.startup];
@@ -173,11 +177,11 @@ describe('webServer adapter with parsing enabled', function () {
         (0, _chai.expect)(data).to.eql({
           starwars: {
             character: [{
-              '$': {
+              $: {
                 name: 'Luke Skywalker'
               }
             }, {
-              '$': {
+              $: {
                 name: 'Darth Vader'
               }
             }]
@@ -225,130 +229,8 @@ describe('webServer adapter with parsing enabled', function () {
       });
     };
 
-    var adaptersWithPdms = [(0, _npac.mergeConfig)(_.merge({}, config, {
-        webServer: { usePdms: true },
-        pdms: { timeout: 2500 }
-    })), _npac.addLogger, pdms.startup, testAdapter.startup, server.startup];
-
-    var terminators = [server.shutdown, pdms.shutdown, testAdapter.shutdown];
-
-    it('#call POST endpoint with JSON body parser. Accept: "application/json"', function (done) {
-        (0, _npac.catchExitSignals)(sandbox, done);
-
-        var testBody = '{ "identity": "Universe", "meaning": 42 }';
-
-        var testServer = function testServer(container, next) {
-            var port = container.config.webServer.port;
-
-            var host = 'http://localhost:' + port;
-            var restEndpointPath = '/test/endpoint-json';
-
-            container.logger.info('Run job to test server');
-            (0, _axios2.default)({
-                method: 'post',
-                url: '' + host + restEndpointPath,
-                withCredentials: true,
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json'
-                },
-                data: testBody
-            }).then(function (response) {
-                var status = response.status,
-                    statusText = response.statusText,
-                    data = response.data;
-
-
-                (0, _chai.expect)(status).to.equal(200);
-                (0, _chai.expect)(statusText).to.equal('OK');
-                (0, _chai.expect)(data).to.eql({ identity: 'Universe', meaning: 42 });
-
-                next(null, null);
-            });
-        };
-
-        (0, _npac.npacStart)(adaptersWithPdms, [testServer], terminators);
-    }).timeout(30000);
-
-    it('#call POST endpoint with XML body parser. Accept: "text/xml"', function (done) {
-        (0, _npac.catchExitSignals)(sandbox, done);
-
-        var testBody = '<?xml version="1.0" encoding="UTF-8"?>\n            <starwars>\n                <character name="Luke Skywalker" />\n                <character name="Darth Vader" />\n            </starwars>';
-
-        var testServer = function testServer(container, next) {
-            var port = container.config.webServer.port;
-
-            var host = 'http://localhost:' + port;
-            var restEndpointPath = '/test/endpoint-xml';
-
-            container.logger.info('Run job to test server');
-            (0, _axios2.default)({
-                method: 'post',
-                url: '' + host + restEndpointPath,
-                withCredentials: true,
-                headers: {
-                    'Content-Type': 'text/xml',
-                    Accept: 'application/json'
-                },
-                data: testBody
-            }).then(function (response) {
-                var status = response.status,
-                    statusText = response.statusText,
-                    data = response.data;
-
-
-                (0, _chai.expect)(status).to.equal(200);
-                (0, _chai.expect)(statusText).to.equal('OK');
-                (0, _chai.expect)(data).to.eql({
-                    starwars: {
-                        character: [{ $: { name: 'Luke Skywalker' } }, { $: { name: 'Darth Vader' } }]
-                    }
-                });
-
-                next(null, null);
-            });
-        };
-
-        (0, _npac.npacStart)(adaptersWithPdms, [testServer], terminators);
-    }).timeout(30000);
-
-    it('#call POST endpoint with URL encoded body parser. Accept: "application/x-www-form-urlencoded"', function (done) {
-        (0, _npac.catchExitSignals)(sandbox, done);
-
-        var testBody = _qs2.default.stringify({ identity: 'Universe', meaning: 42 });
-
-        var testServer = function testServer(container, next) {
-            var port = container.config.webServer.port;
-
-            var host = 'http://localhost:' + port;
-            var restEndpointPath = '/test/endpoint-urlencoded';
-
-            container.logger.info('Run job to test server');
-            (0, _axios2.default)({
-                method: 'post',
-                url: '' + host + restEndpointPath,
-                withCredentials: true,
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    Accept: 'application/json'
-                },
-                data: testBody
-            }).then(function (response) {
-                var status = response.status,
-                    statusText = response.statusText,
-                    data = response.data;
-
-
-                (0, _chai.expect)(status).to.equal(200);
-                (0, _chai.expect)(statusText).to.equal('OK');
-                (0, _chai.expect)(data).to.eql({ identity: 'Universe', meaning: '42' });
-
-                next(null, null);
-            });
-        };
-
-        (0, _npac.npacStart)(adaptersWithPdms, [testServer], terminators);
-    }).timeout(30000);
+    (0, _npac.npacStart)(adaptersWithPdms, [testServer], terminators);
+  }).timeout(30000);
 });
 describe('webServer adapter with only raw parsing', function () {
   var sandbox;
@@ -356,6 +238,9 @@ describe('webServer adapter with only raw parsing', function () {
   var config = _.merge({}, _config["default"], pdms.defaults, {
     logger: {
       level: 'debug'
+    },
+    pdms: {
+      natsUri: 'nats://localhost:4222'
     },
     webServer: {
       logBlackList: ['/test/endpoint-json'],
