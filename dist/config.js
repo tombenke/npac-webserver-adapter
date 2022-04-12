@@ -4,6 +4,8 @@ var _path = _interopRequireDefault(require("path"));
 
 var _logUtils = require("./logUtils");
 
+var _env = require("./env");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 /**
@@ -40,10 +42,10 @@ module.exports = {
    */
   webServer: {
     logBlackList: (0, _logUtils.getLogBlackList)(process.env.WEBSERVER_LOG_BLACKLIST),
-    port: process.env.WEBSERVER_PORT || 3007,
-    useCompression: process.env.WEBSERVER_USE_COMPRESSION || false,
-    useResponseTime: process.env.WEBSERVER_USE_RESPONSE_TIME || false,
-    usePdms: process.env.WEBSERVER_USE_PDMS || false,
+    port: (0, _env.getIntEnv)('WEBSERVER_PORT', 3007),
+    useCompression: (0, _env.getBoolEnv)('WEBSERVER_USE_COMPRESSION', false),
+    useResponseTime: (0, _env.getBoolEnv)('WEBSERVER_USE_RESPONSE_TIME', false),
+    usePdms: (0, _env.getBoolEnv)('WEBSERVER_USE_PDMS', false),
     pdmsTopic: process.env.WEBSERVER_PDMS_TOPIC || 'easer',
     middlewares: {
       preRouting: [],
@@ -51,8 +53,8 @@ module.exports = {
     },
     restApiPath: process.env.WEBSERVER_RESTAPIPATH || _path["default"].resolve(),
     staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || _path["default"].resolve(),
-    ignoreApiOperationIds: process.env.WEBSERVER_IGNORE_API_OPERATION_IDS || false,
-    enableMocking: process.env.WEBSERVER_ENABLE_MOCKING || false,
+    ignoreApiOperationIds: (0, _env.getBoolEnv)('WEBSERVER_IGNORE_API_OPERATION_IDS', false),
+    enableMocking: (0, _env.getBoolEnv)('WEBSERVER_ENABLE_MOCKING', false),
     basePath: process.env.WEBSERVER_BASEPATH || '/',
     oasConfig: {
       parse: {
@@ -67,10 +69,10 @@ module.exports = {
       }
     },
     bodyParser: {
-      raw: process.env.PARSE_RAW_BODY || true,
-      json: process.env.PARSE_JSON_BODY || false,
-      xml: process.env.PARSE_XML_BODY || false,
-      urlencoded: process.env.PARSE_URL_ENCODED_BODY || false
+      raw: (0, _env.getBoolEnv)('PARSE_RAW_BODY', true),
+      json: (0, _env.getBoolEnv)('PARSE_JSON_BODY', false),
+      xml: (0, _env.getBoolEnv)('PARSE_XML_BODY', false),
+      urlencoded: (0, _env.getBoolEnv)('PARSE_URL_ENCODED_BODY', false)
     }
   }
 };
