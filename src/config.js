@@ -10,6 +10,7 @@
  */
 import path from 'path'
 import { getLogBlackList } from './logUtils'
+import { getBoolEnv, getIntEnv } from './env'
 
 /**
  * The default configuration for the webServer:
@@ -34,16 +35,16 @@ module.exports = {
      */
     webServer: {
         logBlackList: getLogBlackList(process.env.WEBSERVER_LOG_BLACKLIST),
-        port: process.env.WEBSERVER_PORT || 3007,
-        useCompression: process.env.WEBSERVER_USE_COMPRESSION || false,
-        useResponseTime: process.env.WEBSERVER_USE_RESPONSE_TIME || false,
-        usePdms: process.env.WEBSERVER_USE_PDMS || false,
+        port: getIntEnv('WEBSERVER_PORT', 3007),
+        useCompression: getBoolEnv('WEBSERVER_USE_COMPRESSION', false),
+        useResponseTime: getBoolEnv('WEBSERVER_USE_RESPONSE_TIME', false),
+        usePdms: getBoolEnv('WEBSERVER_USE_PDMS', false),
         pdmsTopic: process.env.WEBSERVER_PDMS_TOPIC || 'easer',
         middlewares: { preRouting: [], postRouting: [] },
         restApiPath: process.env.WEBSERVER_RESTAPIPATH || path.resolve(),
         staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || path.resolve(),
-        ignoreApiOperationIds: process.env.WEBSERVER_IGNORE_API_OPERATION_IDS || false,
-        enableMocking: process.env.WEBSERVER_ENABLE_MOCKING || false,
+        ignoreApiOperationIds: getBoolEnv('WEBSERVER_IGNORE_API_OPERATION_IDS', false),
+        enableMocking: getBoolEnv('WEBSERVER_ENABLE_MOCKING', false),
         basePath: process.env.WEBSERVER_BASEPATH || '/',
         oasConfig: {
             parse: {
