@@ -18,7 +18,6 @@ describe('server/config', () => {
                 useCompression: false,
                 useResponseTime: false,
                 usePdms: false,
-                pdmsTopic: 'easer',
                 middlewares: { preRouting: [], postRouting: [] },
                 restApiPath: path.resolve(),
                 staticContentBasePath: path.resolve(),

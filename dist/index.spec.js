@@ -673,13 +673,11 @@ describe('webServer adapter', function () {
         (0, _npac.catchExitSignals)(sandbox, done);
 
         var testServer = function testServer(container, next) {
-            //console.log(`CONFIG: ${JSON.stringify(container.config, null, 4)}`)
             var port = container.config.webServer.port;
 
             var host = 'http://localhost:' + port;
             var restEndpointMethod = 'get';
             var restEndpointPath = '/test/endpoint';
-            //const restEndpointPath = `/test/endpoint-with-examples`
             var responseMsg = {
                 status: 200,
                 headers: {
@@ -688,7 +686,8 @@ describe('webServer adapter', function () {
                 body: { status: 'OK' }
 
                 // Add built-in service
-            };container.nats.response('easer', function (err, payload, headers) {
+            };var topic = restEndpointMethod + '_' + restEndpointPath;
+            container.nats.response(topic, function (err, payload, headers) {
                 return {
                     payload: JSON.stringify(responseMsg),
                     headers: {

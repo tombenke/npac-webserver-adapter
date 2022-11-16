@@ -645,12 +645,10 @@ describe('webServer adapter', () => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
-            //console.log(`CONFIG: ${JSON.stringify(container.config, null, 4)}`)
             const { port } = container.config.webServer
             const host = `http://localhost:${port}`
             const restEndpointMethod = 'get'
             const restEndpointPath = `/test/endpoint`
-            //const restEndpointPath = `/test/endpoint-with-examples`
             const responseMsg = {
                 status: 200,
                 headers: {
@@ -660,7 +658,8 @@ describe('webServer adapter', () => {
             }
 
             // Add built-in service
-            container.nats.response('easer', (err, payload, headers) => {
+            const topic = `${restEndpointMethod}_${restEndpointPath}`
+            container.nats.response(topic, (err, payload, headers) => {
                 return {
                     payload: JSON.stringify(responseMsg),
                     headers: {

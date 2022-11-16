@@ -1,3 +1,4 @@
+            
 npac-webserver-adapter
 ======================
 
@@ -37,7 +38,6 @@ The default parameters can be found in [`src/config.js`](src/config.js):
         useCompression: process.env.WEBSERVER_USE_COMPRESSION || false,
         useResponseTime: process.env.WEBSERVER_USE_RESPONSE_TIME || false,
         usePdms: process.env.WEBSERVER_USE_PDMS || false,
-        pdmsTopic: process.env.WEBSERVER_PDMS_TOPIC || 'easer',
         middlewares: { preRouting: [], postRouting: [] },
         restApiPath: process.env.WEBSERVER_RESTAPIPATH || __dirname,
         staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || path.resolve(),
