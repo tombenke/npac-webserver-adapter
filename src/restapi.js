@@ -148,9 +148,10 @@ export const callServiceFuntion = (container, endpoint, req, res, serviceFun, ne
  */
 export const callPdmsForwarder = (container, endpoint, req, res, next) => {
     const topic = container.config.webServer.pdmsTopic
-    container.logger.info(`PDMS.ACT topic: "${topic}" method:"${endpoint.method}" uri:"${endpoint.uri}"`)
-    container.pdms.act(
-        {
+    container.logger.info(`nats.request: topic: "${topic}" method:"${endpoint.method}" uri:"${endpoint.uri}"`)
+    container.nats.request(
+        topic,
+        JSON.stringify({
             topic: topic,
             method: endpoint.method,
             uri: endpoint.uri,
@@ -165,21 +166,23 @@ export const callPdmsForwarder = (container, endpoint, req, res, next) => {
                 },
                 body: req.body
             }
-        },
-        (err, resp) => {
+        }),
+        1000,
+        { 'content-type': 'application/json', 'message-type': 'rpc/request' },
+        (err, respPayload, respHeaders) => {
             if (err) {
-                container.logger.info(`ERR ${JSON.stringify(err)}`)
+                container.logger.error(`ERR ${JSON.stringify(err)}`)
 
                 // In case both PDMS and mocking is enabled,
                 // then get prepared for catch unhandled PDMS endpoints
                 // and substitute them with example mock data if available
                 const { ignoreApiOperationIds, enableMocking, usePdms } = container.config.webServer
+                const defaultHeaders = {
+                    'Content-Type': 'application/json; charset=utf-8'
+                }
+
                 if (usePdms && enableMocking && ignoreApiOperationIds) {
                     const { status, headers, body } = getMockingResponse(container, endpoint, req)
-                    const defaultHeaders = {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    }
-
                     if (_.isUndefined(body)) {
                         res.set(headers || defaultHeaders)
                             .status(status)
@@ -190,17 +193,27 @@ export const callPdmsForwarder = (container, endpoint, req, res, next) => {
                             .send(body)
                     }
                 } else {
-                    res.set(_.get(err, 'details.headers', {}))
-                        .status(_.get(err, 'details.status', 500))
-                        .send(_.get(err, 'details.body', err))
+                    container.logger.debug(`Send response with status: 500, content: ${JSON.stringify(err)}`)
+                    if (err.code === '503') {
+                        res.set(defaultHeaders).status(503).send(err)
+                    } else {
+                        res.set(defaultHeaders).status(500).send(err)
+                    }
                 }
             } else {
                 if (!isPathBlackListed(container, endpoint.uri)) {
-                    container.logger.debug(`RES ${JSON.stringify(resp)}`)
+                    container.logger.debug(`RES ${respPayload}`)
                 }
-                res.set(resp.headers || {})
-                    .status(_.get(resp, 'status', 200))
-                    .send(resp.body)
+                const resp = JSON.parse(respPayload)
+                const respStatus = _.get(resp, 'status', 200)
+                const respHeaders = resp.headers || {}
+                const respBody = resp.body
+                container.logger.debug(
+                    `easer.callPdmsForwarder: response with status: ${respStatus} headers: ${JSON.stringify(
+                        respHeaders
+                    )}, body: ${JSON.stringify(respBody)}`
+                )
+                res.set(respHeaders).status(respStatus).send(respBody)
             }
             next()
         }

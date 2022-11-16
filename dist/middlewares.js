@@ -1,23 +1,15 @@
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
-exports.setMiddlewares = exports.addMiddlewares = void 0;
+exports.setMiddlewares = exports.addMiddlewares = undefined;
 
-var _lodash = _interopRequireDefault(require("lodash"));
+var _lodash = require('lodash');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+var _lodash2 = _interopRequireDefault(_lodash);
 
-/**
- * The middlewares module of the webserver adapter.
- *
- * This module makes possible to register pre-routing and post-routing middlewares to the web server via the configuration.
- *
- * Used only internally by the adapter.
- *
- * @module middlewares
- */
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  * Add middlewares to the webserver
@@ -30,33 +22,36 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
  *
  * @function
  */
-var addMiddlewares = function addMiddlewares(container, server, middlewares) {
-  // Add middlewares, if there is any defined
-  if (_lodash["default"].isArray(middlewares)) {
-    _lodash["default"].chain(middlewares).filter(function (adderFn) {
-      if (_lodash["default"].isFunction(adderFn)) {
-        // The `adderFn` will be registered as middleware
-        return true;
-      } else {
-        // The adder must be a function that receives the container and returns with a middleware function
-        container.logger.error("".concat(adderFn, " is not a function"));
-        return false;
-      }
-    }).map(function (adderFn) {
-      return server.use(adderFn(container));
-    }).value();
-  }
+var addMiddlewares = exports.addMiddlewares = function addMiddlewares(container, server, middlewares) {
+    // Add middlewares, if there is any defined
+    if (_lodash2.default.isArray(middlewares)) {
+        _lodash2.default.chain(middlewares).filter(function (adderFn) {
+            if (_lodash2.default.isFunction(adderFn)) {
+                // The `adderFn` will be registered as middleware
+                return true;
+            } else {
+                // The adder must be a function that receives the container and returns with a middleware function
+                container.logger.error(adderFn + ' is not a function');
+                return false;
+            }
+        }).map(function (adderFn) {
+            return server.use(adderFn(container));
+        }).value();
+    }
+}; /**
+    * The middlewares module of the webserver adapter.
+    *
+    * This module makes possible to register pre-routing and post-routing middlewares to the web server via the configuration.
+    *
+    * Used only internally by the adapter.
+    *
+    * @module middlewares
+    */
+var setMiddlewares = exports.setMiddlewares = function setMiddlewares(container, server, phase) {
+    var middlewares = _lodash2.default.merge({
+        preRouting: [],
+        postRouting: []
+    }, _lodash2.default.cloneDeep(container.config.webServer.middlewares));
+
+    return addMiddlewares(container, server, middlewares[phase]);
 };
-
-exports.addMiddlewares = addMiddlewares;
-
-var setMiddlewares = function setMiddlewares(container, server, phase) {
-  var middlewares = _lodash["default"].merge({
-    preRouting: [],
-    postRouting: []
-  }, _lodash["default"].cloneDeep(container.config.webServer.middlewares));
-
-  return addMiddlewares(container, server, middlewares[phase]);
-};
-
-exports.setMiddlewares = setMiddlewares;

@@ -3,7 +3,7 @@ import sinon from 'sinon'
 import { expect } from 'chai'
 import defaults from './config'
 import * as server from './index'
-import * as pdms from 'npac-pdms-hemera-adapter'
+import * as nats from 'npac-nats-adapter'
 import * as _ from 'lodash'
 import axios from 'axios'
 import qs from 'qs'
@@ -49,11 +49,11 @@ const testAdapter = {
 describe('webServer adapter with parsing enabled', () => {
     let sandbox
 
-    const config = _.merge({}, defaults, pdms.defaults, {
+    const config = _.merge({}, defaults, nats.defaults, {
         logger: {
             level: 'debug'
         },
-        pdms: { natsUri: 'nats://localhost:4222' },
+        nats: { servers: ['nats://localhost:4222'], debug: true },
         webServer: {
             logBlackList: ['/test/endpoint-json'],
             useCompression: true,
@@ -86,16 +86,16 @@ describe('webServer adapter with parsing enabled', () => {
         mergeConfig(
             _.merge({}, config, {
                 webServer: { usePdms: true },
-                pdms: { natsUri: 'nats://localhost:4222', timeout: 2500 }
+                nats: { servers: ['nats://localhost:4222'], debug: true, timeout: 2500 }
             })
         ),
         addLogger,
-        pdms.startup,
+        nats.startup,
         testAdapter.startup,
         server.startup
     ]
 
-    const terminators = [server.shutdown, pdms.shutdown, testAdapter.shutdown]
+    const terminators = [server.shutdown, nats.shutdown, testAdapter.shutdown]
 
     it('#call POST endpoint with JSON body parser. Accept: "application/json"', (done) => {
         catchExitSignals(sandbox, done)
@@ -211,11 +211,11 @@ describe('webServer adapter with parsing enabled', () => {
 describe('webServer adapter with only raw parsing', () => {
     let sandbox
 
-    const config = _.merge({}, defaults, pdms.defaults, {
+    const config = _.merge({}, defaults, nats.defaults, {
         logger: {
             level: 'debug'
         },
-        pdms: { natsUri: 'nats://localhost:4222' },
+        nats: { servers: ['nats://localhost:4222'], debug: true },
         webServer: {
             logBlackList: ['/test/endpoint-json'],
             useCompression: true,
@@ -243,16 +243,16 @@ describe('webServer adapter with only raw parsing', () => {
         mergeConfig(
             _.merge({}, config, {
                 webServer: { usePdms: true },
-                pdms: { timeout: 2500 }
+                nats: { timeout: 2500 }
             })
         ),
         addLogger,
-        pdms.startup,
+        nats.startup,
         testAdapter.startup,
         server.startup
     ]
 
-    const terminators = [server.shutdown, pdms.shutdown, testAdapter.shutdown]
+    const terminators = [server.shutdown, nats.shutdown, testAdapter.shutdown]
 
     it('#call POST endpoint without parser', (done) => {
         catchExitSignals(sandbox, done)

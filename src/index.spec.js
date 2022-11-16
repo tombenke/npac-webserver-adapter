@@ -3,7 +3,7 @@ import sinon from 'sinon'
 import { expect } from 'chai'
 import defaults from './config'
 import * as server from './index'
-import * as pdms from 'npac-pdms-hemera-adapter'
+import * as nats from 'npac-nats-adapter'
 import * as _ from 'lodash'
 import axios from 'axios'
 
@@ -93,11 +93,11 @@ describe('webServer adapter', () => {
         next()
     }
 
-    const config = _.merge({}, defaults, pdms.defaults, {
+    const config = _.merge({}, defaults, nats.defaults, {
         logger: {
             level: 'debug'
         },
-        pdms: { natsUri: 'nats://localhost:4222' },
+        nats: { servers: ['nats://localhost:4222'], debug: true },
         webServer: {
             logBlackList: ['/test/endpoint'],
             useCompression: true,
@@ -124,7 +124,7 @@ describe('webServer adapter', () => {
         done()
     })
 
-    const adapters = [mergeConfig(config), addLogger, testAdapter.startup, pdms.startup, server.startup]
+    const adapters = [mergeConfig(config), addLogger, testAdapter.startup, nats.startup, server.startup]
 
     const adaptersWithBasePath = [
         mergeConfig(
@@ -134,7 +134,7 @@ describe('webServer adapter', () => {
         ),
         addLogger,
         testAdapter.startup,
-        pdms.startup,
+        nats.startup,
         server.startup
     ]
 
@@ -142,11 +142,11 @@ describe('webServer adapter', () => {
         mergeConfig(
             _.merge({}, config, {
                 webServer: { usePdms: true },
-                pdms: { timeout: 2500 /*, natsUri: 'nats://localhost:4222'*/ }
+                nats: { servers: ['nats://localhost:4222'], debug: true }
             })
         ),
         addLogger,
-        pdms.startup,
+        nats.startup,
         server.startup
     ]
 
@@ -161,7 +161,7 @@ describe('webServer adapter', () => {
             })
         ),
         addLogger,
-        pdms.startup,
+        nats.startup,
         server.startup
     ]
 
@@ -176,7 +176,7 @@ describe('webServer adapter', () => {
             })
         ),
         addLogger,
-        pdms.startup,
+        nats.startup,
         server.startup
     ]
 
@@ -191,11 +191,11 @@ describe('webServer adapter', () => {
             })
         ),
         addLogger,
-        pdms.startup,
+        nats.startup,
         server.startup
     ]
 
-    const terminators = [server.shutdown, pdms.shutdown, testAdapter.shutdown]
+    const terminators = [server.shutdown, nats.shutdown, testAdapter.shutdown]
 
     it('#startup, #shutdown', (done) => {
         catchExitSignals(sandbox, done)
@@ -431,59 +431,22 @@ describe('webServer adapter', () => {
                     Accept: 'application/json',
                     [traceIdHeader]: traceIdValue
                 }
-            }).catch((error) => {
-                const { status, statusText, headers, data } = error.response
-                container.logger.error(
-                    `status: ${status}, statusText: ${statusText}, headers: ${JSON.stringify(
-                        headers
-                    )}, data: ${JSON.stringify(data)}`
-                )
-                expect(status).to.equal(500)
-                expect(data.message).to.equal('Client timeout')
-                next(null, null)
             })
-        }
-
-        npacStart(adaptersWithPdms, [testServer], terminators)
-    }).timeout(30000)
-
-    it('#call existing REST endpoint with PDMS forwarder function', (done) => {
-        catchExitSignals(sandbox, done)
-
-        const testServer = (container, next) => {
-            const { port } = container.config.webServer
-            const host = `http://localhost:${port}`
-            const restEndpointMethod = 'get'
-            const restEndpointPath = `/test/endpoint`
-            const expectedBody = { status: 'OK' }
-
-            // Add built-in service
-            container.pdms.add({ topic: 'easer', method: restEndpointMethod, uri: restEndpointPath }, (data, cb) => {
-                cb(null, {
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    },
-                    body: expectedBody
+                .then((resp) => {
+                    container.logger.info(`resp: ${JSON.stringify(resp)}`)
+                    next(null, null)
                 })
-            })
-
-            container.logger.info(`Run job to test server`)
-            axios({
-                method: restEndpointMethod,
-                url: `${host}${restEndpointPath}`,
-                withCredentials: true,
-                headers: {
-                    Accept: 'application/json',
-                    [traceIdHeader]: traceIdValue
-                }
-            }).then((response) => {
-                const { status, data } = response
-                expect(status).to.equal(200)
-                expect(data).to.eql(expectedBody)
-                expect(acceptCheckMwCall.calledOnce).to.be.true
-                expect(tracerMwCall.calledOnce).to.be.true
-                next(null, null)
-            })
+                .catch((error) => {
+                    const { status, statusText, headers, data } = error.response
+                    container.logger.error(
+                        `status: ${status}, statusText: ${statusText}, headers: ${JSON.stringify(
+                            headers
+                        )}, data: ${JSON.stringify(data)}`
+                    )
+                    expect(status).to.equal(503)
+                    expect(statusText).to.equal('Service Unavailable')
+                    next(null, null)
+                })
         }
 
         npacStart(adaptersWithPdms, [testServer], terminators)
@@ -676,5 +639,58 @@ describe('webServer adapter', () => {
         }
 
         npacStart(adaptersForMockingAndPdms, [testServer], terminators)
+    }).timeout(30000)
+
+    it('#call existing REST endpoint with PDMS forwarder function', (done) => {
+        catchExitSignals(sandbox, done)
+
+        const testServer = (container, next) => {
+            //console.log(`CONFIG: ${JSON.stringify(container.config, null, 4)}`)
+            const { port } = container.config.webServer
+            const host = `http://localhost:${port}`
+            const restEndpointMethod = 'get'
+            const restEndpointPath = `/test/endpoint`
+            //const restEndpointPath = `/test/endpoint-with-examples`
+            const responseMsg = {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json; charset=utf-8'
+                },
+                body: { status: 'OK' }
+            }
+
+            // Add built-in service
+            container.nats.response('easer', (err, payload, headers) => {
+                return {
+                    payload: JSON.stringify(responseMsg),
+                    headers: {
+                        'content-type': 'application/json',
+                        'message-type': 'rpc/response'
+                    }
+                }
+            })
+
+            container.logger.info(`Run job to test server`)
+            container.logger.debug(`axios request: ${restEndpointMethod} '${host}${restEndpointPath}'`)
+            axios({
+                method: restEndpointMethod,
+                url: `${host}${restEndpointPath}`,
+                withCredentials: true,
+                headers: {
+                    Accept: 'application/json',
+                    [traceIdHeader]: traceIdValue
+                }
+            }).then((response) => {
+                const { status, data } = response
+                container.logger.debug(`axios.response: ${status}, ${JSON.stringify(data)}}`)
+                expect(status).to.equal(200)
+                expect(data).to.eql(responseMsg.body)
+                expect(acceptCheckMwCall.calledOnce).to.be.true
+                expect(tracerMwCall.calledOnce).to.be.true
+                next(null, null)
+            })
+        }
+
+        npacStart(adaptersWithPdms, [testServer], terminators)
     }).timeout(30000)
 })

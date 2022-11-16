@@ -1,19 +1,15 @@
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.isPathBlackListed = exports.ignoreRouteLogging = exports.getLogBlackList = void 0;
+exports.isPathBlackListed = exports.ignoreRouteLogging = exports.getLogBlackList = undefined;
 
-var _lodash = _interopRequireDefault(require("lodash"));
+var _lodash = require('lodash');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+var _lodash2 = _interopRequireDefault(_lodash);
 
-/**
- * Helper functions required for logging
- *
- * @module logUtils
- */
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  * Make an array of strings out of a string that holds a comma-selarated list of URIs.
@@ -24,9 +20,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
  *
  * @function
  */
-var getLogBlackList = function getLogBlackList(pathsToSkipLogging) {
-  return !_lodash["default"].isUndefined(pathsToSkipLogging) && _lodash["default"].isString(pathsToSkipLogging) ? pathsToSkipLogging === '' ? [] : _lodash["default"].split(pathsToSkipLogging, ',') : [];
+var getLogBlackList = exports.getLogBlackList = function getLogBlackList(pathsToSkipLogging) {
+  return !_lodash2.default.isUndefined(pathsToSkipLogging) && _lodash2.default.isString(pathsToSkipLogging) ? pathsToSkipLogging === '' ? [] : _lodash2.default.split(pathsToSkipLogging, ',') : [];
 };
+
 /**
  * Tells if the path of the given request is on the blacklist, so it should be ignored for logging
  *
@@ -41,15 +38,17 @@ var getLogBlackList = function getLogBlackList(pathsToSkipLogging) {
  *
  * @function
  */
-
-
-exports.getLogBlackList = getLogBlackList;
-
-var ignoreRouteLogging = function ignoreRouteLogging(container) {
+/**
+ * Helper functions required for logging
+ *
+ * @module logUtils
+ */
+var ignoreRouteLogging = exports.ignoreRouteLogging = function ignoreRouteLogging(container) {
   return function (req, res) {
     return isPathBlackListed(container, req.path);
   };
 };
+
 /**
  * Tells if the path is blacklisted
  *
@@ -60,14 +59,8 @@ var ignoreRouteLogging = function ignoreRouteLogging(container) {
  *
  * @function
  */
-
-
-exports.ignoreRouteLogging = ignoreRouteLogging;
-
-var isPathBlackListed = function isPathBlackListed(container, path) {
-  return !_lodash["default"].isUndefined(_lodash["default"].find(container.config.webServer.logBlackList, function (it) {
+var isPathBlackListed = exports.isPathBlackListed = function isPathBlackListed(container, path) {
+  return !_lodash2.default.isUndefined(_lodash2.default.find(container.config.webServer.logBlackList, function (it) {
     return path.match(new RegExp(it));
   }));
 };
-
-exports.isPathBlackListed = isPathBlackListed;
