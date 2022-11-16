@@ -12,7 +12,7 @@ npac adapter with webServer api, using Express.js
 It is a complete web server, that loads the API specification from swagger/OpenApi descriptors.
 
 Use the public `startup` and `shutdown` functions defined in [`src/index.js`](src/index.js) within an [`npac`](http://tombenke.github.io/npac) container.
-To learn more about the functions visit the [homepage](http://tombenke.github.io/npac-webserver-adapter/api/).
+To learn more about the functions visit the [homepage](http://tombenke.github.io/npac-webserver-adapter/).
 See also the test cases in [`src/index.spec.js`](src/index.spec.js) as examples of how to configure and use the module.
 
 
