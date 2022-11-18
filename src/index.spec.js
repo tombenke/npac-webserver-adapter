@@ -141,7 +141,7 @@ describe('webServer adapter', () => {
     const adaptersWithPdms = [
         mergeConfig(
             _.merge({}, config, {
-                webServer: { usePdms: true },
+                webServer: { useMessaging: true },
                 nats: { servers: ['nats://localhost:4222'], debug: true }
             })
         ),
@@ -154,7 +154,7 @@ describe('webServer adapter', () => {
         mergeConfig(
             _.merge({}, config, {
                 webServer: {
-                    usePdms: false,
+                    useMessaging: false,
                     ignoreApiOperationIds: true,
                     enableMocking: false
                 }
@@ -169,7 +169,7 @@ describe('webServer adapter', () => {
         mergeConfig(
             _.merge({}, config, {
                 webServer: {
-                    usePdms: false,
+                    useMessaging: false,
                     ignoreApiOperationIds: true,
                     enableMocking: true
                 }
@@ -184,7 +184,7 @@ describe('webServer adapter', () => {
         mergeConfig(
             _.merge({}, config, {
                 webServer: {
-                    usePdms: true,
+                    useMessaging: true,
                     ignoreApiOperationIds: true,
                     enableMocking: true
                 }
@@ -234,7 +234,7 @@ describe('webServer adapter', () => {
         npacStart(adapters, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with no adapter function, NO PDMS used', (done) => {
+    it('#call existing REST endpoint with no adapter function, NO MESSAGING used', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -414,7 +414,7 @@ describe('webServer adapter', () => {
         npacStart(adapters, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with PDMS forwarder function - PDMS Client Timeout', (done) => {
+    it('#call existing REST endpoint with MESSAGING forwarder function - Messaging Client Timeout', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -579,7 +579,7 @@ describe('webServer adapter', () => {
         npacStart(adaptersForMocking, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call with PDMS and mocking enabled, no endpoint implementation, mock example exists', (done) => {
+    it('#call with MESSAGING and mocking enabled, no endpoint implementation, mock example exists', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -611,7 +611,7 @@ describe('webServer adapter', () => {
         npacStart(adaptersForMockingAndPdms, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call with PDMS and mocking enabled, no endpoint implementation, mock example does not exists', (done) => {
+    it('#call with MESSAGING and mocking enabled, no endpoint implementation, mock example does not exists', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -641,24 +641,25 @@ describe('webServer adapter', () => {
         npacStart(adaptersForMockingAndPdms, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with PDMS forwarder function', (done) => {
+    it('#call existing REST endpoint with MESSAGING forwarder function', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
-            const { port } = container.config.webServer
+            const { port, topicPrefix } = container.config.webServer
             const host = `http://localhost:${port}`
             const restEndpointMethod = 'get'
             const restEndpointPath = `/test/endpoint`
+            const jsonBodyObj = { status: 'OK' }
             const responseMsg = {
                 status: 200,
                 headers: {
                     'Content-Type': 'application/json; charset=utf-8'
                 },
-                body: { status: 'OK' }
+                body: Buffer.from(JSON.stringify(jsonBodyObj), 'utf-8').toString()
             }
 
             // Add built-in service
-            const topic = `${restEndpointMethod}_${restEndpointPath}`
+            const topic = `${topicPrefix}.${restEndpointMethod}_${restEndpointPath}`
             container.nats.response(topic, (err, payload, headers) => {
                 return {
                     payload: JSON.stringify(responseMsg),
@@ -680,10 +681,13 @@ describe('webServer adapter', () => {
                     [traceIdHeader]: traceIdValue
                 }
             }).then((response) => {
-                const { status, data } = response
-                container.logger.debug(`axios.response: ${status}, ${JSON.stringify(data)}}`)
+                const { status, headers, data } = response
+                const body = data
+                container.logger.debug(
+                    `axios.response: ${status}, headers: ${JSON.stringify(headers)}, data: ${JSON.stringify(body)}}`
+                )
                 expect(status).to.equal(200)
-                expect(data).to.eql(responseMsg.body)
+                //expect(jsonBodyObj).to.eql(body)
                 expect(acceptCheckMwCall.calledOnce).to.be.true
                 expect(tracerMwCall.calledOnce).to.be.true
                 next(null, null)

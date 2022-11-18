@@ -22,7 +22,7 @@ module.exports = {
      * @property {Array} logBlackList - The array of URIs that should not be logged. Default: `[]`. Env.: `WEBSERVER_LOG_BLACKLIST`, the comma-separated list of URI strings.
      * @property {Number} port - The port where the webserver will listen. Env.: `WEBSERVER_PORT`. Default: `3007`.
      * @property {Boolean} useCompression - If `true` then the server will use the compression middleware. Env: `WEBSERVER_USE_COMPRESSION`. Default: `false`.
-     * @property {Boolean} usePdms - If `true` the adapter will use the API call forwarding towards NATS topics. Env.: `WEBSERVER_USE_PDMS`. Default: `false`.
+     * @property {Boolean} useMessaging - If `true` the adapter will use the API call forwarding towards NATS topics. Env.: `WEBSERVER_USE_MESSAGING`. Default: `false`.
      * @property {Object} middlewares -The dictionary of middleware functions needs to be added. Defaults: `{ preRouting: [], postRouting: [] }`.
      * @property {String} restApiPath -The path to the root file of the swagger/OpenApi descriptor file(s) Env.: `WEBSERVER_RESTAPIPATH`.
      * @property {String} staticContentBasePath -The base path to the static endpoints of the REST API. Env.: `WEBSERVER_STATIC_CONTENT_BASEPATH`.
@@ -37,7 +37,8 @@ module.exports = {
         port: getIntEnv('WEBSERVER_PORT', 3007),
         useCompression: getBoolEnv('WEBSERVER_USE_COMPRESSION', false),
         useResponseTime: getBoolEnv('WEBSERVER_USE_RESPONSE_TIME', false),
-        usePdms: getBoolEnv('WEBSERVER_USE_PDMS', false),
+        useMessaging: getBoolEnv('WEBSERVER_USE_MESSAGING', false),
+        topicPrefix: process.env.WEBSERVER_TOPIC_PREFIX || 'easer',
         middlewares: { preRouting: [], postRouting: [] },
         restApiPath: process.env.WEBSERVER_RESTAPIPATH || path.resolve(),
         staticContentBasePath: process.env.WEBSERVER_STATIC_CONTENT_BASEPATH || path.resolve(),
