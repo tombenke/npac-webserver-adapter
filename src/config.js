@@ -38,6 +38,7 @@ module.exports = {
         useCompression: getBoolEnv('WEBSERVER_USE_COMPRESSION', false),
         useResponseTime: getBoolEnv('WEBSERVER_USE_RESPONSE_TIME', false),
         useMessaging: getBoolEnv('WEBSERVER_USE_MESSAGING', false),
+        messagingRequestTimeout: getIntEnv('WEBSERVER_MESSAGING_REQUEST_TIMEOUT', 2000),
         topicPrefix: process.env.WEBSERVER_TOPIC_PREFIX || 'easer',
         middlewares: { preRouting: [], postRouting: [] },
         restApiPath: process.env.WEBSERVER_RESTAPIPATH || path.resolve(),

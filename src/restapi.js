@@ -94,7 +94,7 @@ const mkHandlerFun = (container, endpoint) => (req, res, next) => {
         } else if (useMessaging) {
             // Do MESSAGING forwarding with or without mocking
             container.logger.debug('Do MESSAGING forwarding with or without mocking')
-            callPdmsForwarder(container, endpoint, req, res, next)
+            callMessagingForwarder(container, endpoint, req, res, next)
         } else {
             // No operationId, no MESSAGING forwarding enabled
             res.set(defaultResponseHeaders).status(501).json({
@@ -159,11 +159,11 @@ export const callServiceFuntion = (container, endpoint, req, res, serviceFun, ne
  *
  * @function
  */
-export const callPdmsForwarder = (container, endpoint, req, res, next) => {
+export const callMessagingForwarder = (container, endpoint, req, res, next) => {
     const topic = getTopicName(endpoint, container.config.webServer.topicPrefix)
-    container.logger.debug(`webserver.callPdmsForwarder: endpoint: "${JSON.stringify(endpoint)}" topic: ${topic}`)
+    container.logger.debug(`webserver.callMessagingForwarder: endpoint: "${JSON.stringify(endpoint)}" topic: ${topic}`)
     container.logger.info(
-        `webserver.callPdmsForwarder: nats.request: topic: "${topic}" method:"${endpoint.method}" uri:"${endpoint.uri}"`
+        `webserver.callMessagingForwarder: nats.request: topic: "${topic}" method:"${endpoint.method}" uri:"${endpoint.uri}"`
     )
     container.nats.request(
         topic,
@@ -183,11 +183,11 @@ export const callPdmsForwarder = (container, endpoint, req, res, next) => {
                 body: Buffer.isBuffer(req.body) ? Buffer.from(req.body).toString() : req.body
             }
         }),
-        1000,
+        container.config.webServer.messagingRequestTimeout,
         { 'content-type': 'application/json', 'message-type': 'rpc/request' },
         (err, respPayload, respHeaders) => {
             if (err) {
-                container.logger.error(`webserver.callPdmsForwarder: ERR ${JSON.stringify(err)}`)
+                container.logger.error(`webserver.callMessagingForwarder: ERR ${JSON.stringify(err)}`)
 
                 // In case both MESSAGING and mocking is enabled,
                 // then get prepared for catch unhandled MESSAGING endpoints
@@ -210,7 +210,9 @@ export const callPdmsForwarder = (container, endpoint, req, res, next) => {
                     }
                 } else {
                     container.logger.debug(
-                        `webserver.callPdmsForwarder: Send response with status: 500, content: ${JSON.stringify(err)}`
+                        `webserver.callMessagingForwarder: Send response with status: 500, content: ${JSON.stringify(
+                            err
+                        )}`
                     )
                     if (err.code === '503') {
                         res.set(defaultHeaders).status(503).send(err)
@@ -227,7 +229,7 @@ export const callPdmsForwarder = (container, endpoint, req, res, next) => {
                 const respHeaders = resp.headers || {}
                 const respBody = resp.body
                 container.logger.debug(
-                    `webserver.callPdmsForwarder: response with status: ${respStatus} headers: ${JSON.stringify(
+                    `webserver.callMessagingForwarder: response with status: ${respStatus} headers: ${JSON.stringify(
                         respHeaders
                     )}, body: ${respBody}`
                 )

@@ -18,6 +18,7 @@ describe('server/config', () => {
                 useCompression: false,
                 useResponseTime: false,
                 useMessaging: false,
+                messagingRequestTimeout: 2000,
                 topicPrefix: 'easer',
                 middlewares: { preRouting: [], postRouting: [] },
                 restApiPath: path.resolve(),

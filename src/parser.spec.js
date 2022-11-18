@@ -82,10 +82,10 @@ describe('webServer adapter with parsing enabled', () => {
         done()
     })
 
-    const adaptersWithPdms = [
+    const adaptersWithMessaging = [
         mergeConfig(
             _.merge({}, config, {
-                webServer: { usePdms: true },
+                webServer: { useMessaging: true },
                 nats: { servers: ['nats://localhost:4222'], debug: true, timeout: 2500 }
             })
         ),
@@ -128,7 +128,7 @@ describe('webServer adapter with parsing enabled', () => {
             })
         }
 
-        npacStart(adaptersWithPdms, [testServer], terminators)
+        npacStart(adaptersWithMessaging, [testServer], terminators)
     }).timeout(30000)
 
     it('#call POST endpoint with XML body parser. Accept: "text/xml"', (done) => {
@@ -170,7 +170,7 @@ describe('webServer adapter with parsing enabled', () => {
             })
         }
 
-        npacStart(adaptersWithPdms, [testServer], terminators)
+        npacStart(adaptersWithMessaging, [testServer], terminators)
     }).timeout(30000)
 
     it('#call POST endpoint with URL encoded body parser. Accept: "application/x-www-form-urlencoded"', (done) => {
@@ -204,7 +204,7 @@ describe('webServer adapter with parsing enabled', () => {
             })
         }
 
-        npacStart(adaptersWithPdms, [testServer], terminators)
+        npacStart(adaptersWithMessaging, [testServer], terminators)
     }).timeout(30000)
 })
 
@@ -239,10 +239,10 @@ describe('webServer adapter with only raw parsing', () => {
         done()
     })
 
-    const adaptersWithPdms = [
+    const adaptersWithMessaging = [
         mergeConfig(
             _.merge({}, config, {
-                webServer: { usePdms: true },
+                webServer: { useMessaging: true },
                 nats: { timeout: 2500 }
             })
         ),
@@ -284,6 +284,6 @@ describe('webServer adapter with only raw parsing', () => {
             })
         }
 
-        npacStart(adaptersWithPdms, [testServer], terminators)
+        npacStart(adaptersWithMessaging, [testServer], terminators)
     }).timeout(30000)
 })

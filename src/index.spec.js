@@ -138,7 +138,7 @@ describe('webServer adapter', () => {
         server.startup
     ]
 
-    const adaptersWithPdms = [
+    const adaptersWithMessaging = [
         mergeConfig(
             _.merge({}, config, {
                 webServer: { useMessaging: true },
@@ -180,7 +180,7 @@ describe('webServer adapter', () => {
         server.startup
     ]
 
-    const adaptersForMockingAndPdms = [
+    const adaptersForMockingAndMessaging = [
         mergeConfig(
             _.merge({}, config, {
                 webServer: {
@@ -449,7 +449,7 @@ describe('webServer adapter', () => {
                 })
         }
 
-        npacStart(adaptersWithPdms, [testServer], terminators)
+        npacStart(adaptersWithMessaging, [testServer], terminators)
     }).timeout(30000)
 
     it('#call existing REST endpoint with mocking but no examples', (done) => {
@@ -608,7 +608,7 @@ describe('webServer adapter', () => {
             })
         }
 
-        npacStart(adaptersForMockingAndPdms, [testServer], terminators)
+        npacStart(adaptersForMockingAndMessaging, [testServer], terminators)
     }).timeout(30000)
 
     it('#call with MESSAGING and mocking enabled, no endpoint implementation, mock example does not exists', (done) => {
@@ -638,7 +638,7 @@ describe('webServer adapter', () => {
             })
         }
 
-        npacStart(adaptersForMockingAndPdms, [testServer], terminators)
+        npacStart(adaptersForMockingAndMessaging, [testServer], terminators)
     }).timeout(30000)
 
     it('#call existing REST endpoint with MESSAGING forwarder function with JSON response', (done) => {
@@ -696,7 +696,7 @@ describe('webServer adapter', () => {
             })
         }
 
-        npacStart(adaptersWithPdms, [testServer], terminators)
+        npacStart(adaptersWithMessaging, [testServer], terminators)
     }).timeout(30000)
 
     it('#call existing REST endpoint with MESSAGING forwarder function with XML response', (done) => {
@@ -750,6 +750,6 @@ describe('webServer adapter', () => {
             })
         }
 
-        npacStart(adaptersWithPdms, [testServer], terminators)
+        npacStart(adaptersWithMessaging, [testServer], terminators)
     }).timeout(30000)
 })
