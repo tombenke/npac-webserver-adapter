@@ -641,7 +641,7 @@ describe('webServer adapter', () => {
         npacStart(adaptersForMockingAndPdms, [testServer], terminators)
     }).timeout(30000)
 
-    it('#call existing REST endpoint with MESSAGING forwarder function', (done) => {
+    it('#call existing REST endpoint with MESSAGING forwarder function with JSON response', (done) => {
         catchExitSignals(sandbox, done)
 
         const testServer = (container, next) => {
@@ -655,7 +655,9 @@ describe('webServer adapter', () => {
                 headers: {
                     'Content-Type': 'application/json; charset=utf-8'
                 },
-                body: Buffer.from(JSON.stringify(jsonBodyObj), 'utf-8').toString()
+                body: JSON.stringify(jsonBodyObj)
+                // Could work from buffer as well:
+                // body: Buffer.from(JSON.stringify(jsonBodyObj), 'utf-8').toString()
             }
 
             // Add built-in service
@@ -687,7 +689,61 @@ describe('webServer adapter', () => {
                     `axios.response: ${status}, headers: ${JSON.stringify(headers)}, data: ${JSON.stringify(body)}}`
                 )
                 expect(status).to.equal(200)
-                //expect(jsonBodyObj).to.eql(body)
+                expect(jsonBodyObj).to.eql(body)
+                expect(acceptCheckMwCall.calledOnce).to.be.true
+                expect(tracerMwCall.calledOnce).to.be.true
+                next(null, null)
+            })
+        }
+
+        npacStart(adaptersWithPdms, [testServer], terminators)
+    }).timeout(30000)
+
+    it('#call existing REST endpoint with MESSAGING forwarder function with XML response', (done) => {
+        catchExitSignals(sandbox, done)
+
+        const testServer = (container, next) => {
+            const { port, topicPrefix } = container.config.webServer
+            const host = `http://localhost:${port}`
+            const restEndpointMethod = 'get'
+            const restEndpointPath = `/test/endpoint`
+            const xmlBodyStr = '<?xml version="1.0" encoding="UTF-8"?><status>OK</status>'
+            const responseMsg = {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json; charset=utf-8'
+                },
+                body: xmlBodyStr
+            }
+
+            // Add built-in service
+            const topic = `${topicPrefix}.${restEndpointMethod}_${restEndpointPath}`
+            container.nats.response(topic, (err, payload, headers) => {
+                return {
+                    payload: JSON.stringify(responseMsg),
+                    headers: {
+                        'content-type': 'text/xml',
+                        'message-type': 'rpc/response'
+                    }
+                }
+            })
+
+            container.logger.info(`Run job to test server`)
+            container.logger.debug(`axios request: ${restEndpointMethod} '${host}${restEndpointPath}'`)
+            axios({
+                method: restEndpointMethod,
+                url: `${host}${restEndpointPath}`,
+                withCredentials: true,
+                headers: {
+                    Accept: 'text/xml',
+                    [traceIdHeader]: traceIdValue
+                }
+            }).then((response) => {
+                const { status, headers, data } = response
+                const body = data
+                container.logger.debug(`axios.response: ${status}, headers: ${JSON.stringify(headers)}, data: ${body}}`)
+                expect(status).to.equal(200)
+                expect(xmlBodyStr).to.eql(body)
                 expect(acceptCheckMwCall.calledOnce).to.be.true
                 expect(tracerMwCall.calledOnce).to.be.true
                 next(null, null)
