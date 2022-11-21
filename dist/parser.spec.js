@@ -112,8 +112,8 @@ describe('webServer adapter with parsing enabled', function () {
         done();
     });
 
-    var adaptersWithPdms = [(0, _npac.mergeConfig)(_.merge({}, config, {
-        webServer: { usePdms: true },
+    var adaptersWithMessaging = [(0, _npac.mergeConfig)(_.merge({}, config, {
+        webServer: { useMessaging: true },
         nats: { servers: ['nats://localhost:4222'], debug: true, timeout: 2500 }
     })), _npac.addLogger, nats.startup, testAdapter.startup, server.startup];
 
@@ -154,7 +154,7 @@ describe('webServer adapter with parsing enabled', function () {
             });
         };
 
-        (0, _npac.npacStart)(adaptersWithPdms, [testServer], terminators);
+        (0, _npac.npacStart)(adaptersWithMessaging, [testServer], terminators);
     }).timeout(30000);
 
     it('#call POST endpoint with XML body parser. Accept: "text/xml"', function (done) {
@@ -196,7 +196,7 @@ describe('webServer adapter with parsing enabled', function () {
             });
         };
 
-        (0, _npac.npacStart)(adaptersWithPdms, [testServer], terminators);
+        (0, _npac.npacStart)(adaptersWithMessaging, [testServer], terminators);
     }).timeout(30000);
 
     it('#call POST endpoint with URL encoded body parser. Accept: "application/x-www-form-urlencoded"', function (done) {
@@ -234,7 +234,7 @@ describe('webServer adapter with parsing enabled', function () {
             });
         };
 
-        (0, _npac.npacStart)(adaptersWithPdms, [testServer], terminators);
+        (0, _npac.npacStart)(adaptersWithMessaging, [testServer], terminators);
     }).timeout(30000);
 });
 
@@ -269,8 +269,8 @@ describe('webServer adapter with only raw parsing', function () {
         done();
     });
 
-    var adaptersWithPdms = [(0, _npac.mergeConfig)(_.merge({}, config, {
-        webServer: { usePdms: true },
+    var adaptersWithMessaging = [(0, _npac.mergeConfig)(_.merge({}, config, {
+        webServer: { useMessaging: true },
         nats: { timeout: 2500 }
     })), _npac.addLogger, nats.startup, testAdapter.startup, server.startup];
 
@@ -310,6 +310,6 @@ describe('webServer adapter with only raw parsing', function () {
             });
         };
 
-        (0, _npac.npacStart)(adaptersWithPdms, [testServer], terminators);
+        (0, _npac.npacStart)(adaptersWithMessaging, [testServer], terminators);
     }).timeout(30000);
 });

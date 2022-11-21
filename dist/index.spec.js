@@ -167,14 +167,14 @@ describe('webServer adapter', function () {
         webServer: { basePath: '/base/path' }
     })), _npac.addLogger, testAdapter.startup, nats.startup, server.startup];
 
-    var adaptersWithPdms = [(0, _npac.mergeConfig)(_.merge({}, config, {
-        webServer: { usePdms: true },
+    var adaptersWithMessaging = [(0, _npac.mergeConfig)(_.merge({}, config, {
+        webServer: { useMessaging: true },
         nats: { servers: ['nats://localhost:4222'], debug: true }
     })), _npac.addLogger, nats.startup, server.startup];
 
     var adaptersForIgnoreOperationIds = [(0, _npac.mergeConfig)(_.merge({}, config, {
         webServer: {
-            usePdms: false,
+            useMessaging: false,
             ignoreApiOperationIds: true,
             enableMocking: false
         }
@@ -182,15 +182,15 @@ describe('webServer adapter', function () {
 
     var adaptersForMocking = [(0, _npac.mergeConfig)(_.merge({}, config, {
         webServer: {
-            usePdms: false,
+            useMessaging: false,
             ignoreApiOperationIds: true,
             enableMocking: true
         }
     })), _npac.addLogger, nats.startup, server.startup];
 
-    var adaptersForMockingAndPdms = [(0, _npac.mergeConfig)(_.merge({}, config, {
+    var adaptersForMockingAndMessaging = [(0, _npac.mergeConfig)(_.merge({}, config, {
         webServer: {
-            usePdms: true,
+            useMessaging: true,
             ignoreApiOperationIds: true,
             enableMocking: true
         }
@@ -237,7 +237,7 @@ describe('webServer adapter', function () {
         (0, _npac.npacStart)(adapters, [testServer], terminators);
     }).timeout(30000);
 
-    it('#call existing REST endpoint with no adapter function, NO PDMS used', function (done) {
+    it('#call existing REST endpoint with no adapter function, NO MESSAGING used', function (done) {
         (0, _npac.catchExitSignals)(sandbox, done);
 
         var testServer = function testServer(container, next) {
@@ -427,7 +427,7 @@ describe('webServer adapter', function () {
         (0, _npac.npacStart)(adapters, [testServer], terminators);
     }).timeout(30000);
 
-    it('#call existing REST endpoint with PDMS forwarder function - PDMS Client Timeout', function (done) {
+    it('#call existing REST endpoint with MESSAGING forwarder function - Messaging Client Timeout', function (done) {
         (0, _npac.catchExitSignals)(sandbox, done);
 
         var testServer = function testServer(container, next) {
@@ -461,7 +461,7 @@ describe('webServer adapter', function () {
             });
         };
 
-        (0, _npac.npacStart)(adaptersWithPdms, [testServer], terminators);
+        (0, _npac.npacStart)(adaptersWithMessaging, [testServer], terminators);
     }).timeout(30000);
 
     it('#call existing REST endpoint with mocking but no examples', function (done) {
@@ -600,7 +600,7 @@ describe('webServer adapter', function () {
         (0, _npac.npacStart)(adaptersForMocking, [testServer], terminators);
     }).timeout(30000);
 
-    it('#call with PDMS and mocking enabled, no endpoint implementation, mock example exists', function (done) {
+    it('#call with MESSAGING and mocking enabled, no endpoint implementation, mock example exists', function (done) {
         (0, _npac.catchExitSignals)(sandbox, done);
 
         var testServer = function testServer(container, next) {
@@ -632,10 +632,10 @@ describe('webServer adapter', function () {
             });
         };
 
-        (0, _npac.npacStart)(adaptersForMockingAndPdms, [testServer], terminators);
+        (0, _npac.npacStart)(adaptersForMockingAndMessaging, [testServer], terminators);
     }).timeout(30000);
 
-    it('#call with PDMS and mocking enabled, no endpoint implementation, mock example does not exists', function (done) {
+    it('#call with MESSAGING and mocking enabled, no endpoint implementation, mock example does not exists', function (done) {
         (0, _npac.catchExitSignals)(sandbox, done);
 
         var testServer = function testServer(container, next) {
@@ -666,27 +666,33 @@ describe('webServer adapter', function () {
             });
         };
 
-        (0, _npac.npacStart)(adaptersForMockingAndPdms, [testServer], terminators);
+        (0, _npac.npacStart)(adaptersForMockingAndMessaging, [testServer], terminators);
     }).timeout(30000);
 
-    it('#call existing REST endpoint with PDMS forwarder function', function (done) {
+    it('#call existing REST endpoint with MESSAGING forwarder function with JSON response', function (done) {
         (0, _npac.catchExitSignals)(sandbox, done);
 
         var testServer = function testServer(container, next) {
-            var port = container.config.webServer.port;
+            var _container$config$web = container.config.webServer,
+                port = _container$config$web.port,
+                topicPrefix = _container$config$web.topicPrefix;
 
             var host = 'http://localhost:' + port;
             var restEndpointMethod = 'get';
             var restEndpointPath = '/test/endpoint';
+            var jsonBodyObj = { status: 'OK' };
             var responseMsg = {
                 status: 200,
                 headers: {
                     'Content-Type': 'application/json; charset=utf-8'
                 },
-                body: { status: 'OK' }
+                body: JSON.stringify(jsonBodyObj)
+                // Could work from buffer as well:
+                // body: Buffer.from(JSON.stringify(jsonBodyObj), 'utf-8').toString()
+
 
                 // Add built-in service
-            };var topic = restEndpointMethod + '_' + restEndpointPath;
+            };var topic = topicPrefix + '.' + restEndpointMethod + '_' + restEndpointPath;
             container.nats.response(topic, function (err, payload, headers) {
                 return {
                     payload: JSON.stringify(responseMsg),
@@ -708,17 +714,77 @@ describe('webServer adapter', function () {
                 }, traceIdHeader, traceIdValue)
             }).then(function (response) {
                 var status = response.status,
+                    headers = response.headers,
                     data = response.data;
 
-                container.logger.debug('axios.response: ' + status + ', ' + JSON.stringify(data) + '}');
+                var body = data;
+                container.logger.debug('axios.response: ' + status + ', headers: ' + JSON.stringify(headers) + ', data: ' + JSON.stringify(body) + '}');
                 (0, _chai.expect)(status).to.equal(200);
-                (0, _chai.expect)(data).to.eql(responseMsg.body);
+                (0, _chai.expect)(jsonBodyObj).to.eql(body);
                 (0, _chai.expect)(acceptCheckMwCall.calledOnce).to.be.true;
                 (0, _chai.expect)(tracerMwCall.calledOnce).to.be.true;
                 next(null, null);
             });
         };
 
-        (0, _npac.npacStart)(adaptersWithPdms, [testServer], terminators);
+        (0, _npac.npacStart)(adaptersWithMessaging, [testServer], terminators);
+    }).timeout(30000);
+
+    it('#call existing REST endpoint with MESSAGING forwarder function with XML response', function (done) {
+        (0, _npac.catchExitSignals)(sandbox, done);
+
+        var testServer = function testServer(container, next) {
+            var _container$config$web2 = container.config.webServer,
+                port = _container$config$web2.port,
+                topicPrefix = _container$config$web2.topicPrefix;
+
+            var host = 'http://localhost:' + port;
+            var restEndpointMethod = 'get';
+            var restEndpointPath = '/test/endpoint';
+            var xmlBodyStr = '<?xml version="1.0" encoding="UTF-8"?><status>OK</status>';
+            var responseMsg = {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json; charset=utf-8'
+                },
+                body: xmlBodyStr
+
+                // Add built-in service
+            };var topic = topicPrefix + '.' + restEndpointMethod + '_' + restEndpointPath;
+            container.nats.response(topic, function (err, payload, headers) {
+                return {
+                    payload: JSON.stringify(responseMsg),
+                    headers: {
+                        'content-type': 'text/xml',
+                        'message-type': 'rpc/response'
+                    }
+                };
+            });
+
+            container.logger.info('Run job to test server');
+            container.logger.debug('axios request: ' + restEndpointMethod + ' \'' + host + restEndpointPath + '\'');
+            (0, _axios2.default)({
+                method: restEndpointMethod,
+                url: '' + host + restEndpointPath,
+                withCredentials: true,
+                headers: _defineProperty({
+                    Accept: 'text/xml'
+                }, traceIdHeader, traceIdValue)
+            }).then(function (response) {
+                var status = response.status,
+                    headers = response.headers,
+                    data = response.data;
+
+                var body = data;
+                container.logger.debug('axios.response: ' + status + ', headers: ' + JSON.stringify(headers) + ', data: ' + body + '}');
+                (0, _chai.expect)(status).to.equal(200);
+                (0, _chai.expect)(xmlBodyStr).to.eql(body);
+                (0, _chai.expect)(acceptCheckMwCall.calledOnce).to.be.true;
+                (0, _chai.expect)(tracerMwCall.calledOnce).to.be.true;
+                next(null, null);
+            });
+        };
+
+        (0, _npac.npacStart)(adaptersWithMessaging, [testServer], terminators);
     }).timeout(30000);
 });

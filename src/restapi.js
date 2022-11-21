@@ -165,6 +165,7 @@ export const callMessagingForwarder = (container, endpoint, req, res, next) => {
     container.logger.info(
         `webserver.callMessagingForwarder: nats.request: topic: "${topic}" method:"${endpoint.method}" uri:"${endpoint.uri}"`
     )
+    container.logger.debug(`webserver.callMessagingForwarder: req.body is buffer: "${Buffer.isBuffer(req.body)}`)
     container.nats.request(
         topic,
         JSON.stringify({
