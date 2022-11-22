@@ -41,7 +41,7 @@
     "express-xml-bodyparser": "^0.3.0",
     "lodash": "^4.17.21",
     "npac": "^2.1.11",
-    "npac-nats-adapter": "^1.0.2",
+    "npac-nats-adapter": "^1.0.3",
     "response-time": "^2.3.2",
     "rest-tool-common": "^2.7.7",
     "serve-index": "^1.9.1"
