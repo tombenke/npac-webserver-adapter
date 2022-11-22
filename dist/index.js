@@ -1,22 +1,16 @@
-'use strict';
+"use strict";
 
-var _path = require('path');
-
-var _path2 = _interopRequireDefault(_path);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _config = require('./config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _restToolCommon = require('rest-tool-common');
-
-var _server = require('./server');
-
+var _path = _interopRequireDefault(require("path"));
+var _lodash = _interopRequireDefault(require("lodash"));
+var _config = _interopRequireDefault(require("./config"));
+var _restToolCommon = require("rest-tool-common");
+var _server = require("./server");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+/**
+ * The main module of the webserver adapter.
+ *
+ * @module npac-webserver-adapter
+ */
 
 /**
  * Resolve the swagger descriptor to be loaded.
@@ -28,15 +22,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  * @function
  */
-var resolveOasFile = function resolveOasFile(container, oasFile) {
-    if (_lodash2.default.isString(oasFile)) {
-        // It is a path string
-        var oasFilePath = _path2.default.resolve(oasFile);
-        container.logger.info('Load endpoints from ' + oasFilePath);
-        return oasFilePath;
-    }
-    // oasFile must be a swagger object
-    return oasFile;
+const resolveOasFile = (container, oasFile) => {
+  if (_lodash.default.isString(oasFile)) {
+    // It is a path string
+    const oasFilePath = _path.default.resolve(oasFile);
+    container.logger.info(`Load endpoints from ${oasFilePath}`);
+    return oasFilePath;
+  }
+  // oasFile must be a swagger object
+  return oasFile;
 };
 
 /**
@@ -57,31 +51,27 @@ var resolveOasFile = function resolveOasFile(container, oasFile) {
  *
  * @function
  */
-/**
- * The main module of the webserver adapter.
- *
- * @module npac-webserver-adapter
- */
+const startup = (container, next) => {
+  // Merges the defaults with the config coming from the outer world
+  const config = _lodash.default.merge({}, _config.default, {
+    webServer: container.config.webServer || {}
+  });
 
-var startup = function startup(container, next) {
-    // Merges the defaults with the config coming from the outer world
-    var config = _lodash2.default.merge({}, _config2.default, { webServer: container.config.webServer || {} });
-
-    // Load the Swagger/OpenAPI format API definition
-    var oasFile = resolveOasFile(container, config.webServer.restApiPath);
-    return (0, _restToolCommon.loadOas)(oasFile, config.webServer.oasConfig).then(function (api) {
-        (0, _server.startupServer)(container, api).then(function (httpInstance) {
-            // Call next setup function with the context extension
-            next(null, {
-                webServer: {
-                    server: httpInstance
-                }
-            });
-        });
-    }).catch(function (err) {
-        container.logger.error('API loading error ' + err);
-        next(err, err);
+  // Load the Swagger/OpenAPI format API definition
+  const oasFile = resolveOasFile(container, config.webServer.restApiPath);
+  return (0, _restToolCommon.loadOas)(oasFile, config.webServer.oasConfig).then(api => {
+    (0, _server.startupServer)(container, api).then(httpInstance => {
+      // Call next setup function with the context extension
+      next(null, {
+        webServer: {
+          server: httpInstance
+        }
+      });
     });
+  }).catch(err => {
+    container.logger.error(`API loading error ${err}`);
+    next(err, err);
+  });
 };
 
 /**
@@ -96,13 +86,12 @@ var startup = function startup(container, next) {
  *
  * @function
  */
-var shutdown = function shutdown(container, next) {
-    (0, _server.shutdownServer)(container);
-    next(null, null);
+const shutdown = (container, next) => {
+  (0, _server.shutdownServer)(container);
+  next(null, null);
 };
-
 module.exports = {
-    defaults: _config2.default,
-    startup: startup,
-    shutdown: shutdown
+  defaults: _config.default,
+  startup: startup,
+  shutdown: shutdown
 };

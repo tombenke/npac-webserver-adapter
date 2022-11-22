@@ -28,8 +28,7 @@
   "bin": {},
   "main": "./dist/index.js",
   "dependencies": {
-    "@babel/core": "^7.20.2",
-    "@babel/preset-env": "^7.20.2",
+    "core-js": "^3.26.1",
     "axios": "^0.26.1",
     "circular-json-es6": "^2.0.2",
     "compression": "^1.7.4",
@@ -47,14 +46,10 @@
     "serve-index": "^1.9.1"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-loader": "^9.1.0",
-    "babel-plugin-transform-es2015-parameters": "^6.24.1",
-    "babel-plugin-transform-object-rest-spread": "6.26.0",
-    "babel-polyfill": "6.26.0",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-latest": "6.24.1",
-    "babel-register": "^6.26.0",
+    "@babel/cli": "^7.19.3",
+    "@babel/core": "^7.20.2",
+    "@babel/preset-env": "^7.20.2",
+    "@babel/register": "^7.18.9",
     "chai": "^4.3.7",
     "cross-env": "^7.0.3",
     "datafile": "^3.4.6",
@@ -77,12 +72,11 @@
     ]
   },
   "scripts": {
-    "build": "babel src --presets babel-preset-es2015 --out-dir dist",
+    "build": "babel src --out-dir dist",
     "lint": "eslint src/**.js",
-    "test": "cross-env NODE_ENV=test mocha --recursive --require babel-register 'src/**/*.spec.js'",
+    "test": "cross-env NODE_ENV=test mocha --recursive --require @babel/register 'src/**/*.spec.js'",
     "test:watch": "npm test -- --watch",
-    "coverage": "NODE_ENV=test istanbul cover _mocha -- recursive --require babel-register --timeout 15000 'src/**/*.spec.js'",
-    "coveralls": "NODE_ENV=test istanbul cover _mocha --report lcovonly -- recursive --require babel-register --timeout 15000 'src/**/*.spec.js' -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "coverage": "NODE_ENV=test istanbul cover _mocha -- recursive --require @babel/register --timeout 15000 'src/**/*.spec.js'",
     "docs": "rm -fr ./docs/api/* && jsdoc -c ./.jsdoc.json",
     "prettier": "prettier --single-quote --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
     "all": "npm run coverage && npm run build && npm run docs"

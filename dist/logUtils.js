@@ -1,15 +1,16 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.isPathBlackListed = exports.ignoreRouteLogging = exports.getLogBlackList = undefined;
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
+exports.isPathBlackListed = exports.ignoreRouteLogging = exports.getLogBlackList = void 0;
+var _lodash = _interopRequireDefault(require("lodash"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+/**
+ * Helper functions required for logging
+ *
+ * @module logUtils
+ */
 
 /**
  * Make an array of strings out of a string that holds a comma-selarated list of URIs.
@@ -20,9 +21,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  * @function
  */
-var getLogBlackList = exports.getLogBlackList = function getLogBlackList(pathsToSkipLogging) {
-  return !_lodash2.default.isUndefined(pathsToSkipLogging) && _lodash2.default.isString(pathsToSkipLogging) ? pathsToSkipLogging === '' ? [] : _lodash2.default.split(pathsToSkipLogging, ',') : [];
-};
+const getLogBlackList = pathsToSkipLogging => !_lodash.default.isUndefined(pathsToSkipLogging) && _lodash.default.isString(pathsToSkipLogging) ? pathsToSkipLogging === '' ? [] : _lodash.default.split(pathsToSkipLogging, ',') : [];
 
 /**
  * Tells if the path of the given request is on the blacklist, so it should be ignored for logging
@@ -38,16 +37,8 @@ var getLogBlackList = exports.getLogBlackList = function getLogBlackList(pathsTo
  *
  * @function
  */
-/**
- * Helper functions required for logging
- *
- * @module logUtils
- */
-var ignoreRouteLogging = exports.ignoreRouteLogging = function ignoreRouteLogging(container) {
-  return function (req, res) {
-    return isPathBlackListed(container, req.path);
-  };
-};
+exports.getLogBlackList = getLogBlackList;
+const ignoreRouteLogging = container => (req, res) => isPathBlackListed(container, req.path);
 
 /**
  * Tells if the path is blacklisted
@@ -59,8 +50,6 @@ var ignoreRouteLogging = exports.ignoreRouteLogging = function ignoreRouteLoggin
  *
  * @function
  */
-var isPathBlackListed = exports.isPathBlackListed = function isPathBlackListed(container, path) {
-  return !_lodash2.default.isUndefined(_lodash2.default.find(container.config.webServer.logBlackList, function (it) {
-    return path.match(new RegExp(it));
-  }));
-};
+exports.ignoreRouteLogging = ignoreRouteLogging;
+const isPathBlackListed = (container, path) => !_lodash.default.isUndefined(_lodash.default.find(container.config.webServer.logBlackList, it => path.match(new RegExp(it))));
+exports.isPathBlackListed = isPathBlackListed;

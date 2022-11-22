@@ -1,62 +1,55 @@
-'use strict';
+"use strict";
 
-var _path = require('path');
-
-var _path2 = _interopRequireDefault(_path);
-
-var _chai = require('chai');
-
-var _config = require('./config');
-
-var _config2 = _interopRequireDefault(_config);
-
+var _path = _interopRequireDefault(require("path"));
+var _chai = require("chai");
+var _config = _interopRequireDefault(require("./config"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-before(function (done) {
-    done();
+before(done => {
+  done();
 });
-after(function (done) {
-    done();
+after(done => {
+  done();
 });
-
-describe('server/config', function () {
-    it('defaults', function (done) {
-        var expected = {
-            webServer: {
-                logBlackList: [],
-                port: 3007,
-                useCompression: false,
-                useResponseTime: false,
-                useMessaging: false,
-                messagingRequestTimeout: 2000,
-                topicPrefix: 'easer',
-                middlewares: { preRouting: [], postRouting: [] },
-                restApiPath: _path2.default.resolve(),
-                staticContentBasePath: _path2.default.resolve(),
-                ignoreApiOperationIds: false,
-                enableMocking: false,
-                basePath: '/',
-                oasConfig: {
-                    parse: {
-                        yaml: {
-                            allowEmpty: false
-                        },
-                        resolve: {
-                            file: true
-                        }
-                    }
-                },
-                bodyParser: {
-                    raw: true,
-                    json: false,
-                    xml: false,
-                    urlencoded: false
-                }
+describe('server/config', () => {
+  it('defaults', done => {
+    const expected = {
+      webServer: {
+        logBlackList: [],
+        port: 3007,
+        useCompression: false,
+        useResponseTime: false,
+        useMessaging: false,
+        messagingRequestTimeout: 2000,
+        topicPrefix: 'easer',
+        middlewares: {
+          preRouting: [],
+          postRouting: []
+        },
+        restApiPath: _path.default.resolve(),
+        staticContentBasePath: _path.default.resolve(),
+        ignoreApiOperationIds: false,
+        enableMocking: false,
+        basePath: '/',
+        oasConfig: {
+          parse: {
+            yaml: {
+              allowEmpty: false
+            },
+            resolve: {
+              file: true
             }
-        };
-
-        var defaults = _config2.default;
-        (0, _chai.expect)(defaults).to.eql(expected);
-        done();
-    });
+          }
+        },
+        bodyParser: {
+          raw: true,
+          json: false,
+          xml: false,
+          urlencoded: false
+        }
+      }
+    };
+    const defaults = _config.default;
+    (0, _chai.expect)(defaults).to.eql(expected);
+    done();
+  });
 });
