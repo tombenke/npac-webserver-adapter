@@ -34,6 +34,7 @@ export const setEndpoints = (container, server, endpoints) => {
     // Setup endpoints
     _.map(endpoints, (endpoint) => {
         server[endpoint.method](basePath + endpoint.jsfUri, mkHandlerFun(container, endpoint))
+        container.logger.debug(`Add handler function to server[${endpoint.method}](${basePath + endpoint.jsfUri})`)
     })
 }
 const defaultResponseHeaders = {
