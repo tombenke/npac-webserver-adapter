@@ -1,6 +1,6 @@
 import { addLogger, mergeConfig, removeSignalHandlers, catchExitSignals, npacStart } from 'npac'
 import sinon from 'sinon'
-import { expect } from 'chai'
+import expect from 'expect'
 import defaults from './config'
 import * as server from './index'
 import * as nats from 'npac-nats-adapter'
@@ -73,12 +73,13 @@ describe('webServer adapter', () => {
 
     const acceptCheckMiddleware = (container) => (req, res, next) => {
         container.logger.debug(`acceptCheckMiddleware is called ${req.accepts()}`)
-        expect(_.includes(accepts, req.accepts()[0])).to.be.true
+        expect(_.includes(accepts, req.accepts()[0])).toEqual(true)
         acceptCheckMwCall()
         next()
     }
 
     const tracerMiddleware = (container) => (req, res, next) => {
+        container.logger.debug(`tracerMiddleware is called ${req.accepts()}`)
         //        const { hostname, originalUrl, route, method } = req
         const traceId = req.get(traceIdHeader)
         //        const { statusCode } = res
@@ -87,8 +88,8 @@ describe('webServer adapter', () => {
         //        container.logger.debug(
         //            `MiddlewareFn is called: ${method} "${hostname}" "${originalUrl}" "${traceId}" => ${statusCode} ${contentLength} ${responseTime} ============================`
         //        )
-        expect(traceId).to.be.equal(traceIdValue)
-        expect(_.includes(accepts, req.accepts()[0])).to.be.true
+        expect(traceId).toEqual(traceIdValue)
+        expect(_.includes(accepts, req.accepts()[0])).toEqual(true)
         tracerMwCall()
         next()
     }
@@ -225,8 +226,8 @@ describe('webServer adapter', () => {
                 }
             }).then((response) => {
                 const { status } = response
-                expect(status).to.equal(200)
-                expect(acceptCheckMwCall.calledOnce).to.be.true
+                expect(status).toEqual(200)
+                expect(acceptCheckMwCall.calledOnce).toEqual(true)
                 next(null, null)
             })
         }
@@ -253,10 +254,10 @@ describe('webServer adapter', () => {
                 }
             }).catch((err) => {
                 const { status, data } = err.response
-                expect(status).to.equal(501)
-                expect(data).to.eql({ error: 'The endpoint is either not implemented or `operationId` is ignored' })
-                expect(acceptCheckMwCall.calledOnce).to.be.true
-                expect(tracerMwCall.calledOnce).to.be.true
+                expect(status).toEqual(501)
+                expect(data).toEqual({ error: 'The endpoint is either not implemented or `operationId` is ignored' })
+                expect(acceptCheckMwCall.calledOnce).toEqual(true)
+                expect(tracerMwCall.calledOnce).toEqual(true)
                 next(null, null)
             })
         }
@@ -283,9 +284,9 @@ describe('webServer adapter', () => {
                 }
             }).then((response) => {
                 const { status } = response
-                expect(status).to.equal(200)
-                expect(acceptCheckMwCall.calledOnce).to.be.true
-                expect(tracerMwCall.calledOnce).to.be.true
+                expect(status).toEqual(200)
+                expect(acceptCheckMwCall.calledOnce).toEqual(true)
+                expect(tracerMwCall.calledOnce).toEqual(true)
                 next(null, null)
             })
         }
@@ -312,9 +313,9 @@ describe('webServer adapter', () => {
                 }
             }).then((response) => {
                 const { status } = response
-                expect(status).to.equal(200)
-                expect(acceptCheckMwCall.calledOnce).to.be.true
-                expect(tracerMwCall.calledOnce).to.be.true
+                expect(status).toEqual(200)
+                expect(acceptCheckMwCall.calledOnce).toEqual(true)
+                expect(tracerMwCall.calledOnce).toEqual(true)
                 next(null, null)
             })
         }
@@ -341,10 +342,10 @@ describe('webServer adapter', () => {
                 }
             }).catch((err) => {
                 const { status, data } = err.response
-                expect(status).to.equal(501)
-                expect(data).to.eql({ error: 'The endpoint is either not implemented or `operationId` is ignored' })
-                expect(acceptCheckMwCall.calledOnce).to.be.true
-                expect(tracerMwCall.calledOnce).to.be.true
+                expect(status).toEqual(501)
+                expect(data).toEqual({ error: 'The endpoint is either not implemented or `operationId` is ignored' })
+                expect(acceptCheckMwCall.calledOnce).toEqual(true)
+                expect(tracerMwCall.calledOnce).toEqual(true)
                 next(null, null)
             })
         }
@@ -443,8 +444,8 @@ describe('webServer adapter', () => {
                             headers
                         )}, data: ${JSON.stringify(data)}`
                     )
-                    expect(status).to.equal(503)
-                    expect(statusText).to.equal('Service Unavailable')
+                    expect(status).toEqual(503)
+                    expect(statusText).toEqual('Service Unavailable')
                     next(null, null)
                 })
         }
@@ -472,10 +473,10 @@ describe('webServer adapter', () => {
             })
                 .then((response) => {
                     const { status, data } = response
-                    expect(status).to.equal(200)
-                    expect(data).to.equal('')
-                    expect(acceptCheckMwCall.calledOnce).to.be.true
-                    expect(tracerMwCall.calledOnce).to.be.true
+                    expect(status).toEqual(200)
+                    expect(data).toEqual('')
+                    expect(acceptCheckMwCall.calledOnce).toEqual(true)
+                    expect(tracerMwCall.calledOnce).toEqual(true)
                     next(null, null)
                 })
                 .catch((err) => next(null, null))
@@ -503,11 +504,11 @@ describe('webServer adapter', () => {
                 }
             }).then((response) => {
                 const { status, statusText, data } = response
-                expect(status).to.equal(200)
-                expect(statusText).to.equal('OK')
-                expect(data).to.eql({ identity: 'Universe', meaning: 42 })
-                expect(acceptCheckMwCall.calledOnce).to.be.true
-                expect(tracerMwCall.calledOnce).to.be.true
+                expect(status).toEqual(200)
+                expect(statusText).toEqual('OK')
+                expect(data).toEqual({ identity: 'Universe', meaning: 42 })
+                expect(acceptCheckMwCall.calledOnce).toEqual(true)
+                expect(tracerMwCall.calledOnce).toEqual(true)
                 next(null, null)
             })
         }
@@ -534,11 +535,11 @@ describe('webServer adapter', () => {
                 }
             }).then((response) => {
                 const { status, statusText, data } = response
-                expect(status).to.equal(200)
-                expect(statusText).to.equal('OK')
-                expect(data).to.equal('The meaning of Universe is 42')
-                expect(acceptCheckMwCall.calledOnce).to.be.true
-                expect(tracerMwCall.calledOnce).to.be.true
+                expect(status).toEqual(200)
+                expect(statusText).toEqual('OK')
+                expect(data).toEqual('The meaning of Universe is 42')
+                expect(acceptCheckMwCall.calledOnce).toEqual(true)
+                expect(tracerMwCall.calledOnce).toEqual(true)
                 next(null, null)
             })
         }
@@ -570,8 +571,8 @@ describe('webServer adapter', () => {
                         headers
                     )}, data: ${JSON.stringify(data)}`
                 )
-                expect(status).to.equal(415)
-                expect(statusText).to.equal('Unsupported Media Type')
+                expect(status).toEqual(415)
+                expect(statusText).toEqual('Unsupported Media Type')
                 next(null, null)
             })
         }
@@ -599,11 +600,11 @@ describe('webServer adapter', () => {
                 }
             }).then((response) => {
                 const { status, statusText, data } = response
-                expect(status).to.equal(200)
-                expect(statusText).to.equal('OK')
-                expect(data).to.eql({ identity: 'Universe', meaning: 42 })
-                expect(acceptCheckMwCall.calledOnce).to.be.true
-                expect(tracerMwCall.calledOnce).to.be.true
+                expect(status).toEqual(200)
+                expect(statusText).toEqual('OK')
+                expect(data).toEqual({ identity: 'Universe', meaning: 42 })
+                expect(acceptCheckMwCall.calledOnce).toEqual(true)
+                expect(tracerMwCall.calledOnce).toEqual(true)
                 next(null, null)
             })
         }
@@ -632,8 +633,8 @@ describe('webServer adapter', () => {
             }).catch((error) => {
                 const { status, statusText, headers } = error.response
                 container.logger.error(`status: ${status}, ${statusText}, headers: ${JSON.stringify(headers)}`)
-                expect(status).to.equal(404)
-                expect(statusText).to.equal('Not Found')
+                expect(status).toEqual(404)
+                expect(statusText).toEqual('Not Found')
                 next(null, null)
             })
         }
@@ -688,10 +689,10 @@ describe('webServer adapter', () => {
                 container.logger.debug(
                     `axios.response: ${status}, headers: ${JSON.stringify(headers)}, data: ${JSON.stringify(body)}}`
                 )
-                expect(status).to.equal(200)
-                expect(jsonBodyObj).to.eql(body)
-                expect(acceptCheckMwCall.calledOnce).to.be.true
-                expect(tracerMwCall.calledOnce).to.be.true
+                expect(status).toEqual(200)
+                expect(jsonBodyObj).toEqual(body)
+                expect(acceptCheckMwCall.calledOnce).toEqual(true)
+                expect(tracerMwCall.calledOnce).toEqual(true)
                 next(null, null)
             })
         }
@@ -742,10 +743,10 @@ describe('webServer adapter', () => {
                 const { status, headers, data } = response
                 const body = data
                 container.logger.debug(`axios.response: ${status}, headers: ${JSON.stringify(headers)}, data: ${body}}`)
-                expect(status).to.equal(200)
-                expect(xmlBodyStr).to.eql(body)
-                expect(acceptCheckMwCall.calledOnce).to.be.true
-                expect(tracerMwCall.calledOnce).to.be.true
+                expect(status).toEqual(200)
+                expect(xmlBodyStr).toEqual(body)
+                expect(acceptCheckMwCall.calledOnce).toEqual(true)
+                expect(tracerMwCall.calledOnce).toEqual(true)
                 next(null, null)
             })
         }

@@ -1,6 +1,6 @@
 import path from 'path'
 import _ from 'lodash'
-import { expect } from 'chai'
+import expect from 'expect'
 import { determineMediaType } from './mocking'
 import { loadOas } from 'rest-tool-common'
 
@@ -38,7 +38,7 @@ describe('mocking', () => {
             (mapping) =>
                 expect(
                     determineMediaType(dummyContainer, getEndpoint('get', '/test/endpoint-with-examples'), mapping[0])
-                ).to.equal(mapping[1])
+                ).toEqual(mapping[1])
         )
 
         done()

@@ -1,6 +1,6 @@
 import { addLogger, mergeConfig, removeSignalHandlers, catchExitSignals, npacStart } from 'npac'
 import sinon from 'sinon'
-import { expect } from 'chai'
+import expect from 'expect'
 import defaults from './config'
 import * as server from './index'
 import * as nats from 'npac-nats-adapter'
@@ -120,9 +120,9 @@ describe('webServer adapter with parsing enabled', () => {
             }).then((response) => {
                 const { status, statusText, data } = response
 
-                expect(status).to.equal(200)
-                expect(statusText).to.equal('OK')
-                expect(data).to.eql({ identity: 'Universe', meaning: 42 })
+                expect(status).toEqual(200)
+                expect(statusText).toEqual('OK')
+                expect(data).toEqual({ identity: 'Universe', meaning: 42 })
 
                 next(null, null)
             })
@@ -158,9 +158,9 @@ describe('webServer adapter with parsing enabled', () => {
             }).then((response) => {
                 const { status, statusText, data } = response
 
-                expect(status).to.equal(200)
-                expect(statusText).to.equal('OK')
-                expect(data).to.eql({
+                expect(status).toEqual(200)
+                expect(statusText).toEqual('OK')
+                expect(data).toEqual({
                     starwars: {
                         character: [{ $: { name: 'Luke Skywalker' } }, { $: { name: 'Darth Vader' } }]
                     }
@@ -196,9 +196,9 @@ describe('webServer adapter with parsing enabled', () => {
             }).then((response) => {
                 const { status, statusText, data } = response
 
-                expect(status).to.equal(200)
-                expect(statusText).to.equal('OK')
-                expect(data).to.eql({ identity: 'Universe', meaning: '42' })
+                expect(status).toEqual(200)
+                expect(statusText).toEqual('OK')
+                expect(data).toEqual({ identity: 'Universe', meaning: '42' })
 
                 next(null, null)
             })
@@ -277,9 +277,9 @@ describe('webServer adapter with only raw parsing', () => {
             }).then((response) => {
                 const { status, statusText, data } = response
 
-                expect(status).to.equal(200)
-                expect(statusText).to.equal('OK')
-                expect(data).to.eql({ identity: 'Universe', meaning: 42 })
+                expect(status).toEqual(200)
+                expect(statusText).toEqual('OK')
+                expect(data).toEqual({ identity: 'Universe', meaning: 42 })
                 next(null, null)
             })
         }

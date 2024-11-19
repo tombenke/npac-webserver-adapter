@@ -1,5 +1,5 @@
 import path from 'path'
-import { expect } from 'chai'
+import expect from 'expect'
 import config from './config'
 
 before((done) => {
@@ -46,7 +46,7 @@ describe('server/config', () => {
         }
 
         const defaults = config
-        expect(defaults).to.eql(expected)
+        expect(defaults).toEqual(expected)
         done()
     })
 })
